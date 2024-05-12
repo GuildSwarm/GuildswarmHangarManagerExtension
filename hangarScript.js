@@ -225,12 +225,6 @@ document.addEventListener('click', function (e) {
 
 const retryLimit = 5
 const statusCodesRetry = [404, 408, 413, 429, 500, 502, 503, 504]
-const myHangar = []
-const myHangarCategory = []
-const myHangarLog = []
-const myBuyBack = []
-const myBuyBackCategory = []
-const myCreditLog = []
 const categories = [
   {
     id: 'game_package',
@@ -269,12 +263,7 @@ const categories = [
   }
 ]
 
-let authToken
-let actualCurrency
-let actualStoreCredits = 0
-let quantityBuyBackToken = 0
-
-const getCategoryHangarElements = async () => {
+const getCategoryHangarElements = async (myHangarCategory) => {
   await Promise.all(
     categories.map(async (category) => {
       let actualPage = 1
@@ -327,7 +316,7 @@ const fetchCategory = async (category, actualPage) => {
   }
 }
 
-const getHangarElements = async () => {
+const getHangarElements = async (myHangarCategory, myHangar) => {
   let actualPage = 1
   let totalPages = 1
   let hangarPosition = 1
@@ -550,7 +539,7 @@ const fetchHangarLog = async (actualPage) => {
   }
 }
 
-const getHangarLogElements = async () => {
+const getHangarLogElements = async (myHangarLog) => {
   let actualPage = 1
   let totalPages = 1
 
@@ -596,7 +585,7 @@ const getHangarLogElements = async () => {
   }
 }
 
-const getBuyBackElements = async () => {
+const getBuyBackElements = async (authToken, quantityBuyBackToken, myBuyBackCategory, myBuyBack) => {
   let actualPage = 1
   let totalPages = 1
   let hangarPosition = 1
@@ -951,7 +940,7 @@ const getInitShipUpgrade = async (authToken, fromId, toId) => {
   }
 }
 
-const getCategoryBuyBackElements = async () => {
+const getCategoryBuyBackElements = async (myBuyBackCategory) => {
   await Promise.all(
     categories.map(async (category) => {
       let actualPage = 1
@@ -1045,7 +1034,7 @@ const fetchCreditLog = async (actualPage) => {
   }
 }
 
-const getCreditLogElements = async () => {
+const getCreditLogElements = async (myCreditLog) => {
   let actualPage = 1
   let totalPages = 1
 
@@ -1090,7 +1079,14 @@ const getCreditLogElements = async () => {
   }
 }
 
-const downloadFile = () => {
+const downloadFile = (
+  myHangar,
+  myHangarLog,
+  myBuyBack,
+  myCreditLog,
+  quantityBuyBackToken,
+  actualStoreCredits
+) => {
   const blob = new Blob(
     [
       JSON.stringify({
@@ -1116,6 +1112,17 @@ const downloadFile = () => {
 }
 
 const downloadHangar = async () => {
+  const myHangar = []
+  const myHangarCategory = []
+  const myHangarLog = []
+  const myBuyBack = []
+  const myBuyBackCategory = []
+  const myCreditLog = []
+  let actualStoreCredits = 0
+  let quantityBuyBackToken = 0
+  let authToken
+  let actualCurrency
+
   try {
     guildswarmResetUi()
     authToken = await setAuthToken()
@@ -1125,14 +1132,20 @@ const downloadHangar = async () => {
     await setCurrency('USD')
     progressBarValue += 5
     guildswarmMoveProgressBar(progressBarValue)
-    await getCategoryHangarElements()
-    await getHangarElements()
-    await getHangarLogElements()
-    await getCategoryBuyBackElements()
-    await getBuyBackElements()
-    await getCreditLogElements()
+    await getCategoryHangarElements(myHangarCategory)
+    await getHangarElements(myHangarCategory, myHangar)
+    await getHangarLogElements(myHangarLog)
+    await getCategoryBuyBackElements(myBuyBackCategory)
+    await getBuyBackElements(authToken, quantityBuyBackToken, myBuyBackCategory, myBuyBack)
+    await getCreditLogElements(myCreditLog)
     await setCurrency(actualCurrency)
-    downloadFile()
+    downloadFile(
+      myHangar,
+      myHangarLog,
+      myBuyBack,
+      myCreditLog,
+      quantityBuyBackToken,
+      actualStoreCredits)
     finishProcessSuccess()
   } catch (error) {
     console.error('Error:', error)
