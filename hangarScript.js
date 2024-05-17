@@ -1114,12 +1114,12 @@ const downloadFile = (
 const downloadHangar = async () => {
   const myHangar = []
   const myHangarCategory = []
-  const myHangarLog = []
+  // const myHangarLog = []
   const myBuyBack = []
   const myBuyBackCategory = []
-  const myCreditLog = []
+  // const myCreditLog = []
   let actualStoreCredits = 0
-  let quantityBuyBackToken = 0
+  const quantityBuyBackToken = 0
   let authToken
   let actualCurrency
 
@@ -1134,16 +1134,16 @@ const downloadHangar = async () => {
     guildswarmMoveProgressBar(progressBarValue)
     await getCategoryHangarElements(myHangarCategory)
     await getHangarElements(myHangarCategory, myHangar)
-    await getHangarLogElements(myHangarLog)
+    // await getHangarLogElements(myHangarLog)
     await getCategoryBuyBackElements(myBuyBackCategory)
     await getBuyBackElements(authToken, quantityBuyBackToken, myBuyBackCategory, myBuyBack)
-    await getCreditLogElements(myCreditLog)
+    // await getCreditLogElements(myCreditLog)
     await setCurrency(actualCurrency)
     downloadFile(
       myHangar,
-      myHangarLog,
+      // myHangarLog,
       myBuyBack,
-      myCreditLog,
+      // myCreditLog,
       quantityBuyBackToken,
       actualStoreCredits)
     finishProcessSuccess()
