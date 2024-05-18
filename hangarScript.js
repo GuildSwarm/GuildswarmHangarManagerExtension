@@ -517,11 +517,31 @@ const fetchUpgradeLog = async (pledgeId) => {
 //     'x-rsi-token',
 //     document.cookie.match('(^|;)\\s*' + 'Rsi-Token' + '\\s*=\\s*([^;]+)')?.pop()
 //   )
+// const fetchHangarLog = async (actualPage) => {
+//   const myHeaders = new Headers()
+//   myHeaders.append('content-type', 'application/json')
+//   myHeaders.append(
+//     'x-rsi-token',
+//     document.cookie.match('(^|;)\\s*' + 'Rsi-Token' + '\\s*=\\s*([^;]+)')?.pop()
+//   )
 
 //   const raw = JSON.stringify({
 //     page: actualPage
 //   })
+//   const raw = JSON.stringify({
+//     page: actualPage
+//   })
 
+//   try {
+//     const response = await ky.post('https://robertsspaceindustries.com/api/account/pledgeLog', {
+//       headers: myHeaders,
+//       body: raw,
+//       retry: {
+//         limit: retryLimit,
+//         methods: ['post'],
+//         statusCodes: statusCodesRetry
+//       }
+//     }).json()
 //   try {
 //     const response = await ky.post('https://robertsspaceindustries.com/api/account/pledgeLog', {
 //       headers: myHeaders,
@@ -538,7 +558,15 @@ const fetchUpgradeLog = async (pledgeId) => {
 //     throw new Error(`Error on request: ${error.message}`)
 //   }
 // }
+//     return response.data
+//   } catch (error) {
+//     throw new Error(`Error on request: ${error.message}`)
+//   }
+// }
 
+// const getHangarLogElements = async (myHangarLog) => {
+//   let actualPage = 1
+//   let totalPages = 1
 // const getHangarLogElements = async (myHangarLog) => {
 //   let actualPage = 1
 //   let totalPages = 1
@@ -548,7 +576,18 @@ const fetchUpgradeLog = async (pledgeId) => {
 //     totalPages = hangarLogData.pagecount
 //     const temporalHangarLog = document.createElement('temporalHangarLog')
 //     temporalHangarLog.innerHTML = hangarLogData.rendered
+//   while (actualPage <= totalPages) {
+//     const hangarLogData = await fetchHangarLog(actualPage)
+//     totalPages = hangarLogData.pagecount
+//     const temporalHangarLog = document.createElement('temporalHangarLog')
+//     temporalHangarLog.innerHTML = hangarLogData.rendered
 
+//     temporalHangarLog
+//       .querySelector('div.pledge-log-entry')
+//       .textContent.split(
+//         temporalHangarLog.querySelector('div.pledge-log-entry span.important')
+//           .textContent
+//       )
 //     temporalHangarLog
 //       .querySelector('div.pledge-log-entry')
 //       .textContent.split(
@@ -575,9 +614,35 @@ const fetchUpgradeLog = async (pledgeId) => {
 //           .replace(/Gifted to .*?[,\s]/, 'Gifted to ')
 //       })
 //     })
+//     const arrayDiv = temporalHangarLog.querySelectorAll(
+//       'div.pledge-log-entry'
+//     )
+//     arrayDiv.forEach((div) => {
+//       myHangarLog.push({
+//         date: div.textContent
+//           .split(div.querySelector('span.important').textContent)[0]
+//           .replace('\n \n ', '')
+//           .replace(' - ', '')
+//           .trim(),
+//         name: div.querySelector('span.important').textContent,
+//         extra: div.textContent
+//           .split(div.querySelector('span.important').textContent)[1]
+//           .replace('\n \n', '')
+//           .trim()
+//           .replace(/by .*?[,\s]/, 'by ')
+//           .replace(/Gifted to .*?[,\s]/, 'Gifted to ')
+//       })
+//     })
 
 //     temporalHangarLog.remove()
+//     temporalHangarLog.remove()
 
+//     progressBarValue += 10 / totalPages
+//     progressBarValue = Math.min(progressBarValue, 45)
+//     guildswarmMoveProgressBar(progressBarValue)
+//     actualPage++
+//   }
+// }
 //     progressBarValue += 10 / totalPages
 //     progressBarValue = Math.min(progressBarValue, 45)
 //     guildswarmMoveProgressBar(progressBarValue)
@@ -1012,11 +1077,31 @@ const fetchBuyBackCategory = async (category, actualPage) => {
 //     'x-rsi-token',
 //     document.cookie.match('(^|;)\\s*' + 'Rsi-Token' + '\\s*=\\s*([^;]+)')?.pop()
 //   )
+// const fetchCreditLog = async (actualPage) => {
+//   const myHeaders = new Headers()
+//   myHeaders.append('content-type', 'application/json')
+//   myHeaders.append(
+//     'x-rsi-token',
+//     document.cookie.match('(^|;)\\s*' + 'Rsi-Token' + '\\s*=\\s*([^;]+)')?.pop()
+//   )
 
 //   const raw = JSON.stringify({
 //     page: actualPage
 //   })
+//   const raw = JSON.stringify({
+//     page: actualPage
+//   })
 
+//   try {
+//     const response = await ky.post('https://robertsspaceindustries.com/api/account/creditLog', {
+//       headers: myHeaders,
+//       body: raw,
+//       retry: {
+//         limit: retryLimit,
+//         methods: ['post'],
+//         statusCodes: statusCodesRetry
+//       }
+//     }).json()
 //   try {
 //     const response = await ky.post('https://robertsspaceindustries.com/api/account/creditLog', {
 //       headers: myHeaders,
@@ -1033,7 +1118,15 @@ const fetchBuyBackCategory = async (category, actualPage) => {
 //     throw new Error(`Error on request: ${error.message}`)
 //   }
 // }
+//     return response.data
+//   } catch (error) {
+//     throw new Error(`Error on request: ${error.message}`)
+//   }
+// }
 
+// const getCreditLogElements = async (myCreditLog) => {
+//   let actualPage = 1
+//   let totalPages = 1
 // const getCreditLogElements = async (myCreditLog) => {
 //   let actualPage = 1
 //   let totalPages = 1
@@ -1043,7 +1136,18 @@ const fetchBuyBackCategory = async (category, actualPage) => {
 //     totalPages = creditLogData.pagecount
 //     const temporalCreditLog = document.createElement('temporalHangarLog')
 //     temporalCreditLog.innerHTML = creditLogData.rendered
+//   while (actualPage <= totalPages) {
+//     const creditLogData = await fetchCreditLog(actualPage)
+//     totalPages = creditLogData.pagecount
+//     const temporalCreditLog = document.createElement('temporalHangarLog')
+//     temporalCreditLog.innerHTML = creditLogData.rendered
 
+//     temporalCreditLog
+//       .querySelector('div.pledge-log-entry')
+//       .textContent.split(
+//         temporalCreditLog.querySelector('div.pledge-log-entry span.important')
+//           .textContent
+//       )
 //     temporalCreditLog
 //       .querySelector('div.pledge-log-entry')
 //       .textContent.split(
@@ -1069,9 +1173,34 @@ const fetchBuyBackCategory = async (category, actualPage) => {
 //           .trim()
 //       })
 //     })
+//     const arrayDiv = temporalCreditLog.querySelectorAll(
+//       'div.pledge-log-entry'
+//     )
+//     arrayDiv.forEach((div) => {
+//       myCreditLog.push({
+//         date: div.textContent
+//           .split(div.querySelector('span.important').textContent)[0]
+//           .replace('\n \n ', '')
+//           .replace(' - ', '')
+//           .trim(),
+//         name: div.querySelector('span.important').textContent,
+//         extra: div.textContent
+//           .split(div.querySelector('span.important').textContent)[1]
+//           .replace('\n \n', '')
+//           .replace('- ', '')
+//           .trim()
+//       })
+//     })
 
 //     temporalCreditLog.remove()
+//     temporalCreditLog.remove()
 
+//     progressBarValue += 10 / totalPages
+//     progressBarValue = Math.min(progressBarValue, 95)
+//     guildswarmMoveProgressBar(progressBarValue)
+//     actualPage++
+//   }
+// }
 //     progressBarValue += 10 / totalPages
 //     progressBarValue = Math.min(progressBarValue, 95)
 //     guildswarmMoveProgressBar(progressBarValue)
@@ -1082,7 +1211,9 @@ const fetchBuyBackCategory = async (category, actualPage) => {
 const downloadFile = (
   myHangar,
   // myHangarLog,
+  // myHangarLog,
   myBuyBack,
+  // myCreditLog,
   // myCreditLog,
   quantityBuyBackToken,
   actualStoreCredits
@@ -1093,7 +1224,9 @@ const downloadFile = (
         version: chrome.runtime.getManifest().version,
         myHangar,
         // myHangarLog,
+        // myHangarLog,
         myBuyBack,
+        // myCreditLog,
         // myCreditLog,
         quantityBuyBackToken,
         actualStoreCredits
