@@ -1,4 +1,9 @@
 import ky from 'ky'
+import CryptoJS from 'crypto-js'
+
+const hash = (string) => {
+  return CryptoJS.SHA256(string).toString(CryptoJS.enc.Hex)
+}
 
 const customCss = `
 <style type="text/css">
@@ -371,18 +376,18 @@ const getHangarElements = async (myHangarCategory, myHangar) => {
 
       const gifteable = li.querySelector('a.gift') !== null
       const exchangeable =
-          li.querySelector('a.reclaim') !== null
-      const pledgeId = li.querySelector('input.js-pledge-id').value
+        li.querySelector('a.reclaim') !== null
+      let pledgeId = li.querySelector('input.js-pledge-id').value
       const findCategory = myHangarCategory.find((hangarCategory) => {
         return pledgeId === hangarCategory.pledgeId
       })
       const category =
-          findCategory === undefined
-            ? { id: 'undefined', name: 'Whithout Category' }
-            : {
-                id: findCategory.category.id,
-                name: findCategory.category.name
-              }
+        findCategory === undefined
+          ? { id: 'undefined', name: 'Whithout Category' }
+          : {
+              id: findCategory.category.id,
+              name: findCategory.category.name
+            }
 
       const arrayUpgradedData = []
       const itemsUpgraded = li.querySelector('h3.upgraded')
@@ -424,7 +429,7 @@ const getHangarElements = async (myHangarCategory, myHangar) => {
       name = name.replace(regexCoupon, 'Coupon')
 
       const newElement = {
-        id: pledgeId,
+        id: hash(pledgeId),
         name,
         value: li
           .querySelector('input.js-pledge-value')
@@ -446,14 +451,15 @@ const getHangarElements = async (myHangarCategory, myHangar) => {
         exchangeable,
         category,
         urlHangar:
-            'https://robertsspaceindustries.com/account/pledges?page=' +
-            hangarPosition +
-            '&pagesize=1',
+          'https://robertsspaceindustries.com/account/pledges?page=' +
+          hangarPosition +
+          '&pagesize=1',
         upgradesApplied: arrayUpgradedData
       }
 
       myHangar.push(newElement)
       hangarPosition++
+      pledgeId = null
     }
 
     temporal.remove()
@@ -509,146 +515,6 @@ const fetchUpgradeLog = async (pledgeId) => {
     throw new Error(`Error on request: ${error.message}`)
   }
 }
-
-// const fetchHangarLog = async (actualPage) => {
-//   const myHeaders = new Headers()
-//   myHeaders.append('content-type', 'application/json')
-//   myHeaders.append(
-//     'x-rsi-token',
-//     document.cookie.match('(^|;)\\s*' + 'Rsi-Token' + '\\s*=\\s*([^;]+)')?.pop()
-//   )
-// const fetchHangarLog = async (actualPage) => {
-//   const myHeaders = new Headers()
-//   myHeaders.append('content-type', 'application/json')
-//   myHeaders.append(
-//     'x-rsi-token',
-//     document.cookie.match('(^|;)\\s*' + 'Rsi-Token' + '\\s*=\\s*([^;]+)')?.pop()
-//   )
-
-//   const raw = JSON.stringify({
-//     page: actualPage
-//   })
-//   const raw = JSON.stringify({
-//     page: actualPage
-//   })
-
-//   try {
-//     const response = await ky.post('https://robertsspaceindustries.com/api/account/pledgeLog', {
-//       headers: myHeaders,
-//       body: raw,
-//       retry: {
-//         limit: retryLimit,
-//         methods: ['post'],
-//         statusCodes: statusCodesRetry
-//       }
-//     }).json()
-//   try {
-//     const response = await ky.post('https://robertsspaceindustries.com/api/account/pledgeLog', {
-//       headers: myHeaders,
-//       body: raw,
-//       retry: {
-//         limit: retryLimit,
-//         methods: ['post'],
-//         statusCodes: statusCodesRetry
-//       }
-//     }).json()
-
-//     return response.data
-//   } catch (error) {
-//     throw new Error(`Error on request: ${error.message}`)
-//   }
-// }
-//     return response.data
-//   } catch (error) {
-//     throw new Error(`Error on request: ${error.message}`)
-//   }
-// }
-
-// const getHangarLogElements = async (myHangarLog) => {
-//   let actualPage = 1
-//   let totalPages = 1
-// const getHangarLogElements = async (myHangarLog) => {
-//   let actualPage = 1
-//   let totalPages = 1
-
-//   while (actualPage <= totalPages) {
-//     const hangarLogData = await fetchHangarLog(actualPage)
-//     totalPages = hangarLogData.pagecount
-//     const temporalHangarLog = document.createElement('temporalHangarLog')
-//     temporalHangarLog.innerHTML = hangarLogData.rendered
-//   while (actualPage <= totalPages) {
-//     const hangarLogData = await fetchHangarLog(actualPage)
-//     totalPages = hangarLogData.pagecount
-//     const temporalHangarLog = document.createElement('temporalHangarLog')
-//     temporalHangarLog.innerHTML = hangarLogData.rendered
-
-//     temporalHangarLog
-//       .querySelector('div.pledge-log-entry')
-//       .textContent.split(
-//         temporalHangarLog.querySelector('div.pledge-log-entry span.important')
-//           .textContent
-//       )
-//     temporalHangarLog
-//       .querySelector('div.pledge-log-entry')
-//       .textContent.split(
-//         temporalHangarLog.querySelector('div.pledge-log-entry span.important')
-//           .textContent
-//       )
-
-//     const arrayDiv = temporalHangarLog.querySelectorAll(
-//       'div.pledge-log-entry'
-//     )
-//     arrayDiv.forEach((div) => {
-//       myHangarLog.push({
-//         date: div.textContent
-//           .split(div.querySelector('span.important').textContent)[0]
-//           .replace('\n \n ', '')
-//           .replace(' - ', '')
-//           .trim(),
-//         name: div.querySelector('span.important').textContent,
-//         extra: div.textContent
-//           .split(div.querySelector('span.important').textContent)[1]
-//           .replace('\n \n', '')
-//           .trim()
-//           .replace(/by .*?[,\s]/, 'by ')
-//           .replace(/Gifted to .*?[,\s]/, 'Gifted to ')
-//       })
-//     })
-//     const arrayDiv = temporalHangarLog.querySelectorAll(
-//       'div.pledge-log-entry'
-//     )
-//     arrayDiv.forEach((div) => {
-//       myHangarLog.push({
-//         date: div.textContent
-//           .split(div.querySelector('span.important').textContent)[0]
-//           .replace('\n \n ', '')
-//           .replace(' - ', '')
-//           .trim(),
-//         name: div.querySelector('span.important').textContent,
-//         extra: div.textContent
-//           .split(div.querySelector('span.important').textContent)[1]
-//           .replace('\n \n', '')
-//           .trim()
-//           .replace(/by .*?[,\s]/, 'by ')
-//           .replace(/Gifted to .*?[,\s]/, 'Gifted to ')
-//       })
-//     })
-
-//     temporalHangarLog.remove()
-//     temporalHangarLog.remove()
-
-//     progressBarValue += 10 / totalPages
-//     progressBarValue = Math.min(progressBarValue, 45)
-//     guildswarmMoveProgressBar(progressBarValue)
-//     actualPage++
-//   }
-// }
-//     progressBarValue += 10 / totalPages
-//     progressBarValue = Math.min(progressBarValue, 45)
-//     guildswarmMoveProgressBar(progressBarValue)
-//     actualPage++
-//   }
-// }
 
 const getBuyBackElements = async (authToken, quantityBuyBackToken, myBuyBackCategory, myBuyBack) => {
   let actualPage = 1
@@ -709,7 +575,7 @@ const getBuyBackElements = async (authToken, quantityBuyBackToken, myBuyBackCate
           addWarning(name)
         } else {
           ccuInfo = {
-            pledgeId: ccuElement.dataset.pledgeid,
+            pledgeId: hash(ccuElement.dataset.pledgeid),
             fromShipId: ccuElement.dataset.fromshipid,
             toShipId: ccuElement.dataset.toshipid,
             toSkuId: ccuElement.dataset.toskuid,
@@ -721,12 +587,12 @@ const getBuyBackElements = async (authToken, quantityBuyBackToken, myBuyBackCate
       }
 
       const available = element.parentElement.dataset.disabled === undefined
-      let link = null
+
       let elementData = null
       if (ccuElement === null) {
-        link = element.querySelector('a.holosmallbtn').href
+        let buyBackLink = element.querySelector('a.holosmallbtn').href
         if (available) {
-          const buyBackPledge = await fetchBuyBackPledge(link)
+          const buyBackPledge = await fetchBuyBackPledge(buyBackLink)
           const regex = /(<div class="wcontent clearfix">[\s\S]*?)<\/div>\s*<\/div>\s*<div class="store-country-selector international-bottom">/gm
           const buyBackDataData = regex.exec(buyBackPledge)[0]
           const temporalBuyBack = document.createElement('temporalBuyBack')
@@ -751,7 +617,9 @@ const getBuyBackElements = async (authToken, quantityBuyBackToken, myBuyBackCate
             alsoContainData.push(shipElement.textContent)
           })
 
+          let pledgeId = buyBackLink.replace(/[a-zA-Z\/]/g, '')
           elementData = {
+            pledgeId: hash(pledgeId),
             image: temporalBuyBack.querySelector('div.wcontent div.lcol img').src,
             title: temporalBuyBack.querySelector('h2.buy-back-title').textContent,
             price: temporalBuyBack.querySelector('div.wcontent div.lcol div.price strong.final-price').dataset.value,
@@ -760,13 +628,14 @@ const getBuyBackElements = async (authToken, quantityBuyBackToken, myBuyBackCate
             alsoContainData
           }
 
+          pledgeId = null
           temporalBuyBack.remove()
         }
+
+        buyBackLink = null
       }
 
-      if (link === null) {
-        link = `https://robertsspaceindustries.com/account/buy-back-pledges?page=${hangarPosition}&pagesize=1`
-      }
+      const link = `https://robertsspaceindustries.com/account/buy-back-pledges?page=${hangarPosition}&pagesize=1`
 
       const linkPledge = element.querySelector('div > a.holosmallbtn')
       let pledgeIdCategory
@@ -822,8 +691,8 @@ const getBuyBackElements = async (authToken, quantityBuyBackToken, myBuyBackCate
 const fetchBuyBack = async (actualPage) => {
   try {
     const response = await ky.get('https://robertsspaceindustries.com/account/buy-back-pledges?page=' +
-        actualPage +
-        '&pagesize=100',
+      actualPage +
+      '&pagesize=100',
     {
       retry: {
         limit: retryLimit,
@@ -1053,9 +922,9 @@ const getCategoryBuyBackElements = async (myBuyBackCategory) => {
 const fetchBuyBackCategory = async (category, actualPage) => {
   try {
     const response = await ky.get('https://robertsspaceindustries.com/account/buy-back-pledges?page=' +
-        actualPage +
-        '&pagesize=100' +
-        category.urlParameter,
+      actualPage +
+      '&pagesize=100' +
+      category.urlParameter,
     {
       retry: {
         limit: retryLimit,
@@ -1070,151 +939,9 @@ const fetchBuyBackCategory = async (category, actualPage) => {
   }
 }
 
-// const fetchCreditLog = async (actualPage) => {
-//   const myHeaders = new Headers()
-//   myHeaders.append('content-type', 'application/json')
-//   myHeaders.append(
-//     'x-rsi-token',
-//     document.cookie.match('(^|;)\\s*' + 'Rsi-Token' + '\\s*=\\s*([^;]+)')?.pop()
-//   )
-// const fetchCreditLog = async (actualPage) => {
-//   const myHeaders = new Headers()
-//   myHeaders.append('content-type', 'application/json')
-//   myHeaders.append(
-//     'x-rsi-token',
-//     document.cookie.match('(^|;)\\s*' + 'Rsi-Token' + '\\s*=\\s*([^;]+)')?.pop()
-//   )
-
-//   const raw = JSON.stringify({
-//     page: actualPage
-//   })
-//   const raw = JSON.stringify({
-//     page: actualPage
-//   })
-
-//   try {
-//     const response = await ky.post('https://robertsspaceindustries.com/api/account/creditLog', {
-//       headers: myHeaders,
-//       body: raw,
-//       retry: {
-//         limit: retryLimit,
-//         methods: ['post'],
-//         statusCodes: statusCodesRetry
-//       }
-//     }).json()
-//   try {
-//     const response = await ky.post('https://robertsspaceindustries.com/api/account/creditLog', {
-//       headers: myHeaders,
-//       body: raw,
-//       retry: {
-//         limit: retryLimit,
-//         methods: ['post'],
-//         statusCodes: statusCodesRetry
-//       }
-//     }).json()
-
-//     return response.data
-//   } catch (error) {
-//     throw new Error(`Error on request: ${error.message}`)
-//   }
-// }
-//     return response.data
-//   } catch (error) {
-//     throw new Error(`Error on request: ${error.message}`)
-//   }
-// }
-
-// const getCreditLogElements = async (myCreditLog) => {
-//   let actualPage = 1
-//   let totalPages = 1
-// const getCreditLogElements = async (myCreditLog) => {
-//   let actualPage = 1
-//   let totalPages = 1
-
-//   while (actualPage <= totalPages) {
-//     const creditLogData = await fetchCreditLog(actualPage)
-//     totalPages = creditLogData.pagecount
-//     const temporalCreditLog = document.createElement('temporalHangarLog')
-//     temporalCreditLog.innerHTML = creditLogData.rendered
-//   while (actualPage <= totalPages) {
-//     const creditLogData = await fetchCreditLog(actualPage)
-//     totalPages = creditLogData.pagecount
-//     const temporalCreditLog = document.createElement('temporalHangarLog')
-//     temporalCreditLog.innerHTML = creditLogData.rendered
-
-//     temporalCreditLog
-//       .querySelector('div.pledge-log-entry')
-//       .textContent.split(
-//         temporalCreditLog.querySelector('div.pledge-log-entry span.important')
-//           .textContent
-//       )
-//     temporalCreditLog
-//       .querySelector('div.pledge-log-entry')
-//       .textContent.split(
-//         temporalCreditLog.querySelector('div.pledge-log-entry span.important')
-//           .textContent
-//       )
-
-//     const arrayDiv = temporalCreditLog.querySelectorAll(
-//       'div.pledge-log-entry'
-//     )
-//     arrayDiv.forEach((div) => {
-//       myCreditLog.push({
-//         date: div.textContent
-//           .split(div.querySelector('span.important').textContent)[0]
-//           .replace('\n \n ', '')
-//           .replace(' - ', '')
-//           .trim(),
-//         name: div.querySelector('span.important').textContent,
-//         extra: div.textContent
-//           .split(div.querySelector('span.important').textContent)[1]
-//           .replace('\n \n', '')
-//           .replace('- ', '')
-//           .trim()
-//       })
-//     })
-//     const arrayDiv = temporalCreditLog.querySelectorAll(
-//       'div.pledge-log-entry'
-//     )
-//     arrayDiv.forEach((div) => {
-//       myCreditLog.push({
-//         date: div.textContent
-//           .split(div.querySelector('span.important').textContent)[0]
-//           .replace('\n \n ', '')
-//           .replace(' - ', '')
-//           .trim(),
-//         name: div.querySelector('span.important').textContent,
-//         extra: div.textContent
-//           .split(div.querySelector('span.important').textContent)[1]
-//           .replace('\n \n', '')
-//           .replace('- ', '')
-//           .trim()
-//       })
-//     })
-
-//     temporalCreditLog.remove()
-//     temporalCreditLog.remove()
-
-//     progressBarValue += 10 / totalPages
-//     progressBarValue = Math.min(progressBarValue, 95)
-//     guildswarmMoveProgressBar(progressBarValue)
-//     actualPage++
-//   }
-// }
-//     progressBarValue += 10 / totalPages
-//     progressBarValue = Math.min(progressBarValue, 95)
-//     guildswarmMoveProgressBar(progressBarValue)
-//     actualPage++
-//   }
-// }
-
 const downloadFile = (
   myHangar,
-  // myHangarLog,
-  // myHangarLog,
   myBuyBack,
-  // myCreditLog,
-  // myCreditLog,
   quantityBuyBackToken,
   actualStoreCredits
 ) => {
@@ -1223,11 +950,7 @@ const downloadFile = (
       JSON.stringify({
         version: chrome.runtime.getManifest().version,
         myHangar,
-        // myHangarLog,
-        // myHangarLog,
         myBuyBack,
-        // myCreditLog,
-        // myCreditLog,
         quantityBuyBackToken,
         actualStoreCredits
       })
@@ -1245,14 +968,12 @@ const downloadFile = (
 }
 
 const downloadHangar = async () => {
-  const myHangar = []
-  const myHangarCategory = []
-  // const myHangarLog = []
-  const myBuyBack = []
-  const myBuyBackCategory = []
-  // const myCreditLog = []
+  let myHangar = []
+  let myHangarCategory = []
+  let myBuyBack = []
+  let myBuyBackCategory = []
   let actualStoreCredits = 0
-  const quantityBuyBackToken = { value: 0 }
+  let quantityBuyBackToken = { value: 0 }
   let authToken
   let actualCurrency
 
@@ -1267,16 +988,12 @@ const downloadHangar = async () => {
     guildswarmMoveProgressBar(progressBarValue)
     await getCategoryHangarElements(myHangarCategory)
     await getHangarElements(myHangarCategory, myHangar)
-    // await getHangarLogElements(myHangarLog)
     await getCategoryBuyBackElements(myBuyBackCategory)
     await getBuyBackElements(authToken, quantityBuyBackToken, myBuyBackCategory, myBuyBack)
-    // await getCreditLogElements(myCreditLog)
     await setCurrency(actualCurrency)
     downloadFile(
       myHangar,
-      // myHangarLog,
       myBuyBack,
-      // myCreditLog,
       quantityBuyBackToken.value,
       actualStoreCredits)
     finishProcessSuccess()
@@ -1284,5 +1001,14 @@ const downloadHangar = async () => {
     console.error('Error:', error)
     guildswarmErrorProgressBar()
     guildswarmDisplayError()
+  } finally {
+    myHangar = null
+    myHangarCategory = null
+    myBuyBack = null
+    myBuyBackCategory = null
+    actualStoreCredits = null
+    quantityBuyBackToken = null
+    authToken = null
+    actualCurrency = null
   }
 }
