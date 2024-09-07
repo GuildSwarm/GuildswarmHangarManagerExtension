@@ -725,13 +725,7 @@ const fetchBuyBackPledge = async (buyBackLink) => {
 }
 
 const getCurrency = (pledgePage) => {
-  const regex = /<input type="hidden" name="currency" class="js-currency ty-js-currency-selector js-form-data" id="currency" value="(\w*)" \/>/g
-  const pledgePageData = regex.exec(pledgePage)
-  return pledgePageData[1]
-}
-
-const getStoreCredits = (pledgePage) => {
-  const regex = /<span class="c-account-sidebar__profile-info-credits-amount c-account-sidebar__profile-info-credits-amount--pledge">\s*\$([\w\W]*) USD\s*<\/span>/g
+  const regex = /\s*"selected":\s{\s*"language":\s"\w*",\s*"currency":\s"(\w*)"\s*}/g
   const pledgePageData = regex.exec(pledgePage)
   return pledgePageData[1]
 }
@@ -982,7 +976,7 @@ const downloadHangar = async () => {
     authToken = await setAuthToken()
     const pledgePage = await getPledgePage()
     actualCurrency = getCurrency(pledgePage)
-    actualStoreCredits = getStoreCredits(pledgePage)
+    actualStoreCredits = 0
     await setCurrency('USD')
     progressBarValue += 5
     guildswarmMoveProgressBar(progressBarValue)
