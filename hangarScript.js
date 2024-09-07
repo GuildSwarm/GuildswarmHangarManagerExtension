@@ -976,7 +976,7 @@ const downloadHangar = async () => {
     authToken = await setAuthToken()
     const pledgePage = await getPledgePage()
     actualCurrency = getCurrency(pledgePage)
-    actualStoreCredits = 0
+    actualStoreCredits = '0.00'
     await setCurrency('USD')
     progressBarValue += 5
     guildswarmMoveProgressBar(progressBarValue)
