@@ -725,7 +725,7 @@ const fetchBuyBackPledge = async (buyBackLink) => {
 }
 
 const getCurrency = (pledgePage) => {
-  const regex = /\s*"selected":\s{\s*"language":\s"\w*",\s*"currency":\s"(\w*)"\s*}/g
+  const regex = /'currency':\s"(\w*)"/g
   const pledgePageData = regex.exec(pledgePage)
   return pledgePageData[1]
 }
