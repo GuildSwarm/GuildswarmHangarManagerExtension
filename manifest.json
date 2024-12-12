@@ -11,10 +11,13 @@
         "scripting",
         "tabs"
     ],
-    "background": {
-        "service_worker": "background.js"
-    },
     "host_permissions": [
-        "https://robertsspaceindustries.com/account/pledges"
-    ]
+        "https://robertsspaceindustries.com/*"
+    ],
+    "background": {
+        "service_worker": "index.js"
+    },
+    "externally_connectable": {
+        "matches": ["http://localhost/*", "https://guildswarm/*"]
+    }
 }

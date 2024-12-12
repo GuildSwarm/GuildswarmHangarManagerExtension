@@ -1,10 +1,17 @@
+const path = require('path')
+const glob = require('glob')
 const TerserPlugin = require('terser-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = {
-  entry: './hangarScript.js',
+  entry: glob.sync('./background/**/*.js').reduce((entries, file) => {
+    const entryName = path.relative('./background', file).replace(/\.js$/, '')
+    entries[entryName] = file
+    return entries
+  }, {}),
   output: {
-    filename: 'hangarScript.js'
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].js'
   },
   optimization: {
     minimize: true,
@@ -14,7 +21,7 @@ module.exports = {
         terserOptions: {
           mangle: true,
           compress: {
-            drop_console: true
+            drop_console: false
           }
         }
       })
@@ -24,7 +31,6 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: './manifest.json', to: 'manifest.json' },
-        { from: './background.js', to: 'background.js' },
         { from: './guildswarm_128.png', to: 'guildswarm_128.png' }
       ]
     })
