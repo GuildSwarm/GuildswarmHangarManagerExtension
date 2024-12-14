@@ -9,15 +9,22 @@
     "permissions": [
         "activeTab",
         "scripting",
-        "tabs"
+        "cookies"
     ],
     "host_permissions": [
         "https://robertsspaceindustries.com/*"
     ],
     "background": {
-        "service_worker": "index.js"
+        "service_worker": "background/index.js"
     },
     "externally_connectable": {
         "matches": ["http://localhost/*", "https://guildswarm/*"]
-    }
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://robertsspaceindustries.com/account/pledges*"],
+            "js": ["content/contentScript.js"],
+            "css": ["content/styles.css"]
+        }
+    ]
 }

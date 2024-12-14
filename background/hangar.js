@@ -42,7 +42,7 @@ const categories = [
   }
 ]
 
-export const getHangarPage = async (page) => {
+export const getHangarPage = async (rsiToken, page) => {
   const hangarData = await fetchHangarPage(page) // Suponiendo que ya tienes esta función para obtener HTML
   const $ = cheerio.load(hangarData) // Carga el HTML en cheerio
 
@@ -53,7 +53,6 @@ export const getHangarPage = async (page) => {
 
   const arrayLi = ulElement.find('li')
   const results = []
-
   arrayLi.each(async (index, li) => {
     const itemsData = []
     $(li)
@@ -96,8 +95,7 @@ export const getHangarPage = async (page) => {
     const arrayUpgradedData = []
     const itemsUpgraded = $(li).find('h3.upgraded')
     if (itemsUpgraded.length) {
-      const upgradeLogDataArray = await fetchUpgradeLog(pledgeId)
-
+      const upgradeLogDataArray = await fetchUpgradeLog(rsiToken, pledgeId)
       const upgradedLog$ = cheerio.load(upgradeLogDataArray)
       upgradedLog$('div.row').each((_, item) => {
         const labelData = upgradedLog$(item).find('label')
@@ -115,7 +113,6 @@ export const getHangarPage = async (page) => {
     const regexCoupon = /Coupon:\s([\w\W]*)/gm
     let name = $(li).find('input.js-pledge-name').val()
     name = name.replace(regexCoupon, 'Coupon')
-
     const newElement = {
       id: hash(pledgeId),
       name,
@@ -158,7 +155,7 @@ export const fetchHangarPage = async (page) => {
   }
 }
 
-export const getCategoryHangarElements = async (myHangarCategory) => {
+const getCategoryHangarElements = async (myHangarCategory) => {
   await Promise.all(
     categories.map(async (category) => {
       let actualPage = 1
@@ -166,23 +163,26 @@ export const getCategoryHangarElements = async (myHangarCategory) => {
 
       while (actualPage <= totalPages) {
         const categoryData = await fetchCategory(category, actualPage)
+
+        // Extraer el número total de páginas
         const regex = /<a class="raquo btn" href=.*page=(.*?)&.*">/g
         const pageFiltered = regex.exec(categoryData)
-        totalPages = pageFiltered === null ? 1 : pageFiltered[1]
+        totalPages = pageFiltered === null ? 1 : parseInt(pageFiltered[1], 10)
 
-        const regexLi = /<ul class="list-items">[\s\S]*?<\/ul>/g
-        const ulData = regexLi.exec(categoryData)
-        const ulValue = ulData[0]
-        if (ulData === null) return
+        // Cargar el HTML en cheerio
+        const $ = cheerio.load(categoryData)
 
-        const temporal = document.createElement('temporal')
-        temporal.innerHTML = ulValue
+        // Seleccionar la lista de elementos
+        const ulElement = $('ul.list-items')
+        if (!ulElement.length) return // Si no hay elementos, salir
 
-        const arrayLi = temporal.querySelectorAll('ul.list-items > li')
-        arrayLi.forEach((li) => {
-          const id = li.querySelector('input.js-pledge-id')
-          if (id === null) return
-          myHangarCategory.push({ pledgeId: id.value, category })
+        // Iterar sobre cada elemento <li>
+        ulElement.find('li').each((_, li) => {
+          const pledgeIdElement = $(li).find('input.js-pledge-id')
+          if (pledgeIdElement.length) {
+            const pledgeId = pledgeIdElement.val() // Obtener el valor del input
+            myHangarCategory.push({ pledgeId, category }) // Agregar a la lista
+          }
         })
 
         actualPage++
@@ -207,28 +207,31 @@ const fetchCategory = async (category, actualPage) => {
   }
 }
 
-const fetchUpgradeLog = async (pledgeId) => {
+const fetchUpgradeLog = async (rsiToken, pledgeId) => {
+  if (!rsiToken) {
+    throw new Error('No se pudo obtener la cookie Rsi-Token.')
+  }
+
   const myHeaders = new Headers()
   myHeaders.append('content-type', 'application/json')
-  myHeaders.append(
-    'x-rsi-token',
-    document.cookie.match('(^|;)\\s*' + 'Rsi-Token' + '\\s*=\\s*([^;]+)')?.pop()
-  )
+  myHeaders.append('x-rsi-token', rsiToken)
 
   const raw = JSON.stringify({
     pledge_id: pledgeId
   })
 
   try {
-    const response = await ky.post('https://robertsspaceindustries.com/api/account/upgradeLog', {
-      headers: myHeaders,
-      body: raw,
-      retry: {
-        limit: retryLimit,
-        methods: ['post'],
-        statusCodes: statusCodesRetry
-      }
-    }).json()
+    const response = await ky
+      .post('https://robertsspaceindustries.com/api/account/upgradeLog', {
+        headers: myHeaders,
+        body: raw,
+        retry: {
+          limit: retryLimit,
+          methods: ['post'],
+          statusCodes: statusCodesRetry
+        }
+      })
+      .json()
 
     return response.data.rendered
   } catch (error) {
