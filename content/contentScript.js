@@ -130,7 +130,7 @@ document.addEventListener('click', function (e) {
 const fetchHangarPage = (page) => {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
-      { type: 'getHangarData', page },
+      { type: 'getHangarPage', page },
       (response) => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError.message)
@@ -144,13 +144,44 @@ const fetchHangarPage = (page) => {
   })
 }
 
-const downloadHangar = () => {
-  // Uso del fetchHangarPage
-  fetchHangarPage(1)
-    .then((response) => {
-      console.log('Datos del hangar:', response.hangarData)
-    })
-    .catch((error) => {
-      console.error('Error obteniendo datos del hangar:', error)
-    })
+const fetchHangarCategories = (page) => {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { type: 'getHangarCategories', page },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError.message)
+        } else if (response) {
+          resolve(response)
+        } else {
+          reject('No se recibió respuesta del Service Worker.')
+        }
+      }
+    )
+  })
+}
+
+const downloadHangar = async () => {
+  let hangarElementsCategory = []
+  let hangarElements = []
+
+  try {
+    const responseCategories = await fetchHangarCategories()
+    hangarElementsCategory = responseCategories.hangarElementsCategory
+    console.log('Datos de categorías:', hangarElementsCategory)
+
+    let page = 1
+    while (true) {
+      const responsePage = await fetchHangarPage(page)
+      if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
+      console.log(`Datos del hangar - Página ${page}:`, responsePage.hangarData)
+      hangarElements = [...hangarElements, ...responsePage.hangarData]
+      page++
+    }
+  } catch (error) {
+    console.error('Error durante la descarga del hangar:', error)
+  }
+
+  console.log('Categorías del hangar:', hangarElementsCategory)
+  console.log('Elementos del hangar:', hangarElements)
 }

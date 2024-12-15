@@ -42,100 +42,109 @@ const categories = [
   }
 ]
 
-export const getHangarPage = async (rsiToken, page) => {
-  const hangarData = await fetchHangarPage(page) // Suponiendo que ya tienes esta función para obtener HTML
-  const $ = cheerio.load(hangarData) // Carga el HTML en cheerio
+// Función auxiliar para procesar itemsData
+const parseItemsData = ($, li) => {
+  const itemsData = []
+  $(li)
+    .find('div.item')
+    .each((_, item) => {
+      const imageWrapper = $(item).find('div.image')
+      let image = null
+      if (imageWrapper.length) {
+        const backgroundImageValue = imageWrapper.css('background-image')
+        const match = backgroundImageValue.match(/^url\(['"](.+)['"]\)/)
+        image = match ? match[1] : null
+      }
 
-  const ulElement = $('ul.list-items')
-  if (!ulElement.length) {
-    throw new Error('No se encontraron elementos en la lista del hangar.')
+      const title = $(item).find('div.title').text().trim()
+      let kind = $(item).find('div.kind').text().trim()
+      if (!kind) kind = null
+
+      itemsData.push({ image, title, kind })
+    })
+  return itemsData
+}
+
+// Función auxiliar para obtener upgradesApplied
+const parseUpgradesApplied = async (rsiToken, pledgeId) => {
+  const arrayUpgradedData = []
+  try {
+    const upgradeLogDataArray = await fetchUpgradeLog(rsiToken, pledgeId)
+    const upgradedLog$ = cheerio.load(upgradeLogDataArray)
+    upgradedLog$('div.row').each((_, item) => {
+      const labelData = upgradedLog$(item).find('label')
+      if (labelData.length) {
+        const textContent = labelData.text().trim()
+        arrayUpgradedData.push({
+          date: textContent.split('     ')[0],
+          name: textContent.split('     ')[1]?.split(', ')[0] || null,
+          newValue: textContent.split('     ')[1]?.split(', ')[1] || null
+        })
+      }
+    })
+  } catch (error) {
+    console.error(`Error fetching upgrade log for pledgeId ${pledgeId}:`, error)
   }
+  return arrayUpgradedData
+}
 
-  const arrayLi = ulElement.find('li')
+const removeCodesOfCouponsName = (couponName) => {
+  const regexCoupon = /Coupon:\s([\w\W]*)/gm
+  return couponName?.replace(regexCoupon, 'Coupon') || 'Unknown'
+}
 
-  const results = await Promise.all(
-    arrayLi.map(async (index, li) => {
-      const itemsData = []
-      $(li)
-        .find('div.item')
-        .each((_, item) => {
-          const imageWrapper = $(item).find('div.image')
-          let image = null
-          if (imageWrapper.length) {
-            const backgroundImageValue = imageWrapper.css('background-image')
-            const match = backgroundImageValue.match(/^url\(['"](.+)['"]\)/)
-            image = match ? match[1] : null
-          }
+export const getHangarPage = async (rsiToken, page) => {
+  const hangarData = await fetchHangarPage(page)
+  const $ = cheerio.load(hangarData)
+  if (isEmptyList($)) return []
 
-          const title = $(item).find('div.title').text().trim()
-          let kind = $(item).find('div.kind').text().trim()
-          if (!kind) kind = null
+  const arrayLi = $('ul.list-items li')
+  const results = []
+  for (const li of arrayLi.toArray()) {
+    const itemsData = parseItemsData($, li)
 
-          itemsData.push({
-            image,
-            title,
-            kind
-          })
-        })
+    const principalImageValue = $(li)
+      .find('div.item-image-wrapper > div.image')
+      .css('background-image')
+    const principalImage = principalImageValue?.match(/^url\(['"](.+)['"]\)/)?.[1] || null
 
-      const principalImageValue = $(li)
-        .find('div.item-image-wrapper > div.image')
-        .css('background-image')
-      const principalImage = principalImageValue.match(/^url\(['"](.+)['"]\)/)[1]
-
-      let upgradeData = $(li).find('input.js-upgrade-data').val()
-      if (upgradeData) {
+    let upgradeData = $(li).find('input.js-upgrade-data').val()
+    if (upgradeData) {
+      try {
         upgradeData = JSON.parse(upgradeData)
+      } catch (error) {
+        console.error('Error parsing upgrade data for an item:', error)
       }
+    }
 
-      const gifteable = $(li).find('a.gift').length > 0
-      const exchangeable = $(li).find('a.reclaim').length > 0
+    const gifteable = $(li).find('a.gift').length > 0
+    const exchangeable = $(li).find('a.reclaim').length > 0
+    const pledgeId = $(li).find('input.js-pledge-id').val()
+    const arrayUpgradedData = await parseUpgradesApplied(rsiToken, pledgeId)
+    const name = removeCodesOfCouponsName($(li).find('input.js-pledge-name').val())
 
-      const pledgeId = $(li).find('input.js-pledge-id').val()
-
-      const arrayUpgradedData = []
-      const itemsUpgraded = $(li).find('h3.upgraded')
-      if (itemsUpgraded.length) {
-        const upgradeLogDataArray = await fetchUpgradeLog(rsiToken, pledgeId)
-        const upgradedLog$ = cheerio.load(upgradeLogDataArray)
-        upgradedLog$('div.row').each((_, item) => {
-          const labelData = upgradedLog$(item).find('label')
-          if (labelData.length) {
-            const textContent = labelData.text().trim()
-            arrayUpgradedData.push({
-              date: textContent.split('     ')[0],
-              name: textContent.split('     ')[1].split(', ')[0],
-              newValue: textContent.split('     ')[1].split(', ')[1]
-            })
-          }
-        })
-      }
-
-      const regexCoupon = /Coupon:\s([\w\W]*)/gm
-      let name = $(li).find('input.js-pledge-name').val()
-      name = name.replace(regexCoupon, 'Coupon')
-      const newElement = {
-        id: hash(pledgeId),
-        name,
-        value: $(li).find('input.js-pledge-value').val().split(' ')[0].substring(1),
-        createdDate: $(li).find('div.date-col').text().trim(),
-        containsInfo: $(li).find('div.items-col').text().trim(),
-        availability: $(li).find('span.availability').text().trim(),
-        principalImage,
-        itemsData,
-        upgradeData,
-        gifteable,
-        exchangeable,
-        category: null,
-        urlHangar:
+    const newElement = {
+      id: hash(pledgeId),
+      name,
+      value: $(li).find('input.js-pledge-value').val()?.split(' ')[0]?.substring(1) || '0',
+      createdDate: $(li).find('div.date-col').text().trim() || null,
+      containsInfo: $(li).find('div.items-col').text().trim() || null,
+      availability: $(li).find('span.availability').text().trim() || null,
+      principalImage,
+      itemsData,
+      upgradeData,
+      gifteable,
+      exchangeable,
+      category: null,
+      urlHangar:
         'https://robertsspaceindustries.com/account/pledges?page=' +
-        ((page - 1) * 10 + index) +
+        ((page - 1) * 10 + $(li).index()) +
         '&pagesize=1',
-        upgradesApplied: arrayUpgradedData
-      }
+      upgradesApplied: arrayUpgradedData
+    }
 
-      return newElement
-    }))
+    results.push(newElement)
+  }
 
   return results
 }
@@ -156,57 +165,48 @@ export const fetchHangarPage = async (page) => {
   }
 }
 
-// const getCategoryHangarElements = async (myHangarCategory) => {
-//   await Promise.all(
-//     categories.map(async (category) => {
-//       let actualPage = 1
-//       let totalPages = 1
-//
-//       while (actualPage <= totalPages) {
-//         const categoryData = await fetchCategory(category, actualPage)
-//
-//         // Extraer el número total de páginas
-//         const regex = /<a class="raquo btn" href=.*page=(.*?)&.*">/g
-//         const pageFiltered = regex.exec(categoryData)
-//         totalPages = pageFiltered === null ? 1 : parseInt(pageFiltered[1], 10)
-//
-//         // Cargar el HTML en cheerio
-//         const $ = cheerio.load(categoryData)
-//
-//         // Seleccionar la lista de elementos
-//         const ulElement = $('ul.list-items')
-//         if (!ulElement.length) return // Si no hay elementos, salir
-//
-//         // Iterar sobre cada elemento <li>
-//         ulElement.find('li').each((_, li) => {
-//           const pledgeIdElement = $(li).find('input.js-pledge-id')
-//           if (pledgeIdElement.length) {
-//             const pledgeId = pledgeIdElement.val() // Obtener el valor del input
-//             myHangarCategory.push({ pledgeId, category }) // Agregar a la lista
-//           }
-//         })
-//
-//         actualPage++
-//       }
-//     })
-//   )
-// }
-//
-// const fetchCategory = async (category, actualPage) => {
-//   try {
-//     const response = await ky.get('https://robertsspaceindustries.com/account/pledges?page=' + actualPage + '&pagesize=10' + category.urlParameter, {
-//       retry: {
-//         limit: retryLimit,
-//         methods: ['get'],
-//         statusCodes: statusCodesRetry
-//       }
-//     })
-//
-//     return response.text()
-//   } catch (error) {
-//     throw new Error(`Error on request: ${error.message}`)
-//   }
-// }
+export const getHangarElementsCategory = async () => {
+  const hangarElementsCategory = []
+  for (const category of categories) {
+    let page = 1
+    while (true) {
+      const categoryData = await fetchCategory(category, page)
+      const $ = cheerio.load(categoryData)
+      if (isEmptyList($)) break
+      const pledgeIdElements = $('input.js-pledge-id')
+      if (!pledgeIdElements.length) break
+      for (const pledgeIdElement of pledgeIdElements.toArray()) {
+        const pledgeId = $(pledgeIdElement).val()
+        if (pledgeId) {
+          hangarElementsCategory.push({ pledgeId: hash(pledgeId), category })
+        }
+      }
+      page++
+    }
+  }
+
+  return hangarElementsCategory
+}
+
+const isEmptyList = ($) => {
+  return $('ul.list-items li h4.empy-list').length > 0
+}
+
+const fetchCategory = async (category, page) => {
+  try {
+    const response = await ky.get('https://robertsspaceindustries.com/account/pledges?page=' + page + '&pagesize=10' + category.urlParameter, {
+      retry: {
+        limit: retryLimit,
+        methods: ['get'],
+        statusCodes: statusCodesRetry
+      }
+    })
+
+    return response.text()
+  } catch (error) {
+    throw new Error(`Error on request: ${error.message}`)
+  }
+}
 
 const fetchUpgradeLog = async (rsiToken, pledgeId) => {
   if (!rsiToken) {
