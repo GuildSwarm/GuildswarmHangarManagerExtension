@@ -161,27 +161,47 @@ const fetchHangarCategories = (page) => {
   })
 }
 
+const fetchBuyBackCategories = (page) => {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { type: 'getBuyBackCategories', page },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError.message)
+        } else if (response) {
+          resolve(response)
+        } else {
+          reject('No se recibió respuesta del Service Worker.')
+        }
+      }
+    )
+  })
+}
+
 const downloadHangar = async () => {
-  let hangarElementsCategory = []
-  let hangarElements = []
+  // let hangarElementsCategory = []
+  // let hangarElements = []
+  let buyBackElementsCategory = []
 
   try {
-    const responseCategories = await fetchHangarCategories()
-    hangarElementsCategory = responseCategories.hangarElementsCategory
-    console.log('Datos de categorías:', hangarElementsCategory)
+    // const responseCategories = await fetchHangarCategories()
+    // hangarElementsCategory = responseCategories.hangarElementsCategory
+    //
+    // let page = 1
+    // while (true) {
+    //   const responsePage = await fetchHangarPage(page)
+    //   if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
+    //   hangarElements = [...hangarElements, ...responsePage.hangarData]
+    //   page++
+    // }
 
-    let page = 1
-    while (true) {
-      const responsePage = await fetchHangarPage(page)
-      if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
-      console.log(`Datos del hangar - Página ${page}:`, responsePage.hangarData)
-      hangarElements = [...hangarElements, ...responsePage.hangarData]
-      page++
-    }
+    const responseCategories = await fetchBuyBackCategories()
+    buyBackElementsCategory = responseCategories.buyBackElementsCategory
   } catch (error) {
     console.error('Error durante la descarga del hangar:', error)
   }
 
-  console.log('Categorías del hangar:', hangarElementsCategory)
-  console.log('Elementos del hangar:', hangarElements)
+  // console.log('Categorías del hangar:', hangarElementsCategory)
+  // console.log('Elementos del hangar:', hangarElements)
+  console.log('Categorías del buyback:', buyBackElementsCategory)
 }

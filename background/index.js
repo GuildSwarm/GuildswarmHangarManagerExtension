@@ -1,4 +1,5 @@
 import { getHangarPage, getHangarElementsCategory } from './hangar.js'
+import { getBuyBackElementsCategory } from './buyback.js'
 
 const getCookie = async (cookieName, url) => {
   return new Promise((resolve, reject) => {
@@ -36,6 +37,15 @@ const handleGetHangarCategories = async () => {
   }
 }
 
+const handleGetBuyBackCategories = async () => {
+  try {
+    const buyBackElementsCategory = await getBuyBackElementsCategory()
+    return { buyBackElementsCategory }
+  } catch (error) {
+    throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
+  }
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'getHangarPage') {
     const page = message.page || 1
@@ -53,6 +63,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'getHangarCategories') {
     handleGetHangarCategories()
+      .then((result) => {
+        sendResponse(result)
+      })
+      .catch((error) => {
+        console.error('Error en onMessage:', error)
+        sendResponse({ error: error.message })
+      })
+
+    return true
+  }
+
+  if (message.type === 'getBuyBackCategories') {
+    handleGetBuyBackCategories()
       .then((result) => {
         sendResponse(result)
       })

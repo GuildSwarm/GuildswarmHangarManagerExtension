@@ -1,48 +1,7 @@
 import ky from 'ky'
 import * as cheerio from 'cheerio'
-import { hash } from './utils.js'
+import { hash, retryLimit, statusCodesRetry, categories } from './shared.js'
 
-const retryLimit = 5
-const statusCodesRetry = [404, 408, 413, 429, 500, 502, 503, 504]
-const categories = [
-  {
-    id: 'game_package',
-    name: 'Game Packages',
-    urlParameter: '&product-type=game_package'
-  },
-  {
-    id: 'standalone_ship',
-    name: 'Standalone Ships',
-    urlParameter: '&product-type=standalone_ship'
-  },
-  {
-    id: 'upgrade',
-    name: 'Upgrades',
-    urlParameter: '&product-type=upgrade'
-  },
-  {
-    id: 'hangar_decoration',
-    name: 'Hangar Decorations',
-    urlParameter: '&product-type=hangar_decoration'
-  },
-  {
-    id: 'components',
-    name: 'Component',
-    urlParameter: '&product-type=components'
-  },
-  {
-    id: 'weapon',
-    name: 'Weapon',
-    urlParameter: '&product-type=weapon'
-  },
-  {
-    id: 'flair',
-    name: 'Subscriber Flair',
-    urlParameter: '&product-type=flair'
-  }
-]
-
-// Función auxiliar para procesar itemsData
 const parseItemsData = ($, li) => {
   const itemsData = []
   $(li)
@@ -65,7 +24,6 @@ const parseItemsData = ($, li) => {
   return itemsData
 }
 
-// Función auxiliar para obtener upgradesApplied
 const parseUpgradesApplied = async (rsiToken, pledgeId) => {
   const arrayUpgradedData = []
   try {
