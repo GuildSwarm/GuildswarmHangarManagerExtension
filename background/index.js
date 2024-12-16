@@ -1,5 +1,6 @@
 import { getHangarPage, getHangarElementsCategory } from './hangar.js'
-import { getBuyBackElementsCategory } from './buyback.js'
+import { getBuyBackPage, getBuyBackElementsCategory } from './buyback.js'
+import { baseUrlRsi, setAuthToken } from './shared'
 
 const getCookie = async (cookieName, url) => {
   return new Promise((resolve, reject) => {
@@ -15,9 +16,8 @@ const getCookie = async (cookieName, url) => {
 }
 
 const handleGetHangarPage = async (page) => {
-  const url = 'https://robertsspaceindustries.com'
   try {
-    const rsiToken = await getCookie('Rsi-Token', url)
+    const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
     if (!rsiToken) {
       throw new Error('No se pudo obtener la cookie Rsi-Token.')
     }
@@ -32,6 +32,23 @@ const handleGetHangarCategories = async () => {
   try {
     const hangarElementsCategory = await getHangarElementsCategory()
     return { hangarElementsCategory }
+  } catch (error) {
+    throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
+  }
+}
+
+const handleGetBuyBackPage = async (page) => {
+  try {
+    const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
+    if (!rsiToken) {
+      throw new Error('No se pudo obtener la cookie Rsi-Token.')
+    }
+    const authToken = await setAuthToken(rsiToken)
+    if (!authToken) {
+      throw new Error('No se pudo obtener la authToken de RSI.')
+    }
+    const buyBackData = await getBuyBackPage(rsiToken, authToken, page)
+    return { page, buyBackData }
   } catch (error) {
     throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
   }
@@ -63,6 +80,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'getHangarCategories') {
     handleGetHangarCategories()
+      .then((result) => {
+        sendResponse(result)
+      })
+      .catch((error) => {
+        console.error('Error en onMessage:', error)
+        sendResponse({ error: error.message })
+      })
+
+    return true
+  }
+
+  if (message.type === 'getBuyBackPage') {
+    const page = message.page || 1
+    handleGetBuyBackPage(page)
       .then((result) => {
         sendResponse(result)
       })

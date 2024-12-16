@@ -161,6 +161,23 @@ const fetchHangarCategories = (page) => {
   })
 }
 
+const fetchBuyBackPage = (page) => {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { type: 'getBuyBackPage', page },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError.message)
+        } else if (response) {
+          resolve(response)
+        } else {
+          reject('No se recibió respuesta del Service Worker.')
+        }
+      }
+    )
+  })
+}
+
 const fetchBuyBackCategories = (page) => {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
@@ -179,29 +196,39 @@ const fetchBuyBackCategories = (page) => {
 }
 
 const downloadHangar = async () => {
-  // let hangarElementsCategory = []
-  // let hangarElements = []
+  let hangarElementsCategory = []
+  let hangarElements = []
   let buyBackElementsCategory = []
+  let buyBackElements = []
 
   try {
-    // const responseCategories = await fetchHangarCategories()
-    // hangarElementsCategory = responseCategories.hangarElementsCategory
-    //
-    // let page = 1
-    // while (true) {
-    //   const responsePage = await fetchHangarPage(page)
-    //   if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
-    //   hangarElements = [...hangarElements, ...responsePage.hangarData]
-    //   page++
-    // }
+    let responseCategories = await fetchHangarCategories()
+    hangarElementsCategory = responseCategories.hangarElementsCategory
 
-    const responseCategories = await fetchBuyBackCategories()
+    let page = 1
+    while (true) {
+      const responsePage = await fetchHangarPage(page)
+      if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
+      hangarElements = [...hangarElements, ...responsePage.hangarData]
+      page++
+    }
+
+    responseCategories = await fetchBuyBackCategories()
     buyBackElementsCategory = responseCategories.buyBackElementsCategory
+
+    page = 1
+    while (true) {
+      const responsePage = await fetchBuyBackPage(page)
+      if (!responsePage.buyBackData || responsePage.buyBackData.length === 0) break
+      buyBackElements = [...buyBackElements, ...responsePage.buyBackData]
+      page++
+    }
   } catch (error) {
     console.error('Error durante la descarga del hangar:', error)
   }
 
-  // console.log('Categorías del hangar:', hangarElementsCategory)
-  // console.log('Elementos del hangar:', hangarElements)
+  console.log('Categorías del hangar:', hangarElementsCategory)
+  console.log('Elementos del hangar:', hangarElements)
   console.log('Categorías del buyback:', buyBackElementsCategory)
+  console.log('Elementos del buyback:', buyBackElements)
 }

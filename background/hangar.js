@@ -1,6 +1,6 @@
 import ky from 'ky'
 import * as cheerio from 'cheerio'
-import { hash, retryLimit, statusCodesRetry, categories } from './shared.js'
+import { hash, calculateElementPosition, baseUrlRsi, retryLimit, statusCodesRetry, categories } from './shared.js'
 
 const parseItemsData = ($, li) => {
   const itemsData = []
@@ -58,6 +58,7 @@ export const getHangarPage = async (rsiToken, page) => {
 
   const arrayLi = $('ul.list-items li')
   const results = []
+  let index = 0
   for (const li of arrayLi.toArray()) {
     const itemsData = parseItemsData($, li)
 
@@ -78,8 +79,15 @@ export const getHangarPage = async (rsiToken, page) => {
     const gifteable = $(li).find('a.gift').length > 0
     const exchangeable = $(li).find('a.reclaim').length > 0
     const pledgeId = $(li).find('input.js-pledge-id').val()
-    const arrayUpgradedData = await parseUpgradesApplied(rsiToken, pledgeId)
+
+    const hasUpgradeLog = $(li).find('a.js-upgrade-log').length > 0
+    let arrayUpgradedData
+    if (hasUpgradeLog) {
+      arrayUpgradedData = await parseUpgradesApplied(rsiToken, pledgeId)
+    }
+
     const name = removeCodesOfCouponsName($(li).find('input.js-pledge-name').val())
+    const urlHangar = baseUrlRsi + '/account/pledges?page=' + calculateElementPosition(page, index) + '&pagesize=1'
 
     const newElement = {
       id: hash(pledgeId),
@@ -94,14 +102,12 @@ export const getHangarPage = async (rsiToken, page) => {
       gifteable,
       exchangeable,
       category: null,
-      urlHangar:
-        'https://robertsspaceindustries.com/account/pledges?page=' +
-        ((page - 1) * 10 + $(li).index()) +
-        '&pagesize=1',
+      urlHangar,
       upgradesApplied: arrayUpgradedData
     }
 
     results.push(newElement)
+    index++
   }
 
   return results
@@ -109,7 +115,7 @@ export const getHangarPage = async (rsiToken, page) => {
 
 export const fetchHangarPage = async (page) => {
   try {
-    const response = await ky.get('https://robertsspaceindustries.com/account/pledges?page=' + page + '&pagesize=10', {
+    const response = await ky.get(baseUrlRsi + '/account/pledges?page=' + page + '&pagesize=10', {
       retry: {
         limit: retryLimit,
         methods: ['get'],
@@ -152,7 +158,7 @@ const isEmptyList = ($) => {
 
 const fetchCategory = async (category, page) => {
   try {
-    const response = await ky.get('https://robertsspaceindustries.com/account/pledges?page=' + page + '&pagesize=10' + category.urlParameter, {
+    const response = await ky.get(baseUrlRsi + '/account/pledges?page=' + page + '&pagesize=10' + category.urlParameter, {
       retry: {
         limit: retryLimit,
         methods: ['get'],
@@ -181,7 +187,7 @@ const fetchUpgradeLog = async (rsiToken, pledgeId) => {
 
   try {
     const response = await ky
-      .post('https://robertsspaceindustries.com/api/account/upgradeLog', {
+      .post(baseUrlRsi + '/api/account/upgradeLog', {
         headers: myHeaders,
         body: raw,
         retry: {
