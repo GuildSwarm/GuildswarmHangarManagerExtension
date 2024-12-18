@@ -170,14 +170,24 @@ const parseCcuInfo = async (rsiToken, authToken, ccuElement) => {
     return
   }
 
+  const fromShipData = {
+    id: shipUpgradeData[0].data.ships[0].id,
+    name: shipUpgradeData[0].data.ships[0].name
+  }
+  const toShipData = {
+    id: shipUpgradeData[0].data.ships[1].id,
+    name: shipUpgradeData[0].data.ships[1].name
+  }
+  const price = normalizeBuyBackPrice(shipUpgradeData[1].data.price.nativeAmount)
+
   return {
     pledgeId: hash(ccuInfoPledgeId),
     fromShipId: ccuInfoFromShipId,
     toShipId: ccuInfoToShipId,
     toSkuId: ccuInfoToSkuId,
-    fromShipData: shipUpgradeData[0].data.ships[0],
-    toShipData: shipUpgradeData[0].data.ships[1],
-    price: shipUpgradeData[1]
+    fromShipData,
+    toShipData,
+    price
   }
 }
 
@@ -190,19 +200,12 @@ const parseElementData = async (buyBackLink) => {
 
   for (const shipElement of shipElements) {
     const image = normalizeImageSrc($(shipElement).find('img').attr('src'))
-    const link = baseUrlRsi + $(shipElement).find('a').attr('href')
-
     const infoElements = $(shipElement).find('div')
     const name = $(infoElements[0]).find('span').text().trim()
-    const manufacturer = $(infoElements[1]).find('span').text().trim()
-    const focus = $(infoElements[2]).find('span').text().trim()
 
     shipInThisPackData.push({
       image,
-      name,
-      manufacturer,
-      focus,
-      link
+      name
     })
   }
 
@@ -213,19 +216,12 @@ const parseElementData = async (buyBackLink) => {
   }
 
   const pledgeId = hash(buyBackLink.replace(/[a-zA-Z/]/g, ''))
-  const image = $('div.wcontent div.lcol img').attr('src')
-  const title = $('h2.buy-back-title').text().trim()
-
   const priceInfo = $('div.wcontent div.lcol div.price strong.final-price')
   const price = normalizeBuyBackPrice(priceInfo.attr('data-value'))
-  const currency = priceInfo.attr('data-currency')
 
   return {
     pledgeId,
-    image,
-    title,
     price,
-    currency,
     shipInThisPackData,
     alsoContainData
   }
@@ -271,7 +267,7 @@ const getInitShipUpgrade = async (authToken, fromId, toId) => {
       operationName: 'initShipUpgrade',
       variables: {},
       query:
-        'query initShipUpgrade {\n ships {\n id\n name\n medias {\n productThumbMediumAndSmall\n slideShow\n }\n manufacturer {\n id\n name\n }\n focus\n type\n flyableStatus\n msrp\n link\n skus {\n id\n title\n price\n items {\n id\n title\n}\n }\n }\n }\n'
+        'query initShipUpgrade {\n ships {\n id\n name\n }\n }\n'
     },
     {
       operationName: 'getPrice',
