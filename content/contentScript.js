@@ -195,6 +195,32 @@ const fetchBuyBackCategories = (page) => {
   })
 }
 
+const downloadFile = (
+  myHangar,
+  myBuyBack,
+  quantityBuyBackToken,
+  actualStoreCredits
+) => {
+  const blob = new Blob(
+    [
+      JSON.stringify({
+        version: chrome.runtime.getManifest().version,
+        myHangar,
+        myBuyBack
+      })
+    ],
+    { type: 'text' }
+  )
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `guildswarm-myHangar_${(new Date()).toISOString().split('T')[0]}.json`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  window.URL.revokeObjectURL(url)
+}
+
 const downloadHangar = async () => {
   let hangarElementsCategory = []
   let hangarElements = []
@@ -202,8 +228,8 @@ const downloadHangar = async () => {
   let buyBackElements = []
 
   try {
-    let responseCategories = await fetchHangarCategories()
-    hangarElementsCategory = responseCategories.hangarElementsCategory
+    // let responseCategories = await fetchHangarCategories()
+    // hangarElementsCategory = responseCategories.hangarElementsCategory
 
     let page = 1
     while (true) {
@@ -213,8 +239,8 @@ const downloadHangar = async () => {
       page++
     }
 
-    responseCategories = await fetchBuyBackCategories()
-    buyBackElementsCategory = responseCategories.buyBackElementsCategory
+    // responseCategories = await fetchBuyBackCategories()
+    // buyBackElementsCategory = responseCategories.buyBackElementsCategory
 
     page = 1
     while (true) {
@@ -231,4 +257,6 @@ const downloadHangar = async () => {
   console.log('Elementos del hangar:', hangarElements)
   console.log('Categorías del buyback:', buyBackElementsCategory)
   console.log('Elementos del buyback:', buyBackElements)
+
+  downloadFile(hangarElements, buyBackElements)
 }

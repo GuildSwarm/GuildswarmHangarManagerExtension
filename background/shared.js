@@ -2,6 +2,7 @@ import CryptoJS from 'crypto-js'
 import ky from 'ky'
 
 export const baseUrlRsi = 'https://robertsspaceindustries.com'
+export const globalCurrency = 'USD'
 export const retryLimit = 5
 export const statusCodesRetry = [404, 408, 413, 429, 500, 502, 503, 504]
 export const categories = [

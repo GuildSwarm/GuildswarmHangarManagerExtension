@@ -1,6 +1,7 @@
 import { getHangarPage, getHangarElementsCategory } from './hangar.js'
 import { getBuyBackPage, getBuyBackElementsCategory } from './buyback.js'
-import { baseUrlRsi, setAuthToken } from './shared'
+import { baseUrlRsi, globalCurrency, setAuthToken } from './shared'
+import { setCurrency, getCurrency } from './currency'
 
 const getCookie = async (cookieName, url) => {
   return new Promise((resolve, reject) => {
@@ -21,7 +22,10 @@ const handleGetHangarPage = async (page) => {
     if (!rsiToken) {
       throw new Error('No se pudo obtener la cookie Rsi-Token.')
     }
+    const currency = await getCurrency()
+    await setCurrency(rsiToken, globalCurrency)
     const hangarData = await getHangarPage(rsiToken, page)
+    await setCurrency(rsiToken, currency)
     return { page, hangarData }
   } catch (error) {
     throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
@@ -47,7 +51,10 @@ const handleGetBuyBackPage = async (page) => {
     if (!authToken) {
       throw new Error('No se pudo obtener la authToken de RSI.')
     }
+    const currency = await getCurrency()
+    await setCurrency(rsiToken, globalCurrency)
     const buyBackData = await getBuyBackPage(rsiToken, authToken, page)
+    await setCurrency(rsiToken, currency)
     return { page, buyBackData }
   } catch (error) {
     throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
