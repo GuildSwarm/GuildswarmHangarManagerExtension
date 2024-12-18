@@ -33,10 +33,16 @@ const parseUpgradesApplied = async (rsiToken, pledgeId) => {
       const labelData = upgradedLog$(item).find('label')
       if (labelData.length) {
         const textContent = labelData.text().trim()
+        const date = textContent.split('     ')[0].trim()
+        const name = textContent.split('     ')[1]?.split(', ')[0].trim() || null
+        const newValueRaw = textContent.split('     ')[1]?.split(', ')[1].trim() || null
+        const match = newValueRaw.match(/\d+\.?\d*/)
+        const newValue = match ? parseFloat(match[0]) : null
+
         arrayUpgradedData.push({
-          date: textContent.split('     ')[0].trim(),
-          name: textContent.split('     ')[1]?.split(', ')[0].trim() || null,
-          newValue: textContent.split('     ')[1]?.split(', ')[1].trim() || null
+          date,
+          name,
+          newValue
         })
       }
     })
@@ -100,14 +106,20 @@ export const getHangarPage = async (rsiToken, page) => {
 
     const name = removeCodesOfCouponsName($(li).find('input.js-pledge-name').val())
     const urlHangar = baseUrlRsi + '/account/pledges?page=' + calculateElementPosition(page, index) + '&pagesize=1'
-    const value = $(li).find('input.js-pledge-value').val()?.split(' ')[0]?.substring(1) || '0'
+    let value = $(li).find('input.js-pledge-value').val()?.split(' ')[0]?.substring(1) || 0
+    value = parseFloat(value)
+    const createDateRaw = $(li).find('div.date-col').text().trim() || null
+    const matchCreateDate = createDateRaw.match(/([A-Za-z]+ \d{2}, \d{4})/)
+    const createdDate = matchCreateDate ? matchCreateDate[1] : null
+    const containsRaw = $(li).find('div.items-col').text().trim() || null
+    const containsInfo = containsRaw.replace(/\s+/g, ' ').trim()
 
     const newElement = {
       id: hash(pledgeId),
       name,
-      value: parseFloat(value),
-      createdDate: $(li).find('div.date-col').text().trim() || null,
-      containsInfo: $(li).find('div.items-col').text().trim() || null,
+      value,
+      createdDate,
+      containsInfo,
       image,
       itemsData,
       upgradeData,

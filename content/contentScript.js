@@ -195,6 +195,40 @@ const fetchBuyBackCategories = (page) => {
   })
 }
 
+const fetchGetCurrency = () => {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { type: 'getCurrency' },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError.message)
+        } else if (response) {
+          resolve(response)
+        } else {
+          reject('No se recibió respuesta del Service Worker.')
+        }
+      }
+    )
+  })
+}
+
+const fetchSetCurrency = (currency) => {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { type: 'setCurrency', currency },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError.message)
+        } else if (response) {
+          resolve(response)
+        } else {
+          reject('No se recibió respuesta del Service Worker.')
+        }
+      }
+    )
+  })
+}
+
 const downloadFile = (
   myHangar,
   myBuyBack,
@@ -231,8 +265,10 @@ const downloadHangar = async () => {
     // let responseCategories = await fetchHangarCategories()
     // hangarElementsCategory = responseCategories.hangarElementsCategory
 
+    const currentCurrency = await fetchGetCurrency()
+
     let page = 1
-    while (true) {
+    while (page < 3) {
       const responsePage = await fetchHangarPage(page)
       if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
       hangarElements = [...hangarElements, ...responsePage.hangarData]
@@ -243,12 +279,14 @@ const downloadHangar = async () => {
     // buyBackElementsCategory = responseCategories.buyBackElementsCategory
 
     page = 1
-    while (true) {
+    while (page < 3) {
       const responsePage = await fetchBuyBackPage(page)
       if (!responsePage.buyBackData || responsePage.buyBackData.length === 0) break
       buyBackElements = [...buyBackElements, ...responsePage.buyBackData]
       page++
     }
+
+    await fetchSetCurrency(currentCurrency)
   } catch (error) {
     console.error('Error durante la descarga del hangar:', error)
   }

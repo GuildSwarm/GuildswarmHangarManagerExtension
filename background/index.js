@@ -16,16 +16,35 @@ const getCookie = async (cookieName, url) => {
   })
 }
 
+const handleGetCurrency = async () => {
+  try {
+    const currency = await getCurrency()
+    return { currency }
+  } catch (error) {
+    throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
+  }
+}
+
+const handleSetCurrency = async (currency) => {
+  try {
+    const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
+    if (!rsiToken) {
+      throw new Error('No se pudo obtener la cookie Rsi-Token.')
+    }
+    await setCurrency(rsiToken, currency)
+    return { currency }
+  } catch (error) {
+    throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
+  }
+}
+
 const handleGetHangarPage = async (page) => {
   try {
     const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
     if (!rsiToken) {
       throw new Error('No se pudo obtener la cookie Rsi-Token.')
     }
-    const currency = await getCurrency()
-    await setCurrency(rsiToken, globalCurrency)
     const hangarData = await getHangarPage(rsiToken, page)
-    await setCurrency(rsiToken, currency)
     return { page, hangarData }
   } catch (error) {
     throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
@@ -51,10 +70,7 @@ const handleGetBuyBackPage = async (page) => {
     if (!authToken) {
       throw new Error('No se pudo obtener la authToken de RSI.')
     }
-    const currency = await getCurrency()
-    await setCurrency(rsiToken, globalCurrency)
     const buyBackData = await getBuyBackPage(rsiToken, authToken, page)
-    await setCurrency(rsiToken, currency)
     return { page, buyBackData }
   } catch (error) {
     throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
@@ -114,6 +130,33 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'getBuyBackCategories') {
     handleGetBuyBackCategories()
+      .then((result) => {
+        sendResponse(result)
+      })
+      .catch((error) => {
+        console.error('Error en onMessage:', error)
+        sendResponse({ error: error.message })
+      })
+
+    return true
+  }
+
+  if (message.type === 'getCurrency') {
+    handleGetCurrency()
+      .then((result) => {
+        sendResponse(result)
+      })
+      .catch((error) => {
+        console.error('Error en onMessage:', error)
+        sendResponse({ error: error.message })
+      })
+
+    return true
+  }
+
+  if (message.type === 'setCurrency') {
+    const currency = message.currency || globalCurrency
+    handleSetCurrency(currency)
       .then((result) => {
         sendResponse(result)
       })
