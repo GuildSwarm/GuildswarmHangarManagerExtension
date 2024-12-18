@@ -79,3 +79,7 @@ export const setAuthToken = async (authToken) => {
 export const calculateElementPosition = (page, index) => {
   return ((page - 1) * 10 + (index + 1))
 }
+
+export const normalizeImageSrc = (src) => {
+  return src.startsWith('/media') ? baseUrlRsi + src : src
+}

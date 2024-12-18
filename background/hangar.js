@@ -1,6 +1,6 @@
 import ky from 'ky'
 import * as cheerio from 'cheerio'
-import { hash, calculateElementPosition, baseUrlRsi, retryLimit, statusCodesRetry, categories } from './shared.js'
+import { hash, calculateElementPosition, normalizeImageSrc, baseUrlRsi, retryLimit, statusCodesRetry, categories } from './shared.js'
 
 const parseItemsData = ($, li) => {
   const itemsData = []
@@ -12,7 +12,7 @@ const parseItemsData = ($, li) => {
       if (imageWrapper.length) {
         const backgroundImageValue = imageWrapper.css('background-image')
         const match = backgroundImageValue.match(/^url\(['"](.+)['"]\)/)
-        image = match ? match[1] : null
+        image = match ? normalizeImageSrc(match[1]) : null
       }
 
       const title = $(item).find('div.title').text().trim()
@@ -34,9 +34,9 @@ const parseUpgradesApplied = async (rsiToken, pledgeId) => {
       if (labelData.length) {
         const textContent = labelData.text().trim()
         arrayUpgradedData.push({
-          date: textContent.split('     ')[0],
-          name: textContent.split('     ')[1]?.split(', ')[0] || null,
-          newValue: textContent.split('     ')[1]?.split(', ')[1] || null
+          date: textContent.split('     ')[0].trim(),
+          name: textContent.split('     ')[1]?.split(', ')[0].trim() || null,
+          newValue: textContent.split('     ')[1]?.split(', ')[1].trim() || null
         })
       }
     })
@@ -62,15 +62,27 @@ export const getHangarPage = async (rsiToken, page) => {
   for (const li of arrayLi.toArray()) {
     const itemsData = parseItemsData($, li)
 
-    const principalImageValue = $(li)
+    const imageValue = $(li)
       .find('div.item-image-wrapper > div.image')
       .css('background-image')
-    const principalImage = principalImageValue?.match(/^url\(['"](.+)['"]\)/)?.[1] || null
+    const match = imageValue.match(/^url\(['"](.+)['"]\)/)
+    const image = match ? normalizeImageSrc(match[1]) : null
 
     let upgradeData = $(li).find('input.js-upgrade-data').val()
     if (upgradeData) {
       try {
-        upgradeData = JSON.parse(upgradeData)
+        const upgradeRawData = JSON.parse(upgradeData)
+        const matchItems = upgradeRawData.match_items.map((item) => {
+          return { name: item.name }
+        })
+        const targetItems = upgradeRawData.target_items.map((item) => {
+          return { name: item.name }
+        })
+
+        upgradeData = {
+          matchItems,
+          targetItems
+        }
       } catch (error) {
         console.error('Error parsing upgrade data for an item:', error)
       }
@@ -88,15 +100,15 @@ export const getHangarPage = async (rsiToken, page) => {
 
     const name = removeCodesOfCouponsName($(li).find('input.js-pledge-name').val())
     const urlHangar = baseUrlRsi + '/account/pledges?page=' + calculateElementPosition(page, index) + '&pagesize=1'
+    const value = $(li).find('input.js-pledge-value').val()?.split(' ')[0]?.substring(1) || '0'
 
     const newElement = {
       id: hash(pledgeId),
       name,
-      value: $(li).find('input.js-pledge-value').val()?.split(' ')[0]?.substring(1) || '0',
+      value: parseFloat(value),
       createdDate: $(li).find('div.date-col').text().trim() || null,
       containsInfo: $(li).find('div.items-col').text().trim() || null,
-      availability: $(li).find('span.availability').text().trim() || null,
-      principalImage,
+      image,
       itemsData,
       upgradeData,
       gifteable,

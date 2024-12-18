@@ -1,6 +1,6 @@
 import ky from 'ky'
 import * as cheerio from 'cheerio'
-import { hash, calculateElementPosition, baseUrlRsi, retryLimit, statusCodesRetry, categories } from './shared.js'
+import { hash, calculateElementPosition, normalizeImageSrc, baseUrlRsi, retryLimit, statusCodesRetry, categories } from './shared.js'
 
 const fetchBuyBackCategory = async (category, actualPage) => {
   try {
@@ -82,10 +82,6 @@ const fetchBuyBackPledge = async (buyBackLink) => {
   } catch (error) {
     throw new Error(`Error on request: ${error.message}`)
   }
-}
-
-const normalizeImageSrc = (src) => {
-  return src.startsWith('/media') ? baseUrlRsi + src : src
 }
 
 const normalizeBuyBackPrice = (price) => {
