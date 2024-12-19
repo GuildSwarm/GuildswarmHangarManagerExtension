@@ -1,5 +1,3 @@
-import { categories } from '../background/shared'
-
 const h2Title = document.querySelector('h2.title')
 if (h2Title !== null) {
   const newSection = document.createElement('div')
