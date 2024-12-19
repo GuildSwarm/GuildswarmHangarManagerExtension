@@ -1,6 +1,15 @@
 import ky from 'ky'
 import * as cheerio from 'cheerio'
-import { hash, calculateElementPosition, normalizeImageSrc, baseUrlRsi, retryLimit, statusCodesRetry, categories } from './shared.js'
+import {
+  hash,
+  calculateElementPosition,
+  normalizeImageSrc,
+  baseUrlRsi,
+  retryLimit,
+  statusCodesRetry,
+  categories,
+  idNoCategory
+} from './shared.js'
 
 const parseItemsData = ($, li) => {
   const itemsData = []
@@ -113,9 +122,11 @@ export const getHangarPage = async (rsiToken, page) => {
     const createdDate = matchCreateDate ? matchCreateDate[1] : null
     const containsRaw = $(li).find('div.items-col').text().trim() || null
     const containsInfo = containsRaw.replace(/\s+/g, ' ').trim()
+    const category = idNoCategory
+    const id = hash(pledgeId)
 
     const newElement = {
-      id: hash(pledgeId),
+      id,
       name,
       value,
       createdDate,
@@ -125,7 +136,7 @@ export const getHangarPage = async (rsiToken, page) => {
       upgradeData,
       gifteable,
       exchangeable,
-      category: null,
+      category,
       urlHangar,
       upgradesApplied: arrayUpgradedData
     }
@@ -166,7 +177,7 @@ export const getHangarElementsCategory = async () => {
       for (const pledgeIdElement of pledgeIdElements.toArray()) {
         const pledgeId = $(pledgeIdElement).val()
         if (pledgeId) {
-          hangarElementsCategory.push({ pledgeId: hash(pledgeId), category })
+          hangarElementsCategory.push({ pledgeId: hash(pledgeId), categoryId: category.id })
         }
       }
       page++

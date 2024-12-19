@@ -1,6 +1,15 @@
 import ky from 'ky'
 import * as cheerio from 'cheerio'
-import { hash, calculateElementPosition, normalizeImageSrc, baseUrlRsi, retryLimit, statusCodesRetry, categories } from './shared.js'
+import {
+  hash,
+  calculateElementPosition,
+  normalizeImageSrc,
+  baseUrlRsi,
+  retryLimit,
+  statusCodesRetry,
+  categories,
+  idNoCategory
+} from './shared.js'
 
 const fetchBuyBackCategory = async (category, actualPage) => {
   try {
@@ -30,14 +39,12 @@ export const getBuyBackElementsCategory = async () => {
       const categoryData = await fetchBuyBackCategory(category, page)
       const $ = cheerio.load(categoryData)
       if (isEmptyList($)) break
-      const pledgeIdElements = $('ul.pledges li article.pledge div.information a.holosmallbtn')
-      if (!pledgeIdElements.length) break
-      for (const pledgeIdElement of pledgeIdElements.toArray()) {
-        const href = pledgeIdElement.attribs.href || ''
-        const dataPledgeId = pledgeIdElement.attribs['data-pledgeid']
-        const pledgeId = dataPledgeId || href.split('/').slice(-1)[0]
+      const linkElements = $('ul.pledges li article.pledge div.information a.holosmallbtn')
+      if (!linkElements.length) break
+      for (const linkElement of linkElements.toArray()) {
+        const pledgeId = hash(parsePledgeId(linkElement))
         if (pledgeId) {
-          buyBackElementsCategory.push({ pledgeId: hash(pledgeId), category })
+          buyBackElementsCategory.push({ pledgeId, categoryId: category.id })
         }
       }
       page++
@@ -110,10 +117,7 @@ export const getBuyBackPage = async (rsiToken, authToken, page) => {
     }
 
     const linkElement = $(li).find('div > a.holosmallbtn')
-
     const hrefElement = linkElement.attr('href')
-    const link = `${baseUrlRsi}/account/buy-back-pledges?page=${calculateElementPosition(page, index)}&pagesize=1`
-
     let elementData
     const available = $(li).parent().attr('data-disabled') === undefined
     if (ccuElement.length === 0 && available) {
@@ -121,15 +125,16 @@ export const getBuyBackPage = async (rsiToken, authToken, page) => {
       elementData = await parseElementData(buyBackLink)
     }
 
-    let category
-    if (linkElement.attr('data-pledgeid')) {
-      category = {
-        id: 'upgrade',
-        name: 'Upgrades'
-      }
+    let category = idNoCategory
+    if (ccuInfo) {
+      category = 'upgrade'
     }
 
+    const link = `${baseUrlRsi}/account/buy-back-pledges?page=${calculateElementPosition(page, index)}&pagesize=1`
+    const id = hash(parsePledgeId(linkElement[0]))
+
     const newElement = {
+      id,
       name,
       image,
       lastModification,
@@ -148,11 +153,16 @@ export const getBuyBackPage = async (rsiToken, authToken, page) => {
   return results
 }
 
+const parsePledgeId = (buyBackLinkElement) => {
+  const dataPledgeId = buyBackLinkElement?.attribs['data-pledgeid']
+  const href = buyBackLinkElement?.attribs?.href ?? ''
+  return dataPledgeId ?? getPledgeIdFromElementData(href)
+}
+
 const parseCcuInfo = async (rsiToken, authToken, ccuElement) => {
   const ccuInfoPledgeId = ccuElement.attr('data-pledgeid')
   await fetchSetContextToken(rsiToken, ccuInfoPledgeId)
   const ccuInfoFromShipId = ccuElement.attr('data-fromshipid')
-  const ccuInfoToShipId = ccuElement.attr('data-toshipid')
   const ccuInfoToSkuId = ccuElement.attr('data-toskuid')
   const shipUpgradeData = await getInitShipUpgrade(
     authToken,
@@ -177,9 +187,6 @@ const parseCcuInfo = async (rsiToken, authToken, ccuElement) => {
   const price = normalizeBuyBackPrice(shipUpgradeData[1].data.price.nativeAmount)
 
   return {
-    pledgeId: hash(ccuInfoPledgeId),
-    fromShipId: ccuInfoFromShipId,
-    toShipId: ccuInfoToShipId,
     toSkuId: ccuInfoToSkuId,
     fromShipData,
     toShipData,
@@ -211,16 +218,18 @@ const parseElementData = async (buyBackLink) => {
     alsoContainData.push($(shipElement).text().trim())
   }
 
-  const pledgeId = hash(buyBackLink.replace(/[a-zA-Z/]/g, ''))
   const priceInfo = $('div.wcontent div.lcol div.price strong.final-price')
   const price = normalizeBuyBackPrice(priceInfo.attr('data-value'))
 
   return {
-    pledgeId,
     price,
     shipInThisPackData,
     alsoContainData
   }
+}
+
+const getPledgeIdFromElementData = (link) => {
+  return link.split('/').slice(-1)[0]
 }
 
 const fetchSetContextToken = async (rsiToken, pledgeId) => {

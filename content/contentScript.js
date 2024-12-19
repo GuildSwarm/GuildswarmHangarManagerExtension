@@ -1,3 +1,5 @@
+import { categories } from '../background/shared'
+
 const h2Title = document.querySelector('h2.title')
 if (h2Title !== null) {
   const newSection = document.createElement('div')
@@ -255,36 +257,57 @@ const downloadFile = (
   window.URL.revokeObjectURL(url)
 }
 
+const assignCategoryToElements = (elements, elementsCategory) => {
+  for (const elementCategory of elementsCategory) {
+    const element = elements.find(element => element.id === elementCategory.pledgeId)
+    if (element) {
+      element.category = elementCategory.categoryId
+    }
+  }
+}
+
 const downloadHangar = async () => {
   let hangarElementsCategory = []
   let hangarElements = []
   let buyBackElementsCategory = []
   let buyBackElements = []
+  let page = 1
+  let responseCategories
 
   try {
-    // let responseCategories = await fetchHangarCategories()
-    // hangarElementsCategory = responseCategories.hangarElementsCategory
-
     const currentCurrency = await fetchGetCurrency()
 
-    let page = 1
-    while (page < 3) {
+    responseCategories = await fetchHangarCategories()
+    hangarElementsCategory = responseCategories.hangarElementsCategory
+
+    while (true) {
       const responsePage = await fetchHangarPage(page)
       if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
       hangarElements = [...hangarElements, ...responsePage.hangarData]
       page++
     }
 
-    // responseCategories = await fetchBuyBackCategories()
-    // buyBackElementsCategory = responseCategories.buyBackElementsCategory
+    assignCategoryToElements(hangarElements, hangarElementsCategory)
+
+    for (const hangarElementCategory of hangarElementsCategory) {
+      const hangerElement = hangarElements.find(hangerElement => hangerElement.id === hangarElementCategory.pledgeId)
+      if (hangerElement) {
+        hangerElement.category = hangarElementCategory.categoryId
+      }
+    }
+
+    responseCategories = await fetchBuyBackCategories()
+    buyBackElementsCategory = responseCategories.buyBackElementsCategory
 
     page = 1
-    while (page < 3) {
+    while (true) {
       const responsePage = await fetchBuyBackPage(page)
       if (!responsePage.buyBackData || responsePage.buyBackData.length === 0) break
       buyBackElements = [...buyBackElements, ...responsePage.buyBackData]
       page++
     }
+
+    assignCategoryToElements(buyBackElements, buyBackElementsCategory)
 
     await fetchSetCurrency(currentCurrency)
   } catch (error) {
