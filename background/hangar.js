@@ -121,9 +121,9 @@ export const getHangarPage = async (rsiToken, page) => {
     const pledgeId = $(li).find('input.js-pledge-id').val()
 
     const hasUpgradeLog = $(li).find('a.js-upgrade-log').length > 0
-    let arrayUpgradedData
+    let upgradesApplied
     if (hasUpgradeLog) {
-      arrayUpgradedData = await parseUpgradesApplied(rsiToken, pledgeId)
+      upgradesApplied = await parseUpgradesApplied(rsiToken, pledgeId)
     }
 
     const name = removeCodesOfCouponsName($(li).find('input.js-pledge-name').val())
@@ -151,7 +151,7 @@ export const getHangarPage = async (rsiToken, page) => {
       exchangeable,
       category,
       urlHangar,
-      upgradesApplied: arrayUpgradedData
+      upgradesApplied
     }
 
     results.push(newElement)
