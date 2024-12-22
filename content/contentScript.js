@@ -312,10 +312,5 @@ const downloadHangar = async () => {
     console.error('Error durante la descarga del hangar:', error)
   }
 
-  console.log('Categorías del hangar:', hangarElementsCategory)
-  console.log('Elementos del hangar:', hangarElements)
-  console.log('Categorías del buyback:', buyBackElementsCategory)
-  console.log('Elementos del buyback:', buyBackElements)
-
   downloadFile(hangarElements, buyBackElements)
 }

@@ -42,11 +42,20 @@ const parseUpgradesApplied = async (rsiToken, pledgeId) => {
       const labelData = upgradedLog$(item).find('label')
       if (labelData.length) {
         const textContent = labelData.text().trim()
-        const date = textContent.split('     ')[0].trim()
-        const name = textContent.split('     ')[1]?.split(', ')[0].trim() || null
-        const newValueRaw = textContent.split('     ')[1]?.split(', ')[1].trim() || null
-        const match = newValueRaw.match(/\d+\.?\d*/)
-        const newValue = match ? parseFloat(match[0]) : null
+        const textContentSections = textContent.split('     ')
+
+        const date = textContentSections[0].trim()
+
+        const descriptionSection = textContentSections[1]?.split(', ')
+        const name = descriptionSection[0]?.trim() || null
+
+        let newValueRaw = descriptionSection[1]?.trim() || null
+        let newValue
+        if (newValueRaw) {
+          newValueRaw = removeCommas(newValueRaw)
+          const match = newValueRaw.match(/\d+\.?\d*/)
+          newValue = match ? parseFloat(match[0]) : null
+        }
 
         arrayUpgradedData.push({
           date,
@@ -59,6 +68,10 @@ const parseUpgradesApplied = async (rsiToken, pledgeId) => {
     console.error(`Error fetching upgrade log for pledgeId ${pledgeId}:`, error)
   }
   return arrayUpgradedData
+}
+
+const removeCommas = (value) => {
+  return value.replace(/,/g, '')
 }
 
 const removeCodesOfCouponsName = (couponName) => {
