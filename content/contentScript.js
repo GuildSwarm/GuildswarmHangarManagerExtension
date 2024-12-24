@@ -18,19 +18,33 @@ if (h2Title !== null) {
         </div>
         <a id="guildswarm-download" class="shadow-button trans-02s trans-color">
         <span class="label trans-02s">Guildswarm - Download Hangar data</span>
-        <span style="background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAWCAMAAAAVQ1dNAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAU1QTFRFAAAAIyMjOzs7YmJij4+Pp6enq6urqampmpqab29vR0dHIyMjIyMjX19fq6ur1NTU2dnZ2NjYvLy8enp6KCgoQEBAfn5+1dXVubm5i4uLoqKinJycUVFRfn5+1tbWu7u7PDw8VlZWOjo6goKCoqKiMDAwjo6OVFRUkpKSUlJS0tLSiYmJLCwsqqqqzs7OWVlZNTU1hoaGNzc3uLi4ysrKVVVVmpqaV1dXlpaWW1tbeHh4d3d3aGhokZGRhYWFj4+PyMjITExMtLS0hISESUlJtbW1pKSkzc3NqampvLy8bm5u0dHRWlpaoKCgSEhIvb29kJCQZ2dn19fXZWVlIyMjPT09nJycREREmZmZoqKiOTk5JycnqKioJycnNjY2Ozs7wcHBSUlJxcXFtra2vr6+wsLCYmJiIiIiMTExiIiISEhIVFRUkZGRZmZmOjo6p3ZurAAAAG90Uk5TAAEdhcrv/vbYoTUFBn/t////968ZFbv/////5zW6////////7CT//////8gL7P////////1d/////////9L//////P//////9f+h///lNff///+DBP/////oGxn//////FL/////awEjyVJd0YMan/K6cgAAAPxJREFUeJxjYMABGJmYWVjZ2Dk4ubhhQjy8fPwCICAoJCwCERIVEwfyJSSlQBLSMmBVsnJAtryCopIySK2KKtAsXpAqATV1AQ1NLRBLW4eBSRfE0NM3MFQ3MgYxTUwZmMHGm5lbWFpZ24BtsmVgAdN21uL2DlKOYLYTAyuYdrbSc3F1g4i5M7BhiAkyeGCIaTFwYIh5MngJQsS8feShYr4Mfv4gOiAwSEBAwwesNZghRBjEkA8NE5AIjwAxI6MYGKKlgYyY2Ni4eEmQxxMSQYEgoyIgkJSckuoOUpWQlg4OrIxMEwEI0IrMYoQGqk52jpO7oJanb24erqjABgCbVS2d5pjPlgAAAABJRU5ErkJggg==')") class="icon trans-02s"></span>
+        <span style="background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAWCAMAAAAVQ1dNAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAU1QTFRFAAAAIyMjOzs7YmJij4+Pp6enq6urqampmpqab29vR0dHIyMjIyMjX19fq6ur1NTU2dnZ2NjYvLy8enp6KCgoQEBAfn5+1dXVubm5i4uLoqKinJycUVFRfn5+1tbWu7u7PDw8VlZWOjo6goKCoqKiMDAwjo6OVFRUkpKSUlJS0tLSiYmJLCwsqqqqzs7OWVlZNTU1hoaGNzc3uLi4ysrKVVVVmpqaV1dXlpaWW1tbeHh4d3d3aGhokZGRhYWFj4+PyMjITExMtLS0hISESUlJtbW1pKSkzc3NqampvLy8bm5u0dHRWlpaoKCgSEhIvb29kJCQZ2dn19fXZWVlIyMjPT09nJycREREmZmZoqKiOTk5JycnqKioJycnNjY2Ozs7wcHBSUlJxcXFtra2vr6+wsLCYmJiIiIiMTExiIiISEhIVFRUkZGRZmZmOjo6p3ZurAAAAG90Uk5TAAEdhcrv/vbYoTUFBn/t////968ZFbv/////5zW6////////7CT//////8gL7P////////1d/////////9L//////P//////9f+h///lNff///+DBP/////oGxn//////FL/////awEjyVJd0YMan/K6cgAAAPxJREFUeJxjYMABGJmYWVjZ2Dk4ubhhQjy8fPwCICAoJCwCERIVEwfyJSSlQBLSMmBVsnJAtryCopIySK2KKtAsXpAqATV1AQ1NLRBLW4eBSRfE0NM3MFQ3MgYxTUwZmMHGm5lbWFpZ24BtsmVgAdN21uL2DlKOYLYTAyuYdrbSc3F1g4i5M7BhiAkyeGCIaTFwYIh5MngJQsS8feShYr4Mfv4gOiAwSEBAwwesNZghRBjEkA8NE5AIjwAxI6MYGKKlgYyY2Ni4eEmQxxMSQYEgoyIgkJSckuoOUpWQlg4OrIxMEwEI0IrMYoQGqk52jpO7oJanb24erqjABgCbVS2d5pjPlgAAAABJRU5ErkJggg==')" class="icon trans-02s"></span>
         <span class="left-section"></span>
         <span class="right-section"></span>
-        <span id="guildswarm-progressbar"></span>
       </a>
       </div>
-    </div>`
+    </div>
+<div class="gs-modal">
+  <div class="gs-modal-wrapper-content">
+    <div class="gs-modal-content">
+      <div class="gs-modal-content-body">
+        <p>Progreso: <span id="guildswarm-progressbar"></span></p>
+        <div>
+            <p><strong>Acción actual:</strong></p>
+            <div style="display:flex; gap: 1rem; align-items: center;"><span class="gs-loader"></span><p id="guildswarm-current-action" class="gs-current-action">Empezando el proceso</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`
   const h2TitleParent = h2Title.parentNode
   h2TitleParent.replaceChild(newSection, h2Title)
 }
 
 let progressBarValue = 0
+const gsModalElement = document.querySelector('.gs-modal')
 const progressBarElement = document.querySelector('#guildswarm-progressbar')
+const currentActionElement = document.querySelector('#guildswarm-current-action')
 const guildswarmMoveProgressBar = (value) => {
   progressBarElement.style.width = value + '%'
 }
@@ -231,9 +245,7 @@ const fetchSetCurrency = (currency) => {
 
 const downloadFile = (
   myHangar,
-  myBuyBack,
-  quantityBuyBackToken,
-  actualStoreCredits
+  myBuyBack
 ) => {
   const blob = new Blob(
     [
@@ -273,18 +285,22 @@ const downloadHangar = async () => {
   let responseCategories
 
   try {
+    gsModalElement.style.display = 'block'
     const currentCurrency = await fetchGetCurrency()
 
+    currentActionElement.innerHTML = 'Recorriendo el hangar para buscar las categorías'
     responseCategories = await fetchHangarCategories()
     hangarElementsCategory = responseCategories.hangarElementsCategory
 
     while (true) {
+      currentActionElement.innerHTML = `Recorriendo la página ${page} del hangar`
       const responsePage = await fetchHangarPage(page)
       if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
       hangarElements = [...hangarElements, ...responsePage.hangarData]
       page++
     }
 
+    currentActionElement.innerHTML = 'Asociando categorías a los elementos del hangar'
     assignCategoryToElements(hangarElements, hangarElementsCategory)
 
     for (const hangarElementCategory of hangarElementsCategory) {
@@ -294,17 +310,20 @@ const downloadHangar = async () => {
       }
     }
 
+    currentActionElement.innerHTML = 'Recorriendo el buyback para buscar las categorias'
     responseCategories = await fetchBuyBackCategories()
     buyBackElementsCategory = responseCategories.buyBackElementsCategory
 
     page = 1
     while (true) {
+      currentActionElement.innerHTML = `Recorriendo la página ${page} del buyback`
       const responsePage = await fetchBuyBackPage(page)
       if (!responsePage.buyBackData || responsePage.buyBackData.length === 0) break
       buyBackElements = [...buyBackElements, ...responsePage.buyBackData]
       page++
     }
 
+    currentActionElement.innerHTML = 'Asociando categorías a los elementos del buyback'
     assignCategoryToElements(buyBackElements, buyBackElementsCategory)
 
     await fetchSetCurrency(currentCurrency)
@@ -312,5 +331,8 @@ const downloadHangar = async () => {
     console.error('Error durante la descarga del hangar:', error)
   }
 
+  currentActionElement.innerHTML = 'Generando el fichero con los datos'
   downloadFile(hangarElements, buyBackElements)
+  gsModalElement.style.display = 'none'
+  currentActionElement.innerHTML = 'Empezando el proceso'
 }
