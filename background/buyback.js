@@ -58,6 +58,20 @@ const isEmptyList = ($) => {
   return $('ul.pledges li.no-buy-backs').length > 0
 }
 
+export const getNumberOfPagesInBuyBack = async () => {
+  const buyBackData = await fetchBuyBackPage(1)
+  const $ = cheerio.load(buyBackData)
+  if (isEmptyList($)) return 0
+
+  const linkElementMaxPagesOfBuyBack = $('div.pager div.right a.raquo')
+  if (linkElementMaxPagesOfBuyBack.length === 0) return 0
+
+  const hrefLinkElementMaxPagesOfBuyBack = linkElementMaxPagesOfBuyBack.attr('href')
+  const regex = /page=(.*?)&/g
+  const maxPagesOfBuyBack = regex.exec(hrefLinkElementMaxPagesOfBuyBack)
+  return maxPagesOfBuyBack === null ? 0 : maxPagesOfBuyBack[1]
+}
+
 export const fetchBuyBackPage = async (page) => {
   let response
   // if (page === 3 || page === 10 || page === 16) {

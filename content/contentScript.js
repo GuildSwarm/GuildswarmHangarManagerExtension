@@ -162,6 +162,23 @@ document.addEventListener('click', function (e) {
   }
 })
 
+const fetchNumberOfPagesInHangar = () => {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { type: 'getNumberOfPagesInHangar' },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError.message)
+        } else if (response) {
+          resolve(response)
+        } else {
+          reject('No se recibió respuesta del Service Worker.')
+        }
+      }
+    )
+  })
+}
+
 const fetchHangarPage = (page) => {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
@@ -196,6 +213,23 @@ const fetchHangarCategories = (page) => {
   })
 }
 
+const fetchNumberOfPagesInBuyBack = () => {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { type: 'getNumberOfPagesInBuyBack' },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError.message)
+        } else if (response) {
+          resolve(response)
+        } else {
+          reject('No se recibió respuesta del Service Worker.')
+        }
+      }
+    )
+  })
+}
+
 const fetchBuyBackPage = (page) => {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
@@ -204,11 +238,11 @@ const fetchBuyBackPage = (page) => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError.message)
         } else if (response) {
-          if (!response.error || (response.error && response.status === 403)) {
-            resolve(response)
+          if (response.error) {
+            reject(response)
           }
 
-          reject(response)
+          resolve(response)
         } else {
           reject('No se recibió respuesta del Service Worker.')
         }
@@ -225,11 +259,11 @@ const fetchBuyBackElement = (page, elementPositionInPage) => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError.message)
         } else if (response) {
-          if (!response.error || (response.error && response.status === 403)) {
-            resolve(response)
+          if (response.error) {
+            reject(response)
           }
 
-          reject(response)
+          resolve(response)
         } else {
           reject('No se recibió respuesta del Service Worker.')
         }
@@ -330,16 +364,17 @@ const downloadHangar = async () => {
   let page = 1
   let responseCategories
 
-  try {
-    gsModalElement.style.display = 'block'
-    const currentCurrency = await fetchGetCurrency()
+  gsModalElement.style.display = 'block'
+  const currentCurrency = await fetchGetCurrency()
 
+  const responsePagesInHangar = await fetchNumberOfPagesInHangar()
+  if (responsePagesInHangar.numberOfPagesInHangar > 0) {
     currentActionElement.innerHTML = 'Recorriendo el hangar para buscar las categorías'
     responseCategories = await fetchHangarCategories()
     hangarElementsCategory = responseCategories.hangarElementsCategory
 
-    while (true) {
-      currentActionElement.innerHTML = `Recorriendo la página ${page} del hangar`
+    while (page <= responsePagesInHangar.numberOfPagesInHangar) {
+      currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInHangar.numberOfPagesInHangar} del hangar`
       const responsePage = await fetchHangarPage(page)
       if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
       hangarElements = [...hangarElements, ...responsePage.hangarData]
@@ -348,37 +383,35 @@ const downloadHangar = async () => {
 
     currentActionElement.innerHTML = 'Asociando categorías a los elementos del hangar'
     assignCategoryToElements(hangarElements, hangarElementsCategory)
+  }
 
-    for (const hangarElementCategory of hangarElementsCategory) {
-      const hangerElement = hangarElements.find(hangerElement => hangerElement.id === hangarElementCategory.pledgeId)
-      if (hangerElement) {
-        hangerElement.category = hangarElementCategory.categoryId
-      }
-    }
-
+  const responsePagesInBuyBack = await fetchNumberOfPagesInBuyBack()
+  if (responsePagesInBuyBack.numberOfPagesInBuyBack > 0) {
     currentActionElement.innerHTML = 'Recorriendo el buyback para buscar las categorias'
     responseCategories = await fetchBuyBackCategories()
     buyBackElementsCategory = responseCategories.buyBackElementsCategory
 
     page = 1
-    while (true) {
-      currentActionElement.innerHTML = `Recorriendo la página ${page} del buyback`
-      const responsePage = await fetchBuyBackPage(page)
+    while (page <= responsePagesInBuyBack.numberOfPagesInBuyBack) {
+      currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInBuyBack.numberOfPagesInBuyBack} del buyback`
+      let responsePage
+      try {
+        responsePage = await fetchBuyBackPage(page)
+      } catch (error) {
+        historyErrorElement.innerHTML += `<li>Error al recorrer la página ${page}. Error: ${error.message}</li>`
 
-      if (responsePage.error) {
-        historyErrorElement.innerHTML += `<li>Error al recorrer la página ${page}. Error status: ${responsePage.status}</li>`
-      }
-
-      if (responsePage.error && responsePage.status === 403) {
         for (let elementPositionInPage = 0; elementPositionInPage < 10; elementPositionInPage++) {
-          currentActionElement.innerHTML = `Error 403 al recorrer la página ${page}. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`
-          const responseElement = await fetchBuyBackElement(page, elementPositionInPage)
-          if (responseElement.buyBackData) {
-            buyBackElements = [...buyBackElements, ...responseElement.buyBackData]
+          currentActionElement.innerHTML = `Error al recorrer la página ${page}. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`
+          let responseElement
+          try {
+            responseElement = await fetchBuyBackElement(page, elementPositionInPage)
+          } catch (error) {
+            historyErrorElement.innerHTML += `<li>Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}). Error: ${error.message}</li>`
+            continue
           }
 
-          if (!responseElement.buyBackData) {
-            historyErrorElement.innerHTML += `<li>Error al recorrer elementos individualmente, página actual: ${page}, elemento actual: ${elementPositionInPage + 1}. Error status: ${responsePage.status}</li>`
+          if (responseElement.buyBackData && responseElement.buyBackData.length > 0) {
+            buyBackElements = [...buyBackElements, ...responseElement.buyBackData]
           }
         }
 
@@ -386,21 +419,20 @@ const downloadHangar = async () => {
         continue
       }
 
-      if (!responsePage.buyBackData || responsePage.buyBackData.length === 0) break
-      buyBackElements = [...buyBackElements, ...responsePage.buyBackData]
+      if (responsePage.buyBackData && responsePage.buyBackData.length > 0) {
+        buyBackElements = [...buyBackElements, ...responsePage.buyBackData]
+      }
       page++
     }
 
     currentActionElement.innerHTML = 'Asociando categorías a los elementos del buyback'
     assignCategoryToElements(buyBackElements, buyBackElementsCategory)
-
-    await fetchSetCurrency(currentCurrency)
-  } catch (error) {
-    console.error('Error durante la descarga del hangar:', error)
   }
+
+  await fetchSetCurrency(currentCurrency)
 
   currentActionElement.innerHTML = 'Generando el fichero con los datos'
   downloadFile(hangarElements, buyBackElements)
   gsModalFooterElement.style.display = 'flex'
-  // currentActionElement.innerHTML = 'Empezando el proceso'
+  currentActionElement.innerHTML = 'Empezando el proceso'
 }

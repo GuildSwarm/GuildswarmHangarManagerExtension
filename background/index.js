@@ -1,5 +1,5 @@
-import { getHangarPage, getHangarElementsCategory } from './hangar.js'
-import { getBuyBackPage, getBuyBackElement, getBuyBackElementsCategory } from './buyback.js'
+import { getNumberOfPagesInHangar, getHangarPage, getHangarElementsCategory } from './hangar.js'
+import { getNumberOfPagesInBuyBack, getBuyBackPage, getBuyBackElement, getBuyBackElementsCategory } from './buyback.js'
 import { baseUrlRsi, globalCurrency, setAuthToken } from './shared'
 import { setCurrency, getCurrency } from './currency'
 
@@ -38,6 +38,15 @@ const handleSetCurrency = async (currency) => {
   }
 }
 
+const handleGetNumberOfPagesInHangar = async () => {
+  try {
+    const numberOfPagesInHangar = await getNumberOfPagesInHangar()
+    return { numberOfPagesInHangar }
+  } catch (error) {
+    throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
+  }
+}
+
 const handleGetHangarPage = async (page) => {
   try {
     const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
@@ -55,6 +64,15 @@ const handleGetHangarCategories = async () => {
   try {
     const hangarElementsCategory = await getHangarElementsCategory()
     return { hangarElementsCategory }
+  } catch (error) {
+    throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
+  }
+}
+
+const handleGetNumberOfPagesInBuyBack = async () => {
+  try {
+    const numberOfPagesInBuyBack = await getNumberOfPagesInBuyBack()
+    return { numberOfPagesInBuyBack }
   } catch (error) {
     throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
   }
@@ -96,6 +114,19 @@ const handleGetBuyBackCategories = async () => {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'getNumberOfPagesInHangar') {
+    handleGetNumberOfPagesInHangar()
+      .then((result) => {
+        sendResponse(result)
+      })
+      .catch((error) => {
+        console.error('Error en onMessage getNumberOfPagesInHangar:', error)
+        sendResponse(error.message)
+      })
+
+    return true
+  }
+
   if (message.type === 'getHangarPage') {
     const page = message.page || 1
     handleGetHangarPage(page)
@@ -104,7 +135,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       })
       .catch((error) => {
         console.error('Error en onMessage getHangarPage:', error)
-        sendResponse(error.message)
+        sendResponse({ error: true, message: error.message })
       })
 
     return true
@@ -123,6 +154,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true
   }
 
+  if (message.type === 'getNumberOfPagesInBuyBack') {
+    handleGetNumberOfPagesInBuyBack()
+      .then((result) => {
+        sendResponse(result)
+      })
+      .catch((error) => {
+        console.error('Error en onMessage getNumberOfPagesInBuyBack:', error)
+        sendResponse(error.message)
+      })
+
+    return true
+  }
+
   if (message.type === 'getBuyBackPage') {
     const page = message.page || 1
     handleGetBuyBackPage(page)
@@ -134,7 +178,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           sendResponse({ error: true, status: 403, message: error.message })
         }
 
-        sendResponse(error.message)
+        sendResponse({ error: true, message: error.message })
       })
 
     return true
@@ -152,7 +196,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           sendResponse({ error: true, status: 403, message: error.message })
         }
 
-        sendResponse(error.message)
+        sendResponse({ error: true, message: error.message })
       })
 
     return true

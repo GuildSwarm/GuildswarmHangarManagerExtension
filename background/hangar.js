@@ -79,6 +79,20 @@ const removeCodesOfCouponsName = (couponName) => {
   return couponName?.replace(regexCoupon, 'Coupon') || 'Unknown'
 }
 
+export const getNumberOfPagesInHangar = async () => {
+  const hangarData = await fetchHangarPage(1)
+  const $ = cheerio.load(hangarData)
+  if (isEmptyList($)) return 0
+
+  const linkElementMaxPagesOfHangar = $('div.pager div.right a.raquo')
+  if (linkElementMaxPagesOfHangar.length === 0) return 0
+
+  const hrefLinkElementMaxPagesOfHangar = linkElementMaxPagesOfHangar.attr('href')
+  const regex = /page=(.*?)&/g
+  const maxPagesOfHangar = regex.exec(hrefLinkElementMaxPagesOfHangar)
+  return maxPagesOfHangar === null ? 0 : maxPagesOfHangar[1]
+}
+
 export const getHangarPage = async (rsiToken, page) => {
   const hangarData = await fetchHangarPage(page)
   const $ = cheerio.load(hangarData)
