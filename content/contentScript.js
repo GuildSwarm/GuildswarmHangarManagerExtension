@@ -18,7 +18,7 @@ if (h2Title !== null) {
         </div>
         <a id="guildswarm-download" class="shadow-button trans-02s trans-color">
         <span class="label trans-02s">Guildswarm - Download Hangar data</span>
-        <span style="background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAWCAMAAAAVQ1dNAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAU1QTFRFAAAAIyMjOzs7YmJij4+Pp6enq6urqampmpqab29vR0dHIyMjIyMjX19fq6ur1NTU2dnZ2NjYvLy8enp6KCgoQEBAfn5+1dXVubm5i4uLoqKinJycUVFRfn5+1tbWu7u7PDw8VlZWOjo6goKCoqKiMDAwjo6OVFRUkpKSUlJS0tLSiYmJLCwsqqqqzs7OWVlZNTU1hoaGNzc3uLi4ysrKVVVVmpqaV1dXlpaWW1tbeHh4d3d3aGhokZGRhYWFj4+PyMjITExMtLS0hISESUlJtbW1pKSkzc3NqampvLy8bm5u0dHRWlpaoKCgSEhIvb29kJCQZ2dn19fXZWVlIyMjPT09nJycREREmZmZoqKiOTk5JycnqKioJycnNjY2Ozs7wcHBSUlJxcXFtra2vr6+wsLCYmJiIiIiMTExiIiISEhIVFRUkZGRZmZmOjo6p3ZurAAAAG90Uk5TAAEdhcrv/vbYoTUFBn/t////968ZFbv/////5zW6////////7CT//////8gL7P////////1d/////////9L//////P//////9f+h///lNff///+DBP/////oGxn//////FL/////awEjyVJd0YMan/K6cgAAAPxJREFUeJxjYMABGJmYWVjZ2Dk4ubhhQjy8fPwCICAoJCwCERIVEwfyJSSlQBLSMmBVsnJAtryCopIySK2KKtAsXpAqATV1AQ1NLRBLW4eBSRfE0NM3MFQ3MgYxTUwZmMHGm5lbWFpZ24BtsmVgAdN21uL2DlKOYLYTAyuYdrbSc3F1g4i5M7BhiAkyeGCIaTFwYIh5MngJQsS8feShYr4Mfv4gOiAwSEBAwwesNZghRBjEkA8NE5AIjwAxI6MYGKKlgYyY2Ni4eEmQxxMSQYEgoyIgkJSckuoOUpWQlg4OrIxMEwEI0IrMYoQGqk52jpO7oJanb24erqjABgCbVS2d5pjPlgAAAABJRU5ErkJggg==')" class="icon trans-02s"></span>
+        <span class="icon gs-icon trans-02s"></span>
         <span class="left-section"></span>
         <span class="right-section"></span>
       </a>
@@ -29,11 +29,25 @@ if (h2Title !== null) {
         <div class="gs-modal-content">
           <div class="gs-modal-content-body">
             <div>
-              <p style="padding-top: 0">Progreso: <span id="guildswarm-progressbar"></span></p>
+              <div class="gs-progress-wrapper">
+                <p><strong>Progreso:</strong></p>
+                <div class="gs-progress-point-wrapper">
+                    <div class="gs-progress-interpoint"></div>
+                    <div class="gs-progress-point one">1</div>
+                    <div class="gs-progress-point two">2</div>
+                    <div class="gs-progress-point three">3</div>
+                    <div class="gs-progress-point four">4</div>
+                    <div class="gs-progress-point five">5</div>
+                    <div class="gs-progress-point six">6</div>
+                </div>
+              </div>
               <div>
                   <p><strong>Acción actual:</strong></p>
                   <div class="gs-current-action-wrapper">
-                    <div class="gs-loader-wrapper"><span class="gs-loader"></span></div>
+                    <div class="gs-loader-wrapper">
+                        <span class="gs-loader"></span>
+                        <div class="gs-process-finished"></div>
+                    </div>
                     <p id="guildswarm-current-action" class="gs-current-action">Empezando el proceso</p>
                   </div>
               </div>
@@ -53,86 +67,19 @@ if (h2Title !== null) {
   h2TitleParent.replaceChild(newSection, h2Title)
 }
 
-let progressBarValue = 0
 const gsModalElement = document.querySelector('.gs-modal')
 const gsModalFooterElement = document.querySelector('.gs-modal-footer')
-const progressBarElement = document.querySelector('#guildswarm-progressbar')
+const progressPointOne = document.querySelector('.gs-progress-point.one')
+const progressPointTwo = document.querySelector('.gs-progress-point.two')
+const progressPointThree = document.querySelector('.gs-progress-point.three')
+const progressPointFour = document.querySelector('.gs-progress-point.four')
+const progressPointFive = document.querySelector('.gs-progress-point.five')
+const progressPointSix = document.querySelector('.gs-progress-point.six')
+const progressInterpoint = document.querySelector('.gs-progress-interpoint')
+const loaderElement = document.querySelector('.gs-loader')
+const processFinishedElement = document.querySelector('.gs-process-finished')
 const currentActionElement = document.querySelector('#guildswarm-current-action')
 const historyErrorElement = document.querySelector('#guildswarm-history-error')
-const guildswarmMoveProgressBar = (value) => {
-  progressBarElement.style.width = value + '%'
-}
-const guildswarmResetProgressBar = () => {
-  progressBarValue = 0
-  progressBarElement.style.width = progressBarValue + '%'
-  progressBarElement.style.boxShadow = '0px -2px 0px 0px #00E0FF'
-}
-const guildswarmFinishProgressBar = () => {
-  progressBarValue = 100
-  guildswarmMoveProgressBar(progressBarValue)
-  progressBarElement.style.boxShadow = '0px -2px 0px 0px #00ff00'
-}
-const guildswarmErrorProgressBar = () => {
-  progressBarValue = 100
-  guildswarmMoveProgressBar(progressBarValue)
-  progressBarElement.style.boxShadow = '0px -2px 0px 0px #ff0000'
-}
-
-const errorWrapperElement = document.querySelector('#guildswarm-error-wrapper')
-const successWrapperElement = document.querySelector('#guildswarm-success-wrapper')
-const successTitleElement = document.querySelector('#guildswarm-success-title')
-const successContentElement = document.querySelector('#guildswarm-success-content')
-const successBodyElement = document.querySelector('#guildswarm-success-body')
-
-const guildswarmDisplayError = () => {
-  hideSuccess()
-  showError()
-}
-
-const guildswarmResetUi = () => {
-  guildswarmResetProgressBar()
-  hideError()
-  hideSuccess()
-  const newElement = document.createElement('p')
-  newElement.innerHTML = '&#10003; The process has completed successfully.'
-  successTitleElement.replaceChildren(newElement)
-  successContentElement.replaceChildren()
-  successBodyElement.classList.remove('with-warning')
-}
-
-const addWarning = (elementName) => {
-  const newElement = document.createElement('p')
-  newElement.innerHTML = '&#x2022; ' + elementName
-  successContentElement.append(newElement)
-}
-
-const showSuccess = () => {
-  successWrapperElement.style.display = 'block'
-}
-
-const showError = () => {
-  errorWrapperElement.style.display = 'block'
-}
-
-const hideSuccess = () => {
-  successWrapperElement.style.display = 'none'
-}
-
-const hideError = () => {
-  errorWrapperElement.style.display = 'none'
-}
-
-const finishProcessSuccess = () => {
-  if (successContentElement.hasChildNodes()) {
-    const newElement = document.createElement('p')
-    newElement.innerHTML = '&#10003; The process has completed successfully with warnings. The following BuyBack element(s) are not included in the file due to an error on the RSI website:'
-    successTitleElement.replaceChildren(newElement)
-    successBodyElement.classList.add('with-warning')
-  }
-  guildswarmFinishProgressBar()
-  hideError()
-  showSuccess()
-}
 
 document.addEventListener('click', function (e) {
   const target = e.target.closest('#guildswarm-download')
@@ -145,20 +92,7 @@ document.addEventListener('click', function (e) {
   const target = e.target.closest('#guildswarm-close-modal')
   if (target) {
     gsModalElement.style.display = 'none'
-  }
-})
-
-document.addEventListener('click', function (e) {
-  const target = e.target.closest('#guildswarm-error-wrapper-close')
-  if (target) {
-    hideError()
-  }
-})
-
-document.addEventListener('click', function (e) {
-  const target = e.target.closest('#guildswarm-success-wrapper-close')
-  if (target) {
-    hideSuccess()
+    resetInterface()
   }
 })
 
@@ -370,8 +304,10 @@ const downloadHangar = async () => {
   const responsePagesInHangar = await fetchNumberOfPagesInHangar()
   if (responsePagesInHangar.numberOfPagesInHangar > 0) {
     currentActionElement.innerHTML = 'Recorriendo el hangar para buscar las categorías'
+    await sleep(1000)
     responseCategories = await fetchHangarCategories()
     hangarElementsCategory = responseCategories.hangarElementsCategory
+    progressPointOne.classList.add('completed')
 
     while (page <= responsePagesInHangar.numberOfPagesInHangar) {
       currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInHangar.numberOfPagesInHangar} del hangar`
@@ -380,16 +316,29 @@ const downloadHangar = async () => {
       hangarElements = [...hangarElements, ...responsePage.hangarData]
       page++
     }
+    progressPointTwo.classList.add('completed')
+    progressInterpoint.classList.add('point-2')
+    await sleep(1000)
 
     currentActionElement.innerHTML = 'Asociando categorías a los elementos del hangar'
+    await sleep(1000)
     assignCategoryToElements(hangarElements, hangarElementsCategory)
+    progressPointThree.classList.add('completed')
+    progressInterpoint.classList.add('point-3')
+    await sleep(1000)
   }
 
   const responsePagesInBuyBack = await fetchNumberOfPagesInBuyBack()
   if (responsePagesInBuyBack.numberOfPagesInBuyBack > 0) {
     currentActionElement.innerHTML = 'Recorriendo el buyback para buscar las categorias'
+    await sleep(1000)
+
     responseCategories = await fetchBuyBackCategories()
     buyBackElementsCategory = responseCategories.buyBackElementsCategory
+
+    progressPointFour.classList.add('completed')
+    progressInterpoint.classList.add('point-4')
+    await sleep(1000)
 
     page = 1
     while (page <= responsePagesInBuyBack.numberOfPagesInBuyBack) {
@@ -424,15 +373,54 @@ const downloadHangar = async () => {
       }
       page++
     }
+    progressPointFive.classList.add('completed')
+    progressInterpoint.classList.add('point-5')
+    await sleep(1000)
 
     currentActionElement.innerHTML = 'Asociando categorías a los elementos del buyback'
+    await sleep(1000)
     assignCategoryToElements(buyBackElements, buyBackElementsCategory)
+
+    progressPointSix.classList.add('completed')
+    progressInterpoint.classList.add('point-6')
+    await sleep(1000)
   }
 
   await fetchSetCurrency(currentCurrency)
-
   currentActionElement.innerHTML = 'Generando el fichero con los datos'
+  await sleep(1000)
+
   downloadFile(hangarElements, buyBackElements)
+  finishProcessSuccess()
+}
+
+const finishProcessSuccess = () => {
   gsModalFooterElement.style.display = 'flex'
+  loaderElement.style.display = 'none'
+  processFinishedElement.style.display = 'block'
+  currentActionElement.innerHTML = 'Proceso finalizado'
+}
+
+const resetInterface = () => {
+  gsModalFooterElement.style.display = 'none'
+  loaderElement.style.display = 'block'
+  processFinishedElement.style.display = 'none'
+  historyErrorElement.innerHTML = ''
   currentActionElement.innerHTML = 'Empezando el proceso'
+  progressPointSix.classList.remove('completed')
+  progressPointFive.classList.remove('completed')
+  progressPointFour.classList.remove('completed')
+  progressPointThree.classList.remove('completed')
+  progressPointTwo.classList.remove('completed')
+  progressPointOne.classList.remove('completed')
+  progressInterpoint.classList.remove('point-1')
+  progressInterpoint.classList.remove('point-2')
+  progressInterpoint.classList.remove('point-3')
+  progressInterpoint.classList.remove('point-4')
+  progressInterpoint.classList.remove('point-5')
+  progressInterpoint.classList.remove('point-6')
+}
+
+const sleep = async (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
