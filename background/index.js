@@ -1,5 +1,5 @@
 import { getHangarPage, getHangarElementsCategory } from './hangar.js'
-import { getBuyBackPage, getBuyBackElementsCategory } from './buyback.js'
+import { getBuyBackPage, getBuyBackElement, getBuyBackElementsCategory } from './buyback.js'
 import { baseUrlRsi, globalCurrency, setAuthToken } from './shared'
 import { setCurrency, getCurrency } from './currency'
 
@@ -61,20 +61,29 @@ const handleGetHangarCategories = async () => {
 }
 
 const handleGetBuyBackPage = async (page) => {
-  try {
-    const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
-    if (!rsiToken) {
-      throw new Error('No se pudo obtener la cookie Rsi-Token.')
-    }
-    const authToken = await setAuthToken(rsiToken)
-    if (!authToken) {
-      throw new Error('No se pudo obtener la authToken de RSI.')
-    }
-    const buyBackData = await getBuyBackPage(rsiToken, authToken, page)
-    return { page, buyBackData }
-  } catch (error) {
-    throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
+  const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
+  if (!rsiToken) {
+    throw new Error('No se pudo obtener la cookie Rsi-Token.')
   }
+  const authToken = await setAuthToken(rsiToken)
+  if (!authToken) {
+    throw new Error('No se pudo obtener la authToken de RSI.')
+  }
+  const buyBackData = await getBuyBackPage(rsiToken, authToken, page)
+  return { page, buyBackData }
+}
+
+const handleGetBuyBackElement = async (page, elementPositionInPage) => {
+  const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
+  if (!rsiToken) {
+    throw new Error('No se pudo obtener la cookie Rsi-Token.')
+  }
+  const authToken = await setAuthToken(rsiToken)
+  if (!authToken) {
+    throw new Error('No se pudo obtener la authToken de RSI.')
+  }
+  const buyBackData = await getBuyBackElement(rsiToken, authToken, page, elementPositionInPage)
+  return { page, buyBackData }
 }
 
 const handleGetBuyBackCategories = async () => {
@@ -94,8 +103,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse(result)
       })
       .catch((error) => {
-        console.error('Error en onMessage:', error)
-        sendResponse({ error: error.message })
+        console.error('Error en onMessage getHangarPage:', error)
+        sendResponse(error.message)
       })
 
     return true
@@ -107,8 +116,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse(result)
       })
       .catch((error) => {
-        console.error('Error en onMessage:', error)
-        sendResponse({ error: error.message })
+        console.error('Error en onMessage getHangarCategories:', error)
+        sendResponse(error.message)
       })
 
     return true
@@ -121,8 +130,29 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse(result)
       })
       .catch((error) => {
-        console.error('Error en onMessage:', error)
-        sendResponse({ error: error.message })
+        if (error.message.toLowerCase().startsWith('request failed with status code 403')) {
+          sendResponse({ error: true, status: 403, message: error.message })
+        }
+
+        sendResponse(error.message)
+      })
+
+    return true
+  }
+
+  if (message.type === 'getBuyBackElement') {
+    const page = message.page || 1
+    const elementPositionInPage = message.elementPositionInPage || 0
+    handleGetBuyBackElement(page, elementPositionInPage)
+      .then((result) => {
+        sendResponse(result)
+      })
+      .catch((error) => {
+        if (error.message.toLowerCase().startsWith('request failed with status code 403')) {
+          sendResponse({ error: true, status: 403, message: error.message })
+        }
+
+        sendResponse(error.message)
       })
 
     return true
@@ -134,8 +164,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse(result)
       })
       .catch((error) => {
-        console.error('Error en onMessage:', error)
-        sendResponse({ error: error.message })
+        console.error('Error en onMessage getBuyBackCategories:', error)
+        sendResponse(error.message)
       })
 
     return true
@@ -147,8 +177,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse(result)
       })
       .catch((error) => {
-        console.error('Error en onMessage:', error)
-        sendResponse({ error: error.message })
+        console.error('Error en onMessage getCurrency:', error)
+        sendResponse(error.message)
       })
 
     return true
@@ -161,8 +191,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse(result)
       })
       .catch((error) => {
-        console.error('Error en onMessage:', error)
-        sendResponse({ error: error.message })
+        console.error('Error en onMessage setCurrency:', error)
+        sendResponse(error.message)
       })
 
     return true
@@ -180,8 +210,8 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
         sendResponse(result)
       })
       .catch((error) => {
-        console.error('Error en onMessageExternal:', error)
-        sendResponse({ error: error.message })
+        console.error('Error en onMessageExternal getHangarData:', error)
+        sendResponse(error.message)
       })
 
     return true

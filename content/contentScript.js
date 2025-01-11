@@ -24,27 +24,41 @@ if (h2Title !== null) {
       </a>
       </div>
     </div>
-<div class="gs-modal">
-  <div class="gs-modal-wrapper-content">
-    <div class="gs-modal-content">
-      <div class="gs-modal-content-body">
-        <p>Progreso: <span id="guildswarm-progressbar"></span></p>
-        <div>
-            <p><strong>Acción actual:</strong></p>
-            <div style="display:flex; gap: 1rem; align-items: center;"><span class="gs-loader"></span><p id="guildswarm-current-action" class="gs-current-action">Empezando el proceso</p></div>
+    <div class="gs-modal">
+      <div class="gs-modal-wrapper-content">
+        <div class="gs-modal-content">
+          <div class="gs-modal-content-body">
+            <div>
+              <p style="padding-top: 0">Progreso: <span id="guildswarm-progressbar"></span></p>
+              <div>
+                  <p><strong>Acción actual:</strong></p>
+                  <div class="gs-current-action-wrapper">
+                    <div class="gs-loader-wrapper"><span class="gs-loader"></span></div>
+                    <p id="guildswarm-current-action" class="gs-current-action">Empezando el proceso</p>
+                  </div>
+              </div>
+              <div>
+                  <p><strong>Historial de errores encontrados:</strong></p>
+                  <ul class="gs-cutom-list gs-scroll-section" id="guildswarm-history-error"></ul>
+              </div>
+            </div>
+            <div class="gs-modal-footer">
+                <button id="guildswarm-close-modal">Cerrar</button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>`
+    </div>`
   const h2TitleParent = h2Title.parentNode
   h2TitleParent.replaceChild(newSection, h2Title)
 }
 
 let progressBarValue = 0
 const gsModalElement = document.querySelector('.gs-modal')
+const gsModalFooterElement = document.querySelector('.gs-modal-footer')
 const progressBarElement = document.querySelector('#guildswarm-progressbar')
 const currentActionElement = document.querySelector('#guildswarm-current-action')
+const historyErrorElement = document.querySelector('#guildswarm-history-error')
 const guildswarmMoveProgressBar = (value) => {
   progressBarElement.style.width = value + '%'
 }
@@ -128,6 +142,13 @@ document.addEventListener('click', function (e) {
 })
 
 document.addEventListener('click', function (e) {
+  const target = e.target.closest('#guildswarm-close-modal')
+  if (target) {
+    gsModalElement.style.display = 'none'
+  }
+})
+
+document.addEventListener('click', function (e) {
   const target = e.target.closest('#guildswarm-error-wrapper-close')
   if (target) {
     hideError()
@@ -183,7 +204,32 @@ const fetchBuyBackPage = (page) => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError.message)
         } else if (response) {
-          resolve(response)
+          if (!response.error || (response.error && response.status === 403)) {
+            resolve(response)
+          }
+
+          reject(response)
+        } else {
+          reject('No se recibió respuesta del Service Worker.')
+        }
+      }
+    )
+  })
+}
+
+const fetchBuyBackElement = (page, elementPositionInPage) => {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { type: 'getBuyBackElement', page, elementPositionInPage },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError.message)
+        } else if (response) {
+          if (!response.error || (response.error && response.status === 403)) {
+            resolve(response)
+          }
+
+          reject(response)
         } else {
           reject('No se recibió respuesta del Service Worker.')
         }
@@ -318,6 +364,28 @@ const downloadHangar = async () => {
     while (true) {
       currentActionElement.innerHTML = `Recorriendo la página ${page} del buyback`
       const responsePage = await fetchBuyBackPage(page)
+
+      if (responsePage.error) {
+        historyErrorElement.innerHTML += `<li>Error al recorrer la página ${page}. Error status: ${responsePage.status}</li>`
+      }
+
+      if (responsePage.error && responsePage.status === 403) {
+        for (let elementPositionInPage = 0; elementPositionInPage < 10; elementPositionInPage++) {
+          currentActionElement.innerHTML = `Error 403 al recorrer la página ${page}. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`
+          const responseElement = await fetchBuyBackElement(page, elementPositionInPage)
+          if (responseElement.buyBackData) {
+            buyBackElements = [...buyBackElements, ...responseElement.buyBackData]
+          }
+
+          if (!responseElement.buyBackData) {
+            historyErrorElement.innerHTML += `<li>Error al recorrer elementos individualmente, página actual: ${page}, elemento actual: ${elementPositionInPage + 1}. Error status: ${responsePage.status}</li>`
+          }
+        }
+
+        page++
+        continue
+      }
+
       if (!responsePage.buyBackData || responsePage.buyBackData.length === 0) break
       buyBackElements = [...buyBackElements, ...responsePage.buyBackData]
       page++
@@ -333,6 +401,6 @@ const downloadHangar = async () => {
 
   currentActionElement.innerHTML = 'Generando el fichero con los datos'
   downloadFile(hangarElements, buyBackElements)
-  gsModalElement.style.display = 'none'
-  currentActionElement.innerHTML = 'Empezando el proceso'
+  gsModalFooterElement.style.display = 'flex'
+  // currentActionElement.innerHTML = 'Empezando el proceso'
 }

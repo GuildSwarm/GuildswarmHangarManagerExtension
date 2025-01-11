@@ -59,19 +59,95 @@ const isEmptyList = ($) => {
 }
 
 export const fetchBuyBackPage = async (page) => {
-  try {
-    const response = await ky.get(baseUrlRsi + '/account/buy-back-pledges?page=' + page + '&pagesize=10', {
-      retry: {
-        limit: retryLimit,
-        methods: ['get'],
-        statusCodes: statusCodesRetry
-      }
-    })
+  let response
+  // if (page === 3 || page === 10 || page === 16) {
+  //   response = await ky.get('https://httpstat.us/403', {
+  //     retry: {
+  //       limit: retryLimit,
+  //       methods: ['get'],
+  //       statusCodes: statusCodesRetry
+  //     }
+  //   })
+  //   return response.text()
+  // }
+  //
+  // if (page === 4) {
+  //   response = await ky.get('https://httpstat.us/503', {
+  //     retry: {
+  //       limit: retryLimit,
+  //       methods: ['get'],
+  //       statusCodes: statusCodesRetry
+  //     }
+  //   })
+  //   return response.text()
+  // }
+  //
+  // if (page === 12) {
+  //   response = await ky.get('https://httpstat.us/505', {
+  //     retry: {
+  //       limit: retryLimit,
+  //       methods: ['get'],
+  //       statusCodes: statusCodesRetry
+  //     }
+  //   })
+  //   return response.text()
+  // }
 
-    return response.text()
-  } catch (error) {
-    throw new Error(`Error on request: ${error.message}`)
-  }
+  response = await ky.get(`${baseUrlRsi}/account/buy-back-pledges?page=${page}&pagesize=10`, {
+    retry: {
+      limit: retryLimit,
+      methods: ['get'],
+      statusCodes: statusCodesRetry
+    }
+  })
+
+  return response.text()
+}
+
+export const fetchBuyBackElement = async (pageElement) => {
+  let response
+  // if (pageElement === 156 || pageElement === 93 || pageElement === 24) {
+  //   response = await ky.get('https://httpstat.us/403', {
+  //     retry: {
+  //       limit: retryLimit,
+  //       methods: ['get'],
+  //       statusCodes: statusCodesRetry
+  //     }
+  //   })
+  //   return response.text()
+  // }
+  //
+  // if (pageElement === 158) {
+  //   response = await ky.get('https://httpstat.us/503', {
+  //     retry: {
+  //       limit: retryLimit,
+  //       methods: ['get'],
+  //       statusCodes: statusCodesRetry
+  //     }
+  //   })
+  //   return response.text()
+  // }
+  //
+  // if (pageElement === 25) {
+  //   response = await ky.get('https://httpstat.us/505', {
+  //     retry: {
+  //       limit: retryLimit,
+  //       methods: ['get'],
+  //       statusCodes: statusCodesRetry
+  //     }
+  //   })
+  //   return response.text()
+  // }
+
+  response = await ky.get(`${baseUrlRsi}/account/buy-back-pledges?page=${pageElement}&pagesize=1`, {
+    retry: {
+      limit: retryLimit,
+      methods: ['get'],
+      statusCodes: statusCodesRetry
+    }
+  })
+
+  return response.text()
 }
 
 const fetchBuyBackPledge = async (buyBackLink) => {
@@ -97,6 +173,16 @@ const normalizeBuyBackPrice = (price) => {
 
 export const getBuyBackPage = async (rsiToken, authToken, page) => {
   const buyBackData = await fetchBuyBackPage(page)
+  return extractDataFromBuyBackData(rsiToken, authToken, page, buyBackData)
+}
+
+export const getBuyBackElement = async (rsiToken, authToken, page, elementPositionInPage) => {
+  const pageElement = calculateElementPosition(page, elementPositionInPage)
+  const buyBackData = await fetchBuyBackElement(pageElement)
+  return extractDataFromBuyBackData(rsiToken, authToken, page, buyBackData, pageElement)
+}
+
+const extractDataFromBuyBackData = async (rsiToken, authToken, page, buyBackData, pageElement = null) => {
   const $ = cheerio.load(buyBackData)
   if (isEmptyList($)) return []
 
@@ -130,7 +216,7 @@ export const getBuyBackPage = async (rsiToken, authToken, page) => {
       category = 'upgrade'
     }
 
-    const link = `${baseUrlRsi}/account/buy-back-pledges?page=${calculateElementPosition(page, index)}&pagesize=1`
+    const link = `${baseUrlRsi}/account/buy-back-pledges?page=${pageElement ?? calculateElementPosition(page, index)}&pagesize=1`
     const id = hash(parsePledgeId(linkElement[0]))
 
     const newElement = {
