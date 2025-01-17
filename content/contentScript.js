@@ -5,17 +5,6 @@ if (h2Title !== null) {
     <diV class="gs-wrapper">
       <h2 class="title gs-title">MY HANGAR</h2>
       <div class="gs-section">
-        <div id="guildswarm-error-wrapper" class="gs-subwrapper">
-          <div id="guildswarm-error-wrapper-close" class="gs-close-button">&#10006; Close window</div>
-          <p class="gs-error-content">Lost connection with RSI. Please refresh this page and check if you are logged in, or try again after a few minutes.</p>
-        </div>
-        <div id="guildswarm-success-wrapper" class="gs-subwrapper">
-          <div id="guildswarm-success-wrapper-close" class="gs-close-button">&#10006; Close window</div>
-          <div id="guildswarm-success-body" class="gs-scroll-section">
-            <div id="guildswarm-success-title"></div>
-            <div id="guildswarm-success-content"></div>
-          </div>
-        </div>
         <a id="guildswarm-download" class="shadow-button trans-02s trans-color">
         <span class="label trans-02s">Guildswarm - Download Hangar data</span>
         <span class="icon gs-icon trans-02s"></span>
@@ -25,41 +14,98 @@ if (h2Title !== null) {
       </div>
     </div>
     <div class="gs-modal">
-      <div class="gs-modal-wrapper-content">
+      <div class="gs-modal-content-wrapper">
+        <div class="gs-modal-content-bg-gradient"></div>
+        <div class="gs-modal-content-bg-image"></div>
         <div class="gs-modal-content">
-          <div class="gs-modal-content-body">
-            <div>
-              <div class="gs-progress-wrapper">
-                <p><strong>Progreso:</strong></p>
-                <div class="gs-progress-point-wrapper">
-                    <div class="gs-progress-interpoint"></div>
-                    <div class="gs-progress-point one">1</div>
-                    <div class="gs-progress-point two">2</div>
-                    <div class="gs-progress-point three">3</div>
-                    <div class="gs-progress-point four">4</div>
-                    <div class="gs-progress-point five">5</div>
-                    <div class="gs-progress-point six">6</div>
-                </div>
+          <div class="gs-modal-content-header">
+            <p class="gs-current-action h3-subtitle">Recorriendo el hangar para buscar categorias</p>
+            <p class="h3-subtitle">Paso 1 de 6</p>
+            <div class="gs-progress-bar">
+              <div class="gs-progress-bar-percentage"></div>
+              <div class="gs-progress-bar-percentage-label gs-text">10%</div>
+              <div class="gs-progress-bar-coffee"></div>
+            </div>  
+          </div>
+          <P class="gs-little-text">Historial de errores:</P>
+          <div class="gs-log-errors gs-scroll-section">
+            <div class="gs-log-errors-list">
+              <div class="gs-log-errors-item">
+                <div class="error-icon"></div>
+                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
               </div>
-              <div>
-                  <p><strong>Acción actual:</strong></p>
-                  <div class="gs-current-action-wrapper">
-                    <div class="gs-loader-wrapper">
-                        <span class="gs-loader"></span>
-                        <div class="gs-process-finished"></div>
-                    </div>
-                    <p id="guildswarm-current-action" class="gs-current-action">Empezando el proceso</p>
-                  </div>
+              <div class="gs-log-errors-item">
+                <div class="error-icon"></div>
+                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
               </div>
-              <div>
-                  <p><strong>Historial de errores encontrados:</strong></p>
-                  <ul class="gs-cutom-list gs-scroll-section" id="guildswarm-history-error"></ul>
+              <div class="gs-log-errors-item">
+                <div class="error-icon"></div>
+                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
+              </div>
+              <div class="gs-log-errors-item">
+                <div class="error-icon"></div>
+                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
+              </div>
+              <div class="gs-log-errors-item">
+                <div class="error-icon"></div>
+                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
+              </div>
+              <div class="gs-log-errors-item">
+                <div class="error-icon"></div>
+                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
+              </div>
+              <div class="gs-log-errors-item">
+                <div class="error-icon"></div>
+                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
+              </div>
+              <div class="gs-log-errors-item">
+                <div class="error-icon"></div>
+                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
               </div>
             </div>
-            <div class="gs-modal-footer">
-                <button id="guildswarm-close-modal">Cerrar</button>
+            <div class="gs-log-errors-footer">
+              <div class="log-error-file">
+                <div class="log-error-file-icon"></div>
+                <div class="log-error-file-label gs-little-x2-text">Log error</div>
+              </div>
             </div>
           </div>
+          <div class="gs-modal-footer">
+            <button class="gs-stop-process-button gs-little-text">Detener proceso</button>
+          </div>
+<!--          <div class="gs-modal-content-body">-->
+<!--            <div>-->
+<!--              <div class="gs-progress-wrapper">-->
+<!--                <p><strong>Progreso:</strong></p>-->
+<!--                <div class="gs-progress-point-wrapper">-->
+<!--                    <div class="gs-progress-interpoint"></div>-->
+<!--                    <div class="gs-progress-point one">1</div>-->
+<!--                    <div class="gs-progress-point two">2</div>-->
+<!--                    <div class="gs-progress-point three">3</div>-->
+<!--                    <div class="gs-progress-point four">4</div>-->
+<!--                    <div class="gs-progress-point five">5</div>-->
+<!--                    <div class="gs-progress-point six">6</div>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--              <div>-->
+<!--                  <p><strong>Acción actual:</strong></p>-->
+<!--                  <div class="gs-current-action-wrapper">-->
+<!--                    <div class="gs-loader-wrapper">-->
+<!--                        <span class="gs-loader"></span>-->
+<!--                        <div class="gs-process-finished"></div>-->
+<!--                    </div>-->
+<!--                    <p id="guildswarm-current-action" class="gs-current-action">Empezando el proceso</p>-->
+<!--                  </div>-->
+<!--              </div>-->
+<!--              <div>-->
+<!--                  <p><strong>Historial de errores encontrados:</strong></p>-->
+<!--                  <ul class="gs-cutom-list gs-scroll-section" id="guildswarm-history-error"></ul>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--            <div class="gs-modal-footer">-->
+<!--                <button id="guildswarm-close-modal">Cerrar</button>-->
+<!--            </div>-->
+<!--          </div>-->
         </div>
       </div>
     </div>`
@@ -78,7 +124,7 @@ const progressPointSix = document.querySelector('.gs-progress-point.six')
 const progressInterpoint = document.querySelector('.gs-progress-interpoint')
 const loaderElement = document.querySelector('.gs-loader')
 const processFinishedElement = document.querySelector('.gs-process-finished')
-const currentActionElement = document.querySelector('#guildswarm-current-action')
+const currentActionElement = document.querySelector('.gs-current-action')
 const historyErrorElement = document.querySelector('#guildswarm-history-error')
 
 document.addEventListener('click', function (e) {
@@ -291,107 +337,108 @@ const assignCategoryToElements = (elements, elementsCategory) => {
 }
 
 const downloadHangar = async () => {
-  let hangarElementsCategory = []
-  let hangarElements = []
-  let buyBackElementsCategory = []
-  let buyBackElements = []
-  let page = 1
-  let responseCategories
-
-  gsModalElement.style.display = 'block'
-  const currentCurrency = await fetchGetCurrency()
-
-  const responsePagesInHangar = await fetchNumberOfPagesInHangar()
-  if (responsePagesInHangar.numberOfPagesInHangar > 0) {
-    currentActionElement.innerHTML = 'Recorriendo el hangar para buscar las categorías'
-    await sleep(1000)
-    responseCategories = await fetchHangarCategories()
-    hangarElementsCategory = responseCategories.hangarElementsCategory
-    progressPointOne.classList.add('completed')
-
-    while (page <= responsePagesInHangar.numberOfPagesInHangar) {
-      currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInHangar.numberOfPagesInHangar} del hangar`
-      const responsePage = await fetchHangarPage(page)
-      if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
-      hangarElements = [...hangarElements, ...responsePage.hangarData]
-      page++
-    }
-    progressPointTwo.classList.add('completed')
-    progressInterpoint.classList.add('point-2')
-    await sleep(1000)
-
-    currentActionElement.innerHTML = 'Asociando categorías a los elementos del hangar'
-    await sleep(1000)
-    assignCategoryToElements(hangarElements, hangarElementsCategory)
-    progressPointThree.classList.add('completed')
-    progressInterpoint.classList.add('point-3')
-    await sleep(1000)
-  }
-
-  const responsePagesInBuyBack = await fetchNumberOfPagesInBuyBack()
-  if (responsePagesInBuyBack.numberOfPagesInBuyBack > 0) {
-    currentActionElement.innerHTML = 'Recorriendo el buyback para buscar las categorias'
-    await sleep(1000)
-
-    responseCategories = await fetchBuyBackCategories()
-    buyBackElementsCategory = responseCategories.buyBackElementsCategory
-
-    progressPointFour.classList.add('completed')
-    progressInterpoint.classList.add('point-4')
-    await sleep(1000)
-
-    page = 1
-    while (page <= responsePagesInBuyBack.numberOfPagesInBuyBack) {
-      currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInBuyBack.numberOfPagesInBuyBack} del buyback`
-      let responsePage
-      try {
-        responsePage = await fetchBuyBackPage(page)
-      } catch (error) {
-        historyErrorElement.innerHTML += `<li>Error al recorrer la página ${page}. Error: ${error.message}</li>`
-
-        for (let elementPositionInPage = 0; elementPositionInPage < 10; elementPositionInPage++) {
-          currentActionElement.innerHTML = `Error al recorrer la página ${page}. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`
-          let responseElement
-          try {
-            responseElement = await fetchBuyBackElement(page, elementPositionInPage)
-          } catch (error) {
-            historyErrorElement.innerHTML += `<li>Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}). Error: ${error.message}</li>`
-            continue
-          }
-
-          if (responseElement.buyBackData && responseElement.buyBackData.length > 0) {
-            buyBackElements = [...buyBackElements, ...responseElement.buyBackData]
-          }
-        }
-
-        page++
-        continue
-      }
-
-      if (responsePage.buyBackData && responsePage.buyBackData.length > 0) {
-        buyBackElements = [...buyBackElements, ...responsePage.buyBackData]
-      }
-      page++
-    }
-    progressPointFive.classList.add('completed')
-    progressInterpoint.classList.add('point-5')
-    await sleep(1000)
-
-    currentActionElement.innerHTML = 'Asociando categorías a los elementos del buyback'
-    await sleep(1000)
-    assignCategoryToElements(buyBackElements, buyBackElementsCategory)
-
-    progressPointSix.classList.add('completed')
-    progressInterpoint.classList.add('point-6')
-    await sleep(1000)
-  }
-
-  await fetchSetCurrency(currentCurrency)
-  currentActionElement.innerHTML = 'Generando el fichero con los datos'
-  await sleep(1000)
-
-  downloadFile(hangarElements, buyBackElements)
-  finishProcessSuccess()
+  gsModalElement.style.display = 'flex'
+  // let hangarElementsCategory = []
+  // let hangarElements = []
+  // let buyBackElementsCategory = []
+  // let buyBackElements = []
+  // let page = 1
+  // let responseCategories
+  //
+  // gsModalElement.style.display = 'block'
+  // const currentCurrency = await fetchGetCurrency()
+  //
+  // const responsePagesInHangar = await fetchNumberOfPagesInHangar()
+  // if (responsePagesInHangar.numberOfPagesInHangar > 0) {
+  //   currentActionElement.innerHTML = 'Recorriendo el hangar para buscar las categorías'
+  //   await sleep(1000)
+  //   responseCategories = await fetchHangarCategories()
+  //   hangarElementsCategory = responseCategories.hangarElementsCategory
+  //   progressPointOne.classList.add('completed')
+  //
+  //   while (page <= responsePagesInHangar.numberOfPagesInHangar) {
+  //     currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInHangar.numberOfPagesInHangar} del hangar`
+  //     const responsePage = await fetchHangarPage(page)
+  //     if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
+  //     hangarElements = [...hangarElements, ...responsePage.hangarData]
+  //     page++
+  //   }
+  //   progressPointTwo.classList.add('completed')
+  //   progressInterpoint.classList.add('point-2')
+  //   await sleep(1000)
+  //
+  //   currentActionElement.innerHTML = 'Asociando categorías a los elementos del hangar'
+  //   await sleep(1000)
+  //   assignCategoryToElements(hangarElements, hangarElementsCategory)
+  //   progressPointThree.classList.add('completed')
+  //   progressInterpoint.classList.add('point-3')
+  //   await sleep(1000)
+  // }
+  //
+  // const responsePagesInBuyBack = await fetchNumberOfPagesInBuyBack()
+  // if (responsePagesInBuyBack.numberOfPagesInBuyBack > 0) {
+  //   currentActionElement.innerHTML = 'Recorriendo el buyback para buscar las categorias'
+  //   await sleep(1000)
+  //
+  //   responseCategories = await fetchBuyBackCategories()
+  //   buyBackElementsCategory = responseCategories.buyBackElementsCategory
+  //
+  //   progressPointFour.classList.add('completed')
+  //   progressInterpoint.classList.add('point-4')
+  //   await sleep(1000)
+  //
+  //   page = 1
+  //   while (page <= responsePagesInBuyBack.numberOfPagesInBuyBack) {
+  //     currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInBuyBack.numberOfPagesInBuyBack} del buyback`
+  //     let responsePage
+  //     try {
+  //       responsePage = await fetchBuyBackPage(page)
+  //     } catch (error) {
+  //       historyErrorElement.innerHTML += `<li>Error al recorrer la página ${page}. Error: ${error.message}</li>`
+  //
+  //       for (let elementPositionInPage = 0; elementPositionInPage < 10; elementPositionInPage++) {
+  //         currentActionElement.innerHTML = `Error al recorrer la página ${page}. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`
+  //         let responseElement
+  //         try {
+  //           responseElement = await fetchBuyBackElement(page, elementPositionInPage)
+  //         } catch (error) {
+  //           historyErrorElement.innerHTML += `<li>Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}). Error: ${error.message}</li>`
+  //           continue
+  //         }
+  //
+  //         if (responseElement.buyBackData && responseElement.buyBackData.length > 0) {
+  //           buyBackElements = [...buyBackElements, ...responseElement.buyBackData]
+  //         }
+  //       }
+  //
+  //       page++
+  //       continue
+  //     }
+  //
+  //     if (responsePage.buyBackData && responsePage.buyBackData.length > 0) {
+  //       buyBackElements = [...buyBackElements, ...responsePage.buyBackData]
+  //     }
+  //     page++
+  //   }
+  //   progressPointFive.classList.add('completed')
+  //   progressInterpoint.classList.add('point-5')
+  //   await sleep(1000)
+  //
+  //   currentActionElement.innerHTML = 'Asociando categorías a los elementos del buyback'
+  //   await sleep(1000)
+  //   assignCategoryToElements(buyBackElements, buyBackElementsCategory)
+  //
+  //   progressPointSix.classList.add('completed')
+  //   progressInterpoint.classList.add('point-6')
+  //   await sleep(1000)
+  // }
+  //
+  // await fetchSetCurrency(currentCurrency)
+  // currentActionElement.innerHTML = 'Generando el fichero con los datos'
+  // await sleep(1000)
+  //
+  // downloadFile(hangarElements, buyBackElements)
+  // finishProcessSuccess()
 }
 
 const finishProcessSuccess = () => {
