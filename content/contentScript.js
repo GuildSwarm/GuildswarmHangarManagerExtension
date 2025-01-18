@@ -5,12 +5,12 @@ if (h2Title !== null) {
     <diV class="gs-wrapper">
       <h2 class="title gs-title">MY HANGAR</h2>
       <div class="gs-section">
-        <a id="guildswarm-download" class="shadow-button trans-02s trans-color">
-        <span class="label trans-02s">Guildswarm - Download Hangar data</span>
-        <span class="icon gs-icon trans-02s"></span>
-        <span class="left-section"></span>
-        <span class="right-section"></span>
-      </a>
+        <div class="gs-start-process-button">
+        <div class="gs-start-process-button-content">
+            <div class="gs-logo"></div>
+            <p class="gs-little-little">Hangar Manager</p>
+        </div>
+        </div>
       </div>
     </div>
     <div class="gs-modal">
@@ -20,10 +20,10 @@ if (h2Title !== null) {
         <div class="gs-modal-content">
           <div class="gs-modal-content-header">
             <p class="gs-current-action h3-subtitle">Recorriendo el hangar para buscar categorias</p>
-            <p class="h3-subtitle">Paso 1 de 6</p>
+            <p class="gs-current-step h3-subtitle">Paso 1 de 6</p>
             <div class="gs-progress-bar">
               <div class="gs-progress-bar-percentage"></div>
-              <div class="gs-progress-bar-percentage-label gs-text">10%</div>
+              <div class="gs-progress-bar-percentage-label gs-text">0%</div>
               <div class="gs-progress-bar-coffee"></div>
             </div>  
           </div>
@@ -125,10 +125,13 @@ const progressInterpoint = document.querySelector('.gs-progress-interpoint')
 const loaderElement = document.querySelector('.gs-loader')
 const processFinishedElement = document.querySelector('.gs-process-finished')
 const currentActionElement = document.querySelector('.gs-current-action')
+const currentStepElement = document.querySelector('.gs-current-step')
+const progressBar = document.querySelector('.gs-progress-bar-percentage')
+const progressBarLabel = document.querySelector('.gs-progress-bar-percentage-label')
 const historyErrorElement = document.querySelector('#guildswarm-history-error')
 
 document.addEventListener('click', function (e) {
-  const target = e.target.closest('#guildswarm-download')
+  const target = e.target.closest('.gs-start-process-button')
   if (target) {
     downloadHangar()
   }
@@ -336,8 +339,70 @@ const assignCategoryToElements = (elements, elementsCategory) => {
   }
 }
 
+const setProgressByPercentage = (percentage) => {
+  const totalWidth = 374
+  const pixels = (percentage / 100) * totalWidth
+  if (percentage === 100) {
+    progressBar.classList.add('gs-progress-bar-percentage-completed')
+  }
+  progressBar.style.width = `${pixels}px`
+  const roundedPercentage = Math.round(percentage)
+  progressBarLabel.innerHTML = `${roundedPercentage}%`
+}
+let progress = 0
 const downloadHangar = async () => {
+
   gsModalElement.style.display = 'flex'
+
+  currentActionElement.innerHTML = 'Recorriendo el hangar para buscar las categorías'
+  await sleep(1000)
+  progress = 10
+  setProgressByPercentage(progress)
+
+  currentStepElement.innerHTML = 'Paso 2 de 7'
+  const totalPages = 33
+  for (let page = 1; page <= totalPages; page++) {
+    currentActionElement.innerHTML = `Recorriendo la página ${page} de 10 del hangar`
+    await sleep(1000)
+    progress += (30 / totalPages)
+    setProgressByPercentage(progress)
+  }
+
+  currentStepElement.innerHTML = 'Paso 3 de 7'
+  currentActionElement.innerHTML = 'Asociando categorías a los elementos del hangar'
+  await sleep(1000)
+  progress = 45
+  setProgressByPercentage(progress)
+
+  currentStepElement.innerHTML = 'Paso 4 de 7'
+  currentActionElement.innerHTML = 'Recorriendo el buyback para buscar las categorias'
+  await sleep(1000)
+  progress = 50
+  setProgressByPercentage(progress)
+
+  currentStepElement.innerHTML = 'Paso 5 de 7'
+  const totalBuyBackPages = 17
+  for (let page = 1; page <= totalBuyBackPages; page++) {
+    currentActionElement.innerHTML = `Recorriendo la página ${page} de 10 del buyback`
+    await sleep(2000)
+    progress += (30 / totalPages)
+    setProgressByPercentage(progress)
+  }
+  currentStepElement.innerHTML = 'Paso 6 de 7'
+  currentActionElement.innerHTML = 'Asociando categorías a los elementos del buyback'
+  await sleep(1000)
+  progress = 90
+  setProgressByPercentage(progress)
+
+  currentStepElement.innerHTML = 'Paso 7 de 7'
+  currentActionElement.innerHTML = 'Generando el fichero con los datos'
+  await sleep(1000)
+  progress = 100
+  setProgressByPercentage(progress)
+
+
+
+  // gsModalElement.style.display = 'flex'
   // let hangarElementsCategory = []
   // let hangarElements = []
   // let buyBackElementsCategory = []
