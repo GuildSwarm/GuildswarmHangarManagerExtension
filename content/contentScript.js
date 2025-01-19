@@ -19,8 +19,8 @@ if (h2Title !== null) {
         <div class="gs-modal-content-bg-image"></div>
         <div class="gs-modal-content">
           <div class="gs-modal-content-header">
-            <p class="gs-current-action h3-subtitle">Recorriendo el hangar para buscar categorias</p>
-            <p class="gs-current-step h3-subtitle">Paso 1 de 6</p>
+            <p class="gs-current-action h3-subtitle">Empezando el proceso</p>
+            <p class="gs-current-step h3-subtitle">Paso 1 de 7</p>
             <div class="gs-progress-bar">
               <div class="gs-progress-bar-percentage"></div>
               <div class="gs-progress-bar-percentage-label gs-text">0%</div>
@@ -30,38 +30,6 @@ if (h2Title !== null) {
           <P class="gs-little-text">Historial de errores:</P>
           <div class="gs-log-errors gs-scroll-section">
             <div class="gs-log-errors-list">
-              <div class="gs-log-errors-item">
-                <div class="error-icon"></div>
-                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
-              </div>
-              <div class="gs-log-errors-item">
-                <div class="error-icon"></div>
-                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
-              </div>
-              <div class="gs-log-errors-item">
-                <div class="error-icon"></div>
-                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
-              </div>
-              <div class="gs-log-errors-item">
-                <div class="error-icon"></div>
-                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
-              </div>
-              <div class="gs-log-errors-item">
-                <div class="error-icon"></div>
-                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
-              </div>
-              <div class="gs-log-errors-item">
-                <div class="error-icon"></div>
-                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
-              </div>
-              <div class="gs-log-errors-item">
-                <div class="error-icon"></div>
-                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
-              </div>
-              <div class="gs-log-errors-item">
-                <div class="error-icon"></div>
-                <p class="gs-little-x2-text">Error al recorrer la página 1. Error: Error al recorrer elementos individualmente (página 1, elemento 1).</p>
-              </div>
             </div>
             <div class="gs-log-errors-footer">
               <div class="log-error-file">
@@ -71,41 +39,19 @@ if (h2Title !== null) {
             </div>
           </div>
           <div class="gs-modal-footer">
-            <button class="gs-stop-process-button gs-little-text">Detener proceso</button>
+            <div class="gs-errors-explanation">
+              <p class="gs-little-text">¿Qué son estos errores?</p>
+              <div class="tooltip-text">
+                <p class="gs-little-text">En algunos casos, al solicitar información a la web de RSI, pueden ocurrir errores que impidan obtener los datos de una página completa. Cuando esto sucede, nuestra aplicación intenta recuperar la información de manera individual para cada artículo de esa página. Si este método alternativo también falla, el artículo no podrá incluirse en el fichero debido a la falta de datos disponibles.</p>
+                <p class="gs-little-text">Lamentamos los posibles inconvenientes que esto pueda causar. Estos errores son provocados por restricciones en la web de RSI y, aunque hacemos todo lo posible para minimizar su impacto, hay ocasiones en las que no es posible recuperar algunos artículos.</p>
+              </div>
+            </div>
+            <div class="gs-actions-buttons">
+              <button class="gs-stop-process-button gs-little-text">Detener proceso</button>
+              <button class="gs-download-file-button gs-little-text">Descargar Fichero</button>
+              <button class="gs-close-process-button gs-little-text">Cerrar</button>
+            </div>
           </div>
-<!--          <div class="gs-modal-content-body">-->
-<!--            <div>-->
-<!--              <div class="gs-progress-wrapper">-->
-<!--                <p><strong>Progreso:</strong></p>-->
-<!--                <div class="gs-progress-point-wrapper">-->
-<!--                    <div class="gs-progress-interpoint"></div>-->
-<!--                    <div class="gs-progress-point one">1</div>-->
-<!--                    <div class="gs-progress-point two">2</div>-->
-<!--                    <div class="gs-progress-point three">3</div>-->
-<!--                    <div class="gs-progress-point four">4</div>-->
-<!--                    <div class="gs-progress-point five">5</div>-->
-<!--                    <div class="gs-progress-point six">6</div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--              <div>-->
-<!--                  <p><strong>Acción actual:</strong></p>-->
-<!--                  <div class="gs-current-action-wrapper">-->
-<!--                    <div class="gs-loader-wrapper">-->
-<!--                        <span class="gs-loader"></span>-->
-<!--                        <div class="gs-process-finished"></div>-->
-<!--                    </div>-->
-<!--                    <p id="guildswarm-current-action" class="gs-current-action">Empezando el proceso</p>-->
-<!--                  </div>-->
-<!--              </div>-->
-<!--              <div>-->
-<!--                  <p><strong>Historial de errores encontrados:</strong></p>-->
-<!--                  <ul class="gs-cutom-list gs-scroll-section" id="guildswarm-history-error"></ul>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--            <div class="gs-modal-footer">-->
-<!--                <button id="guildswarm-close-modal">Cerrar</button>-->
-<!--            </div>-->
-<!--          </div>-->
         </div>
       </div>
     </div>`
@@ -114,21 +60,16 @@ if (h2Title !== null) {
 }
 
 const gsModalElement = document.querySelector('.gs-modal')
-const gsModalFooterElement = document.querySelector('.gs-modal-footer')
-const progressPointOne = document.querySelector('.gs-progress-point.one')
-const progressPointTwo = document.querySelector('.gs-progress-point.two')
-const progressPointThree = document.querySelector('.gs-progress-point.three')
-const progressPointFour = document.querySelector('.gs-progress-point.four')
-const progressPointFive = document.querySelector('.gs-progress-point.five')
-const progressPointSix = document.querySelector('.gs-progress-point.six')
-const progressInterpoint = document.querySelector('.gs-progress-interpoint')
-const loaderElement = document.querySelector('.gs-loader')
-const processFinishedElement = document.querySelector('.gs-process-finished')
 const currentActionElement = document.querySelector('.gs-current-action')
 const currentStepElement = document.querySelector('.gs-current-step')
 const progressBar = document.querySelector('.gs-progress-bar-percentage')
 const progressBarLabel = document.querySelector('.gs-progress-bar-percentage-label')
-const historyErrorElement = document.querySelector('#guildswarm-history-error')
+const stopProcessButton = document.querySelector('.gs-stop-process-button')
+const closeModalButton = document.querySelector('.gs-close-process-button')
+const downloadFileButton = document.querySelector('.gs-download-file-button')
+const historyErrorCollection = []
+const hangarElements = []
+const buyBackElements = []
 
 document.addEventListener('click', function (e) {
   const target = e.target.closest('.gs-start-process-button')
@@ -138,10 +79,23 @@ document.addEventListener('click', function (e) {
 })
 
 document.addEventListener('click', function (e) {
-  const target = e.target.closest('#guildswarm-close-modal')
+  const target = e.target.closest('.log-error-file')
+  if (target && historyErrorCollection.length > 0) {
+    downloadHistoryErrorsFile()
+  }
+})
+
+document.addEventListener('click', function (e) {
+  const target = e.target.closest('.gs-close-process-button')
   if (target) {
     gsModalElement.style.display = 'none'
-    resetInterface()
+  }
+})
+
+document.addEventListener('click', function (e) {
+  const target = e.target.closest('.gs-download-file-button')
+  if (target) {
+    downloadFile()
   }
 })
 
@@ -306,16 +260,13 @@ const fetchSetCurrency = (currency) => {
   })
 }
 
-const downloadFile = (
-  myHangar,
-  myBuyBack
-) => {
+const downloadFile = () => {
   const blob = new Blob(
     [
       JSON.stringify({
         version: chrome.runtime.getManifest().version,
-        myHangar,
-        myBuyBack
+        myHangar: hangarElements,
+        myBuyBack: buyBackElements
       })
     ],
     { type: 'text' }
@@ -349,188 +300,177 @@ const setProgressByPercentage = (percentage) => {
   const roundedPercentage = Math.round(percentage)
   progressBarLabel.innerHTML = `${roundedPercentage}%`
 }
-let progress = 0
+
 const downloadHangar = async () => {
+  resetInterface()
+
+  let hangarElementsCategory
+  let buyBackElementsCategory
+  let page = 1
+  let responseCategories
+  let progress = 0
 
   gsModalElement.style.display = 'flex'
-
-  currentActionElement.innerHTML = 'Recorriendo el hangar para buscar las categorías'
   await sleep(1000)
-  progress = 10
-  setProgressByPercentage(progress)
-
-  currentStepElement.innerHTML = 'Paso 2 de 7'
-  const totalPages = 33
-  for (let page = 1; page <= totalPages; page++) {
-    currentActionElement.innerHTML = `Recorriendo la página ${page} de 10 del hangar`
+  addLogError('LALALALalala lal ala la lal al a')
+  const currentCurrency = await fetchGetCurrency()
+  const responsePagesInHangar = await fetchNumberOfPagesInHangar()
+  if (responsePagesInHangar.numberOfPagesInHangar > 0) {
+    currentActionElement.innerHTML = 'Recorriendo el hangar para buscar las categorías'
     await sleep(1000)
-    progress += (30 / totalPages)
+
+    responseCategories = await fetchHangarCategories()
+    hangarElementsCategory = responseCategories.hangarElementsCategory
+
+    progress = 10
+    setProgressByPercentage(progress)
+    currentStepElement.innerHTML = 'Paso 2 de 7'
+
+    while (page <= 1) {
+    // while (page <= responsePagesInHangar.numberOfPagesInHangar) {
+      currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInHangar.numberOfPagesInHangar} del hangar`
+      const responsePage = await fetchHangarPage(page)
+      if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
+      hangarElements.push(...responsePage.hangarData)
+
+      progress += (30 / responsePagesInHangar.numberOfPagesInHangar)
+      setProgressByPercentage(progress)
+
+      page++
+    }
+    currentStepElement.innerHTML = 'Paso 3 de 7'
+
+    currentActionElement.innerHTML = 'Asociando categorías a los elementos del hangar'
+    await sleep(1000)
+    assignCategoryToElements(hangarElements, hangarElementsCategory)
+    progress = 45
+    setProgressByPercentage(progress)
+    currentStepElement.innerHTML = 'Paso 4 de 7'
+  }
+
+  const responsePagesInBuyBack = await fetchNumberOfPagesInBuyBack()
+  if (responsePagesInBuyBack.numberOfPagesInBuyBack > 0) {
+    currentActionElement.innerHTML = 'Recorriendo el buyback para buscar las categorias'
+    await sleep(1000)
+
+    responseCategories = await fetchBuyBackCategories()
+    buyBackElementsCategory = responseCategories.buyBackElementsCategory
+
+    progress = 50
+    setProgressByPercentage(progress)
+    currentStepElement.innerHTML = 'Paso 5 de 7'
+    await sleep(1000)
+
+    page = 1
+    while (page <= 1) {
+    // while (page <= responsePagesInBuyBack.numberOfPagesInBuyBack) {
+      currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInBuyBack.numberOfPagesInBuyBack} del buyback`
+      let responsePage
+      try {
+        responsePage = await fetchBuyBackPage(page)
+      } catch (error) {
+        const errorMessage = `Error al recorrer la página ${page}. Error: ${error.message}`
+        addLogError(errorMessage)
+
+        for (let elementPositionInPage = 0; elementPositionInPage < 10; elementPositionInPage++) {
+          currentActionElement.innerHTML = `Error al recorrer la página ${page}. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`
+          let responseElement
+          try {
+            responseElement = await fetchBuyBackElement(page, elementPositionInPage)
+          } catch (error) {
+            const errorMessage = `Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}). Error: ${error.message}`
+            addLogError(errorMessage)
+            continue
+          }
+
+          if (responseElement.buyBackData && responseElement.buyBackData.length > 0) {
+            buyBackElements.push(...responseElement.buyBackData)
+          }
+        }
+
+        page++
+        continue
+      }
+
+      if (responsePage.buyBackData && responsePage.buyBackData.length > 0) {
+        buyBackElements.push(...responsePage.buyBackData)
+      }
+
+      progress += (30 / responsePagesInBuyBack.numberOfPagesInBuyBack)
+      setProgressByPercentage(progress)
+
+      page++
+    }
+    currentStepElement.innerHTML = 'Paso 6 de 7'
+
+    currentActionElement.innerHTML = 'Asociando categorías a los elementos del buyback'
+    await sleep(1000)
+    assignCategoryToElements(buyBackElements, buyBackElementsCategory)
+
+    progress = 90
     setProgressByPercentage(progress)
   }
 
-  currentStepElement.innerHTML = 'Paso 3 de 7'
-  currentActionElement.innerHTML = 'Asociando categorías a los elementos del hangar'
-  await sleep(1000)
-  progress = 45
-  setProgressByPercentage(progress)
-
-  currentStepElement.innerHTML = 'Paso 4 de 7'
-  currentActionElement.innerHTML = 'Recorriendo el buyback para buscar las categorias'
-  await sleep(1000)
-  progress = 50
-  setProgressByPercentage(progress)
-
-  currentStepElement.innerHTML = 'Paso 5 de 7'
-  const totalBuyBackPages = 17
-  for (let page = 1; page <= totalBuyBackPages; page++) {
-    currentActionElement.innerHTML = `Recorriendo la página ${page} de 10 del buyback`
-    await sleep(2000)
-    progress += (30 / totalPages)
-    setProgressByPercentage(progress)
-  }
-  currentStepElement.innerHTML = 'Paso 6 de 7'
-  currentActionElement.innerHTML = 'Asociando categorías a los elementos del buyback'
-  await sleep(1000)
-  progress = 90
-  setProgressByPercentage(progress)
-
-  currentStepElement.innerHTML = 'Paso 7 de 7'
+  await fetchSetCurrency(currentCurrency)
   currentActionElement.innerHTML = 'Generando el fichero con los datos'
   await sleep(1000)
   progress = 100
   setProgressByPercentage(progress)
+  currentStepElement.innerHTML = 'Paso 7 de 7'
 
+  downloadFile(hangarElements, buyBackElements)
+  finishProcessSuccess()
+}
 
+const downloadHistoryErrorsFile = async () => {
+  const content = [
+    `Version: ${chrome.runtime.getManifest().version}`,
+    `Date: ${(new Date()).toISOString()}`,
+    '',
+    'Errors:',
+    ...historyErrorCollection.map((error, index) => `${index + 1}. ${error}`)
+  ].join('\n')
+  const blob = new Blob([content], { type: 'text/plain' })
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `hangar-manager-errors_${(new Date()).toISOString().split('T')[0]}.txt`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  window.URL.revokeObjectURL(url)
+}
 
-  // gsModalElement.style.display = 'flex'
-  // let hangarElementsCategory = []
-  // let hangarElements = []
-  // let buyBackElementsCategory = []
-  // let buyBackElements = []
-  // let page = 1
-  // let responseCategories
-  //
-  // gsModalElement.style.display = 'block'
-  // const currentCurrency = await fetchGetCurrency()
-  //
-  // const responsePagesInHangar = await fetchNumberOfPagesInHangar()
-  // if (responsePagesInHangar.numberOfPagesInHangar > 0) {
-  //   currentActionElement.innerHTML = 'Recorriendo el hangar para buscar las categorías'
-  //   await sleep(1000)
-  //   responseCategories = await fetchHangarCategories()
-  //   hangarElementsCategory = responseCategories.hangarElementsCategory
-  //   progressPointOne.classList.add('completed')
-  //
-  //   while (page <= responsePagesInHangar.numberOfPagesInHangar) {
-  //     currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInHangar.numberOfPagesInHangar} del hangar`
-  //     const responsePage = await fetchHangarPage(page)
-  //     if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
-  //     hangarElements = [...hangarElements, ...responsePage.hangarData]
-  //     page++
-  //   }
-  //   progressPointTwo.classList.add('completed')
-  //   progressInterpoint.classList.add('point-2')
-  //   await sleep(1000)
-  //
-  //   currentActionElement.innerHTML = 'Asociando categorías a los elementos del hangar'
-  //   await sleep(1000)
-  //   assignCategoryToElements(hangarElements, hangarElementsCategory)
-  //   progressPointThree.classList.add('completed')
-  //   progressInterpoint.classList.add('point-3')
-  //   await sleep(1000)
-  // }
-  //
-  // const responsePagesInBuyBack = await fetchNumberOfPagesInBuyBack()
-  // if (responsePagesInBuyBack.numberOfPagesInBuyBack > 0) {
-  //   currentActionElement.innerHTML = 'Recorriendo el buyback para buscar las categorias'
-  //   await sleep(1000)
-  //
-  //   responseCategories = await fetchBuyBackCategories()
-  //   buyBackElementsCategory = responseCategories.buyBackElementsCategory
-  //
-  //   progressPointFour.classList.add('completed')
-  //   progressInterpoint.classList.add('point-4')
-  //   await sleep(1000)
-  //
-  //   page = 1
-  //   while (page <= responsePagesInBuyBack.numberOfPagesInBuyBack) {
-  //     currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInBuyBack.numberOfPagesInBuyBack} del buyback`
-  //     let responsePage
-  //     try {
-  //       responsePage = await fetchBuyBackPage(page)
-  //     } catch (error) {
-  //       historyErrorElement.innerHTML += `<li>Error al recorrer la página ${page}. Error: ${error.message}</li>`
-  //
-  //       for (let elementPositionInPage = 0; elementPositionInPage < 10; elementPositionInPage++) {
-  //         currentActionElement.innerHTML = `Error al recorrer la página ${page}. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`
-  //         let responseElement
-  //         try {
-  //           responseElement = await fetchBuyBackElement(page, elementPositionInPage)
-  //         } catch (error) {
-  //           historyErrorElement.innerHTML += `<li>Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}). Error: ${error.message}</li>`
-  //           continue
-  //         }
-  //
-  //         if (responseElement.buyBackData && responseElement.buyBackData.length > 0) {
-  //           buyBackElements = [...buyBackElements, ...responseElement.buyBackData]
-  //         }
-  //       }
-  //
-  //       page++
-  //       continue
-  //     }
-  //
-  //     if (responsePage.buyBackData && responsePage.buyBackData.length > 0) {
-  //       buyBackElements = [...buyBackElements, ...responsePage.buyBackData]
-  //     }
-  //     page++
-  //   }
-  //   progressPointFive.classList.add('completed')
-  //   progressInterpoint.classList.add('point-5')
-  //   await sleep(1000)
-  //
-  //   currentActionElement.innerHTML = 'Asociando categorías a los elementos del buyback'
-  //   await sleep(1000)
-  //   assignCategoryToElements(buyBackElements, buyBackElementsCategory)
-  //
-  //   progressPointSix.classList.add('completed')
-  //   progressInterpoint.classList.add('point-6')
-  //   await sleep(1000)
-  // }
-  //
-  // await fetchSetCurrency(currentCurrency)
-  // currentActionElement.innerHTML = 'Generando el fichero con los datos'
-  // await sleep(1000)
-  //
-  // downloadFile(hangarElements, buyBackElements)
-  // finishProcessSuccess()
+const addLogError = (error) => {
+  historyErrorCollection.push(error)
+  const logErrorElement = document.createElement('div')
+  logErrorElement.innerHTML = `
+      <div class="gs-log-errors-item">
+        <div class="error-icon"></div>
+        <p class="gs-little-x2-text">${error}</p>
+      </div>`
+  gsModalElement.querySelector('.gs-log-errors-list').appendChild(logErrorElement)
 }
 
 const finishProcessSuccess = () => {
-  gsModalFooterElement.style.display = 'flex'
-  loaderElement.style.display = 'none'
-  processFinishedElement.style.display = 'block'
-  currentActionElement.innerHTML = 'Proceso finalizado'
+  stopProcessButton.style.display = 'none'
+  closeModalButton.style.display = 'flex'
+  downloadFileButton.style.display = 'flex'
+  currentActionElement.innerHTML = '¡Éxito!'
+  currentStepElement.innerHTML = 'Proceso completado'
 }
 
 const resetInterface = () => {
-  gsModalFooterElement.style.display = 'none'
-  loaderElement.style.display = 'block'
-  processFinishedElement.style.display = 'none'
-  historyErrorElement.innerHTML = ''
-  currentActionElement.innerHTML = 'Empezando el proceso'
-  progressPointSix.classList.remove('completed')
-  progressPointFive.classList.remove('completed')
-  progressPointFour.classList.remove('completed')
-  progressPointThree.classList.remove('completed')
-  progressPointTwo.classList.remove('completed')
-  progressPointOne.classList.remove('completed')
-  progressInterpoint.classList.remove('point-1')
-  progressInterpoint.classList.remove('point-2')
-  progressInterpoint.classList.remove('point-3')
-  progressInterpoint.classList.remove('point-4')
-  progressInterpoint.classList.remove('point-5')
-  progressInterpoint.classList.remove('point-6')
+  currentActionElement.innerHTML = 'Iniciando el proceso'
+  currentStepElement.innerHTML = 'Paso 1 de 7'
+  progressBar.style.width = '0%'
+  progressBarLabel.innerHTML = '0%'
+  historyErrorCollection.length = 0
+  hangarElements.length = 0
+  buyBackElements.length = 0
+  stopProcessButton.style.display = 'flex'
+  closeModalButton.style.display = 'none'
+  downloadFileButton.style.display = 'none'
 }
 
 const sleep = async (ms) => {
