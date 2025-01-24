@@ -1,7 +1,7 @@
 import { getNumberOfPagesInHangar, getHangarPage, getHangarElementsCategory } from './hangar.js'
 import { getNumberOfPagesInBuyBack, getBuyBackPage, getBuyBackElement, getBuyBackElementsCategory } from './buyback.js'
-import { baseUrlRsi, globalCurrency, setAuthToken } from './shared'
 import { setCurrency, getCurrency } from './currency'
+import { baseUrlRsi, globalCurrency, setAuthToken } from './shared'
 
 const getCookie = async (cookieName, url) => {
   return new Promise((resolve, reject) => {
@@ -113,153 +113,62 @@ const handleGetBuyBackCategories = async () => {
   }
 }
 
+const handlers = {
+  handleGetCurrency,
+  handleSetCurrency: (message) => handleSetCurrency(message.currency || globalCurrency),
+  handleGetNumberOfPagesInHangar,
+  handleGetHangarPage: (message) => handleGetHangarPage(message.page || 1),
+  handleGetHangarCategories,
+  handleGetNumberOfPagesInBuyBack,
+  handleGetBuyBackPage: (message) => handleGetBuyBackPage(message.page || 1),
+  handleGetBuyBackElement: (message) => handleGetBuyBackElement(message.page || 1, message.elementPositionInPage || 0),
+  handleGetBuyBackCategories
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === 'getNumberOfPagesInHangar') {
-    handleGetNumberOfPagesInHangar()
-      .then((result) => {
-        sendResponse(result)
-      })
-      .catch((error) => {
-        console.error('Error en onMessage getNumberOfPagesInHangar:', error)
-        sendResponse(error.message)
-      })
-
-    return true
+  if (typeof message.type !== 'string') {
+    console.warn(`Tipo de mensaje inválido: ${message.type}`)
+    sendResponse({ error: `Tipo de mensaje inválido: ${message.type}` })
+    return
   }
 
-  if (message.type === 'getHangarPage') {
-    const page = message.page || 1
-    handleGetHangarPage(page)
-      .then((result) => {
-        sendResponse(result)
-      })
+  const handler = handlers[message.type]
+
+  if (handler) {
+    Promise.resolve(handler(message))
+      .then((result) => sendResponse(result))
       .catch((error) => {
-        console.error('Error en onMessage getHangarPage:', error)
+        console.error(`Error en onMessage ${message.type}:`, error)
         sendResponse({ error: true, message: error.message })
       })
 
     return true
   }
 
-  if (message.type === 'getHangarCategories') {
-    handleGetHangarCategories()
-      .then((result) => {
-        sendResponse(result)
-      })
-      .catch((error) => {
-        console.error('Error en onMessage getHangarCategories:', error)
-        sendResponse(error.message)
-      })
-
-    return true
-  }
-
-  if (message.type === 'getNumberOfPagesInBuyBack') {
-    handleGetNumberOfPagesInBuyBack()
-      .then((result) => {
-        sendResponse(result)
-      })
-      .catch((error) => {
-        console.error('Error en onMessage getNumberOfPagesInBuyBack:', error)
-        sendResponse(error.message)
-      })
-
-    return true
-  }
-
-  if (message.type === 'getBuyBackPage') {
-    const page = message.page || 1
-    handleGetBuyBackPage(page)
-      .then((result) => {
-        sendResponse(result)
-      })
-      .catch((error) => {
-        if (error.message.toLowerCase().startsWith('request failed with status code 403')) {
-          sendResponse({ error: true, status: 403, message: error.message })
-        }
-
-        sendResponse({ error: true, message: error.message })
-      })
-
-    return true
-  }
-
-  if (message.type === 'getBuyBackElement') {
-    const page = message.page || 1
-    const elementPositionInPage = message.elementPositionInPage || 0
-    handleGetBuyBackElement(page, elementPositionInPage)
-      .then((result) => {
-        sendResponse(result)
-      })
-      .catch((error) => {
-        if (error.message.toLowerCase().startsWith('request failed with status code 403')) {
-          sendResponse({ error: true, status: 403, message: error.message })
-        }
-
-        sendResponse({ error: true, message: error.message })
-      })
-
-    return true
-  }
-
-  if (message.type === 'getBuyBackCategories') {
-    handleGetBuyBackCategories()
-      .then((result) => {
-        sendResponse(result)
-      })
-      .catch((error) => {
-        console.error('Error en onMessage getBuyBackCategories:', error)
-        sendResponse(error.message)
-      })
-
-    return true
-  }
-
-  if (message.type === 'getCurrency') {
-    handleGetCurrency()
-      .then((result) => {
-        sendResponse(result)
-      })
-      .catch((error) => {
-        console.error('Error en onMessage getCurrency:', error)
-        sendResponse(error.message)
-      })
-
-    return true
-  }
-
-  if (message.type === 'setCurrency') {
-    const currency = message.currency || globalCurrency
-    handleSetCurrency(currency)
-      .then((result) => {
-        sendResponse(result)
-      })
-      .catch((error) => {
-        console.error('Error en onMessage setCurrency:', error)
-        sendResponse(error.message)
-      })
-
-    return true
-  }
-
-  sendResponse({ error: 'Tipo de mensaje no soportado en onMessage.' })
+  console.warn(`Tipo de mensaje no soportado: ${message.type}`, { message, sender })
+  sendResponse({ error: `Tipo de mensaje no soportado: ${message.type}` })
 })
 
 chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
-  if (message.type === 'getHangarData') {
-    const page = message.page || 1
+  if (typeof message.type !== 'string') {
+    console.warn(`Tipo de mensaje inválido: ${message.type}`)
+    sendResponse({ error: `Tipo de mensaje inválido: ${message.type}` })
+    return
+  }
 
-    handleGetHangarPage(page)
-      .then((result) => {
-        sendResponse(result)
-      })
+  const handler = handlers[message.type]
+
+  if (handler) {
+    Promise.resolve(handler(message))
+      .then((result) => sendResponse(result))
       .catch((error) => {
-        console.error('Error en onMessageExternal getHangarData:', error)
-        sendResponse(error.message)
+        console.error(`Error en onMessage ${message.type}:`, error)
+        sendResponse({ error: true, message: error.message })
       })
 
     return true
   }
 
-  sendResponse({ error: 'Tipo de mensaje no soportado en onMessageExternal.' })
+  console.warn(`Tipo de mensaje no soportado: ${message.type}`, { message, sender })
+  sendResponse({ error: `Tipo de mensaje no soportado: ${message.type}` })
 })

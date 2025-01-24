@@ -77,6 +77,10 @@ gsStartProcessButton?.addEventListener('click', function () {
   downloadHangar()
 })
 
+downloadFileButton.addEventListener('click', function () {
+  downloadFile()
+})
+
 gsLogErrorFile?.addEventListener('click', function () {
   if (historyErrorCollection.length > 0) {
     downloadHistoryErrorsFile()
@@ -120,23 +124,22 @@ const downloadHangar = async () => {
   gsModalElement.style.display = 'flex'
   // await sleep(1000)
 
-  const currentCurrency = await sendMessage({ type: 'getCurrency' })
-  const responsePagesInHangar = await sendMessage({ type: 'getNumberOfPagesInHangar' })
+  const currentCurrency = await sendMessage({ type: 'handleGetCurrency' })
+  const responsePagesInHangar = await sendMessage({ type: 'handleGetNumberOfPagesInHangar' })
   if (responsePagesInHangar.numberOfPagesInHangar > 0) {
     currentActionElement.innerHTML = 'Recorriendo el hangar para buscar las categorías'
     // await sleep(1000)
 
-    responseCategories = await sendMessage({ type: 'getHangarCategories' })
+    responseCategories = await sendMessage({ type: 'handleGetHangarCategories' })
     hangarElementsCategory = responseCategories.hangarElementsCategory
 
     progress = 10
     setProgressByPercentage(progress)
     currentStepElement.innerHTML = 'Paso 2 de 7'
 
-    while (page <= 1) {
-    // while (page <= responsePagesInHangar.numberOfPagesInHangar) {
+    while (page <= responsePagesInHangar.numberOfPagesInHangar) {
       currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInHangar.numberOfPagesInHangar} del hangar`
-      const responsePage = await sendMessage({ type: 'getHangarPage', page })
+      const responsePage = await sendMessage({ type: 'handleGetHangarPage', page })
       if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
       hangarElements.push(...responsePage.hangarData)
 
@@ -155,12 +158,12 @@ const downloadHangar = async () => {
     currentStepElement.innerHTML = 'Paso 4 de 7'
   }
 
-  const responsePagesInBuyBack = await sendMessage({ type: 'getNumberOfPagesInBuyBack' })
+  const responsePagesInBuyBack = await sendMessage({ type: 'handleGetNumberOfPagesInBuyBack' })
   if (responsePagesInBuyBack.numberOfPagesInBuyBack > 0) {
     currentActionElement.innerHTML = 'Recorriendo el buyback para buscar las categorias'
     // await sleep(1000)
 
-    responseCategories = await sendMessage({ type: 'getBuyBackCategories' })
+    responseCategories = await sendMessage({ type: 'handleGetBuyBackCategories' })
     buyBackElementsCategory = responseCategories.buyBackElementsCategory
 
     progress = 50
@@ -169,12 +172,11 @@ const downloadHangar = async () => {
     // await sleep(1000)
 
     page = 1
-    while (page <= 1) {
-    // while (page <= responsePagesInBuyBack.numberOfPagesInBuyBack) {
+    while (page <= responsePagesInBuyBack.numberOfPagesInBuyBack) {
       currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInBuyBack.numberOfPagesInBuyBack} del buyback`
       let responsePage
       try {
-        responsePage = await sendMessage({ type: 'getBuyBackPage', page })
+        responsePage = await sendMessage({ type: 'handleGetBuyBackPage', page })
       } catch (error) {
         const errorMessage = `Error al recorrer la página ${page}. Error: ${error.message}`
         addLogError(errorMessage)
@@ -183,7 +185,7 @@ const downloadHangar = async () => {
           currentActionElement.innerHTML = `Error al recorrer la página ${page}. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`
           let responseElement
           try {
-            responseElement = await sendMessage({ type: 'getBuyBackElement', page, elementPositionInPage })
+            responseElement = await sendMessage({ type: 'handleGetBuyBackElement', page, elementPositionInPage })
           } catch (error) {
             const errorMessage = `Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}). Error: ${error.message}`
             addLogError(errorMessage)
@@ -218,7 +220,7 @@ const downloadHangar = async () => {
     setProgressByPercentage(progress)
   }
 
-  await sendMessage({ type: 'setCurrency', currentCurrency })
+  await sendMessage({ type: 'handleSetCurrency', currentCurrency })
   currentActionElement.innerHTML = 'Generando el fichero con los datos'
   // await sleep(1000)
   progress = 100
@@ -237,7 +239,8 @@ const sendMessage = (message) => {
       } else if (response) {
         resolve(response)
       } else {
-        reject('No se recibió respuesta del Service Worker.')
+        console.warn(message)
+        reject(`No se recibió respuesta del Service Worker. Message.type:${message.type}`)
       }
     })
   })
@@ -265,6 +268,11 @@ const downloadFile = () => {
 }
 
 const assignCategoryToElements = (elements, elementsCategory) => {
+  if (!Array.isArray(elementsCategory)) {
+    console.warn('elementsCategory no es un array válido:', elementsCategory)
+    return
+  }
+
   for (const elementCategory of elementsCategory) {
     const element = elements.find(element => element.id === elementCategory.pledgeId)
     if (element) {
