@@ -22,7 +22,7 @@
     },
     "content_scripts": [
         {
-            "matches": ["https://robertsspaceindustries.com/account/pledges*"],
+            "matches": ["https://robertsspaceindustries.com/*/account/pledges*"],
             "js": ["content/contentScript.js"],
             "css": ["content/styles.css"]
         }
