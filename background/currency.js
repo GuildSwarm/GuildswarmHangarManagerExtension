@@ -1,5 +1,5 @@
 import ky from 'ky'
-import { retryLimit, statusCodesRetry } from './shared'
+import { retryLimit, statusCodesRetry, baseUrlRsi } from './shared'
 
 export const getCurrency = async () => {
   const pledgePage = await getPledgePage()
@@ -10,7 +10,7 @@ export const getCurrency = async () => {
 
 const getPledgePage = async () => {
   try {
-    const response = await ky.get('https://robertsspaceindustries.com/pledge', {
+    const response = await ky.get(`${baseUrlRsi}/en/pledge`, {
       retry: {
         limit: retryLimit,
         methods: ['get'],
@@ -33,7 +33,7 @@ export const setCurrency = async (rsiToken, currency) => {
   const raw = JSON.stringify({ currency })
 
   try {
-    const response = await ky.post('https://robertsspaceindustries.com/api/store/setCurrency', {
+    const response = await ky.post(`${baseUrlRsi}/api/store/setCurrency`, {
       headers: myHeaders,
       body: raw,
       retry: {

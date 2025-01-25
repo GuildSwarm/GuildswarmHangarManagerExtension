@@ -54,5 +54,5 @@ export const calculateElementPosition = (page, index) => {
 }
 
 export const normalizeImageSrc = (src) => {
-  return src.startsWith('/media') ? baseUrlRsi + src : src
+  return src.startsWith('/media') ? `${baseUrlRsi}${src}` : src
 }

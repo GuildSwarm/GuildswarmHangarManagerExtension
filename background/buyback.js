@@ -11,24 +11,16 @@ import {
   idNoCategory
 } from './shared.js'
 
-const fetchBuyBackCategory = async (category, actualPage) => {
-  try {
-    const response = await ky.get(baseUrlRsi + '/account/buy-back-pledges?page=' +
-      actualPage +
-      '&pagesize=100' +
-      category.urlParameter,
-    {
-      retry: {
-        limit: retryLimit,
-        methods: ['get'],
-        statusCodes: statusCodesRetry
-      }
-    })
+const fetchBuyBackCategory = async (category, page) => {
+  const response = await ky.get(`${baseUrlRsi}/en/account/buy-back-pledges?page=${page}&pagesize=100${category.urlParameter}`, {
+    retry: {
+      limit: retryLimit,
+      methods: ['get'],
+      statusCodes: statusCodesRetry
+    }
+  })
 
-    return response.text()
-  } catch (error) {
-    throw new Error(`Error on request: ${error.message}`)
-  }
+  return response.text()
 }
 
 export const getBuyBackElementsCategory = async () => {
@@ -73,41 +65,7 @@ export const getNumberOfPagesInBuyBack = async () => {
 }
 
 export const fetchBuyBackPage = async (page) => {
-  let response
-  // if (page === 3 || page === 10 || page === 16) {
-  //   response = await ky.get('https://httpstat.us/403', {
-  //     retry: {
-  //       limit: retryLimit,
-  //       methods: ['get'],
-  //       statusCodes: statusCodesRetry
-  //     }
-  //   })
-  //   return response.text()
-  // }
-  //
-  // if (page === 4) {
-  //   response = await ky.get('https://httpstat.us/503', {
-  //     retry: {
-  //       limit: retryLimit,
-  //       methods: ['get'],
-  //       statusCodes: statusCodesRetry
-  //     }
-  //   })
-  //   return response.text()
-  // }
-  //
-  // if (page === 12) {
-  //   response = await ky.get('https://httpstat.us/505', {
-  //     retry: {
-  //       limit: retryLimit,
-  //       methods: ['get'],
-  //       statusCodes: statusCodesRetry
-  //     }
-  //   })
-  //   return response.text()
-  // }
-
-  response = await ky.get(`${baseUrlRsi}/account/buy-back-pledges?page=${page}&pagesize=10`, {
+  const response = await ky.get(`${baseUrlRsi}/en/account/buy-back-pledges?page=${page}&pagesize=10`, {
     retry: {
       limit: retryLimit,
       methods: ['get'],
@@ -119,41 +77,7 @@ export const fetchBuyBackPage = async (page) => {
 }
 
 export const fetchBuyBackElement = async (pageElement) => {
-  let response
-  // if (pageElement === 156 || pageElement === 93 || pageElement === 24) {
-  //   response = await ky.get('https://httpstat.us/403', {
-  //     retry: {
-  //       limit: retryLimit,
-  //       methods: ['get'],
-  //       statusCodes: statusCodesRetry
-  //     }
-  //   })
-  //   return response.text()
-  // }
-  //
-  // if (pageElement === 158) {
-  //   response = await ky.get('https://httpstat.us/503', {
-  //     retry: {
-  //       limit: retryLimit,
-  //       methods: ['get'],
-  //       statusCodes: statusCodesRetry
-  //     }
-  //   })
-  //   return response.text()
-  // }
-  //
-  // if (pageElement === 25) {
-  //   response = await ky.get('https://httpstat.us/505', {
-  //     retry: {
-  //       limit: retryLimit,
-  //       methods: ['get'],
-  //       statusCodes: statusCodesRetry
-  //     }
-  //   })
-  //   return response.text()
-  // }
-
-  response = await ky.get(`${baseUrlRsi}/account/buy-back-pledges?page=${pageElement}&pagesize=1`, {
+  const response = await ky.get(`${baseUrlRsi}/en/account/buy-back-pledges?page=${pageElement}&pagesize=1`, {
     retry: {
       limit: retryLimit,
       methods: ['get'],
@@ -221,7 +145,7 @@ const extractDataFromBuyBackData = async (rsiToken, authToken, page, buyBackData
     let elementData
     const available = $(li).parent().attr('data-disabled') === undefined
     if (ccuElement.length === 0 && available) {
-      const buyBackLink = `${baseUrlRsi}${hrefElement}`
+      const buyBackLink = `${baseUrlRsi}/en${hrefElement}`
       elementData = await parseElementData(buyBackLink)
     }
 
@@ -230,7 +154,7 @@ const extractDataFromBuyBackData = async (rsiToken, authToken, page, buyBackData
       category = 'upgrade'
     }
 
-    const link = `${baseUrlRsi}/account/buy-back-pledges?page=${pageElement ?? calculateElementPosition(page, index)}&pagesize=1`
+    const link = `${baseUrlRsi}/en/account/buy-back-pledges?page=${pageElement ?? calculateElementPosition(page, index)}&pagesize=1`
     const id = hash(parsePledgeId(linkElement[0]))
 
     const newElement = {

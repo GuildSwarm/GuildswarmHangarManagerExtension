@@ -141,7 +141,7 @@ export const getHangarPage = async (rsiToken, page) => {
     }
 
     const name = removeCodesOfCouponsName($(li).find('input.js-pledge-name').val())
-    const urlHangar = baseUrlRsi + '/account/pledges?page=' + calculateElementPosition(page, index) + '&pagesize=1'
+    const urlHangar = `${baseUrlRsi}/en/account/pledges?page=${calculateElementPosition(page, index)}&pagesize=1`
     let value = $(li).find('input.js-pledge-value').val()?.split(' ')[0]?.substring(1) || 0
     value = parseFloat(value)
     const createDateRaw = $(li).find('div.date-col').text().trim() || null
@@ -177,7 +177,7 @@ export const getHangarPage = async (rsiToken, page) => {
 
 export const fetchHangarPage = async (page) => {
   try {
-    const response = await ky.get(baseUrlRsi + '/account/pledges?page=' + page + '&pagesize=10', {
+    const response = await ky.get(`${baseUrlRsi}/en/account/pledges?page=${page}&pagesize=10`, {
       retry: {
         limit: retryLimit,
         methods: ['get'],
@@ -220,7 +220,7 @@ const isEmptyList = ($) => {
 
 const fetchCategory = async (category, page) => {
   try {
-    const response = await ky.get(baseUrlRsi + '/account/pledges?page=' + page + '&pagesize=10' + category.urlParameter, {
+    const response = await ky.get(`${baseUrlRsi}/en/account/pledges?page=${page}&pagesize=10${category.urlParameter}`, {
       retry: {
         limit: retryLimit,
         methods: ['get'],
@@ -249,7 +249,7 @@ const fetchUpgradeLog = async (rsiToken, pledgeId) => {
 
   try {
     const response = await ky
-      .post(baseUrlRsi + '/api/account/upgradeLog', {
+      .post(`${baseUrlRsi}/api/account/upgradeLog`, {
         headers: myHeaders,
         body: raw,
         retry: {
