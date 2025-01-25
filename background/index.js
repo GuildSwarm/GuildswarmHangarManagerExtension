@@ -1,4 +1,4 @@
-import { getNumberOfPagesInHangar, getHangarPage, getHangarElementsCategory } from './hangar.js'
+import { getNumberOfPagesInHangar, getHangarPage, getHangarElement, getHangarElementsCategory } from './hangar.js'
 import { getNumberOfPagesInBuyBack, getBuyBackPage, getBuyBackElement, getBuyBackElementsCategory } from './buyback.js'
 import { setCurrency, getCurrency } from './currency'
 import { baseUrlRsi, globalCurrency, setAuthToken } from './shared'
@@ -60,6 +60,15 @@ const handleGetHangarPage = async (page) => {
   }
 }
 
+const handleGetHangarElement = async (page, elementPositionInPage) => {
+  const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
+  if (!rsiToken) {
+    throw new Error('No se pudo obtener la cookie Rsi-Token.')
+  }
+  const hangarData = await getHangarElement(rsiToken, page, elementPositionInPage)
+  return { page, hangarData }
+}
+
 const handleGetHangarCategories = async () => {
   try {
     const hangarElementsCategory = await getHangarElementsCategory()
@@ -118,6 +127,7 @@ const handlers = {
   handleSetCurrency: (message) => handleSetCurrency(message.currency || globalCurrency),
   handleGetNumberOfPagesInHangar,
   handleGetHangarPage: (message) => handleGetHangarPage(message.page || 1),
+  handleGetHangarElement: (message) => handleGetHangarElement(message.page || 1, message.elementPositionInPage || 0),
   handleGetHangarCategories,
   handleGetNumberOfPagesInBuyBack,
   handleGetBuyBackPage: (message) => handleGetBuyBackPage(message.page || 1),

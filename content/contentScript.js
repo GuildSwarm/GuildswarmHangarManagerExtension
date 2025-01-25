@@ -43,7 +43,7 @@ if (h2Title !== null) {
               <p class="gs-little-text">¿Qué son estos errores?</p>
               <div class="tooltip-text">
                 <p class="gs-little-text">En algunos casos, al solicitar información a la web de RSI, pueden ocurrir errores que impidan obtener los datos de una página completa. Cuando esto sucede, nuestra aplicación intenta recuperar la información de manera individual para cada artículo de esa página. Si este método alternativo también falla, el artículo no podrá incluirse en el fichero debido a la falta de datos disponibles.</p>
-                <p class="gs-little-text">Lamentamos los posibles inconvenientes que esto pueda causar. Estos errores son provocados por restricciones en la web de RSI y, aunque hacemos todo lo posible para minimizar su impacto, hay ocasiones en las que no es posible recuperar algunos artículos.</p>
+                <p class="gs-little-text">Lamentamos los posibles inconvenientes que esto pueda causar. Estos errores son provocados por restricciones en la web de RSI y, aunque hacemos todo lo posible para minimizar su impacto, hay ocasiones en las que no es posible recuperar la información de algunos artículos.</p>
               </div>
             </div>
             <div class="gs-actions-buttons">
@@ -69,6 +69,7 @@ const progressBar = document.querySelector('.gs-progress-bar-percentage')
 const progressBarLabel = document.querySelector('.gs-progress-bar-percentage-label')
 const stopProcessButton = document.querySelector('.gs-stop-process-button')
 const downloadFileButton = document.querySelector('.gs-download-file-button')
+const gsLogErrorsList = gsModalElement.querySelector('.gs-log-errors-list')
 const historyErrorCollection = []
 const hangarElements = []
 const buyBackElements = []
@@ -91,27 +92,6 @@ closeModalButton?.addEventListener('click', function () {
   gsModalElement.style.display = 'none'
 })
 
-// const fetchBuyBackPage = (page) => {
-//   return new Promise((resolve, reject) => {
-//     chrome.runtime.sendMessage(
-//       { type: 'getBuyBackPage', page },
-//       (response) => {
-//         if (chrome.runtime.lastError) {
-//           reject(chrome.runtime.lastError.message)
-//         } else if (response) {
-//           if (response.error) {
-//             reject(response)
-//           }
-//
-//           resolve(response)
-//         } else {
-//           reject('No se recibió respuesta del Service Worker.')
-//         }
-//       }
-//     )
-//   })
-// }
-
 const downloadHangar = async () => {
   resetInterface()
 
@@ -122,72 +102,96 @@ const downloadHangar = async () => {
   let progress = 0
 
   gsModalElement.style.display = 'flex'
-  // await sleep(1000)
 
   const currentCurrency = await sendMessage({ type: 'handleGetCurrency' })
   const responsePagesInHangar = await sendMessage({ type: 'handleGetNumberOfPagesInHangar' })
   if (responsePagesInHangar.numberOfPagesInHangar > 0) {
-    currentActionElement.innerHTML = 'Recorriendo el hangar para buscar las categorías'
-    // await sleep(1000)
+    changeCurrentActionMessage('Recorriendo el hangar para buscar las categorías')
 
     responseCategories = await sendMessage({ type: 'handleGetHangarCategories' })
     hangarElementsCategory = responseCategories.hangarElementsCategory
 
     progress = 10
     setProgressByPercentage(progress)
-    currentStepElement.innerHTML = 'Paso 2 de 7'
+    changeCurrentStepMessage(2)
 
     while (page <= responsePagesInHangar.numberOfPagesInHangar) {
-      currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInHangar.numberOfPagesInHangar} del hangar`
-      const responsePage = await sendMessage({ type: 'handleGetHangarPage', page })
-      if (!responsePage.hangarData || responsePage.hangarData.length === 0) break
-      hangarElements.push(...responsePage.hangarData)
+      changeCurrentActionMessage(`Recorriendo la página ${page} de ${responsePagesInHangar.numberOfPagesInHangar} del hangar`)
+
+      const response = await sendMessage({ type: 'handleGetHangarPage', page })
+
+      if (response.error) {
+        const errorMessage = `Error al recorrer la página ${page} del Hangar. ${response.message}`
+        addLogError(errorMessage)
+
+        for (let elementPositionInPage = 0; elementPositionInPage < 10; elementPositionInPage++) {
+          changeCurrentActionMessage(`Error al recorrer la página ${page} del Hangar. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`)
+
+          const responseElement = await sendMessage({ type: 'handleGetHangarElement', page, elementPositionInPage })
+
+          if (responseElement.error) {
+            const errorMessage = `Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}). ${responseElement.message}`
+            addLogError(errorMessage)
+            continue
+          }
+
+          if (responseElement.hangarData && responseElement.hangarData.length > 0) {
+            hangarElements.push(...responseElement.hangarData)
+          }
+        }
+
+        progress += (30 / responsePagesInHangar.numberOfPagesInHangar)
+        setProgressByPercentage(progress)
+
+        page++
+        continue
+      }
+
+      if (response.hangarData && response.hangarData.length > 0) {
+        hangarElements.push(...response.hangarData)
+      }
 
       progress += (30 / responsePagesInHangar.numberOfPagesInHangar)
       setProgressByPercentage(progress)
 
       page++
     }
-    currentStepElement.innerHTML = 'Paso 3 de 7'
+    changeCurrentStepMessage(3)
 
-    currentActionElement.innerHTML = 'Asociando categorías a los elementos del hangar'
-    // await sleep(1000)
+    changeCurrentActionMessage('Asociando categorías a los elementos del hangar')
     assignCategoryToElements(hangarElements, hangarElementsCategory)
     progress = 45
     setProgressByPercentage(progress)
-    currentStepElement.innerHTML = 'Paso 4 de 7'
+    changeCurrentStepMessage(4)
   }
 
   const responsePagesInBuyBack = await sendMessage({ type: 'handleGetNumberOfPagesInBuyBack' })
   if (responsePagesInBuyBack.numberOfPagesInBuyBack > 0) {
-    currentActionElement.innerHTML = 'Recorriendo el buyback para buscar las categorias'
-    // await sleep(1000)
+    changeCurrentActionMessage('Recorriendo el buyback para buscar las categorias')
 
     responseCategories = await sendMessage({ type: 'handleGetBuyBackCategories' })
     buyBackElementsCategory = responseCategories.buyBackElementsCategory
 
     progress = 50
     setProgressByPercentage(progress)
-    currentStepElement.innerHTML = 'Paso 5 de 7'
-    // await sleep(1000)
+    changeCurrentStepMessage(5)
 
     page = 1
     while (page <= responsePagesInBuyBack.numberOfPagesInBuyBack) {
-      currentActionElement.innerHTML = `Recorriendo la página ${page} de ${responsePagesInBuyBack.numberOfPagesInBuyBack} del buyback`
-      let responsePage
-      try {
-        responsePage = await sendMessage({ type: 'handleGetBuyBackPage', page })
-      } catch (error) {
-        const errorMessage = `Error al recorrer la página ${page}. Error: ${error.message}`
+      changeCurrentActionMessage(`Recorriendo la página ${page} de ${responsePagesInBuyBack.numberOfPagesInBuyBack} del buyback`)
+
+      const response = await sendMessage({ type: 'handleGetBuyBackPage', page })
+
+      if (response.error) {
+        const errorMessage = `Error al recorrer la página ${page} del BuyBack. ${response.message}`
         addLogError(errorMessage)
 
         for (let elementPositionInPage = 0; elementPositionInPage < 10; elementPositionInPage++) {
-          currentActionElement.innerHTML = `Error al recorrer la página ${page}. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`
-          let responseElement
-          try {
-            responseElement = await sendMessage({ type: 'handleGetBuyBackElement', page, elementPositionInPage })
-          } catch (error) {
-            const errorMessage = `Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}). Error: ${error.message}`
+          changeCurrentActionMessage(`Error al recorrer la página ${page} del BuyBack. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`)
+          const responseElement = await sendMessage({ type: 'handleGetBuyBackElement', page, elementPositionInPage })
+
+          if (responseElement.error) {
+            const errorMessage = `Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}). ${responseElement.message}`
             addLogError(errorMessage)
             continue
           }
@@ -197,12 +201,15 @@ const downloadHangar = async () => {
           }
         }
 
+        progress += (30 / responsePagesInBuyBack.numberOfPagesInBuyBack)
+        setProgressByPercentage(progress)
+
         page++
         continue
       }
 
-      if (responsePage.buyBackData && responsePage.buyBackData.length > 0) {
-        buyBackElements.push(...responsePage.buyBackData)
+      if (response.buyBackData && response.buyBackData.length > 0) {
+        buyBackElements.push(...response.buyBackData)
       }
 
       progress += (30 / responsePagesInBuyBack.numberOfPagesInBuyBack)
@@ -210,10 +217,9 @@ const downloadHangar = async () => {
 
       page++
     }
-    currentStepElement.innerHTML = 'Paso 6 de 7'
+    changeCurrentStepMessage(6)
 
-    currentActionElement.innerHTML = 'Asociando categorías a los elementos del buyback'
-    // await sleep(1000)
+    changeCurrentActionMessage('Asociando categorías a los elementos del buyback')
     assignCategoryToElements(buyBackElements, buyBackElementsCategory)
 
     progress = 90
@@ -221,11 +227,10 @@ const downloadHangar = async () => {
   }
 
   await sendMessage({ type: 'handleSetCurrency', currentCurrency })
-  currentActionElement.innerHTML = 'Generando el fichero con los datos'
-  // await sleep(1000)
+  changeCurrentActionMessage('Generando el fichero con los datos')
   progress = 100
   setProgressByPercentage(progress)
-  currentStepElement.innerHTML = 'Paso 7 de 7'
+  changeCurrentStepMessage(7)
 
   downloadFile(hangarElements, buyBackElements)
   finishProcessSuccess()
@@ -239,11 +244,40 @@ const sendMessage = (message) => {
       } else if (response) {
         resolve(response)
       } else {
-        console.warn(message)
         reject(`No se recibió respuesta del Service Worker. Message.type:${message.type}`)
       }
     })
   })
+}
+
+const changeCurrentActionMessage = (message) => {
+  currentActionElement.innerHTML = message
+}
+
+const changeCurrentStepMessage = (step) => {
+  currentActionElement.innerHTML = `Paso ${step} de 7`
+}
+
+const assignCategoryToElements = (elements, elementsCategory) => {
+  if (!Array.isArray(elementsCategory)) return
+
+  for (const elementCategory of elementsCategory) {
+    const element = elements.find(element => element.id === elementCategory.pledgeId)
+    if (element) {
+      element.category = elementCategory.categoryId
+    }
+  }
+}
+
+const setProgressByPercentage = (percentage) => {
+  const totalWidth = 374
+  const pixels = (percentage / 100) * totalWidth
+  if (percentage === 100) {
+    progressBar.classList.add('gs-progress-bar-percentage-completed')
+  }
+  progressBar.style.width = `${pixels}px`
+  const roundedPercentage = Math.round(percentage)
+  progressBarLabel.innerHTML = `${roundedPercentage}%`
 }
 
 const downloadFile = () => {
@@ -265,31 +299,6 @@ const downloadFile = () => {
   link.click()
   document.body.removeChild(link)
   window.URL.revokeObjectURL(url)
-}
-
-const assignCategoryToElements = (elements, elementsCategory) => {
-  if (!Array.isArray(elementsCategory)) {
-    console.warn('elementsCategory no es un array válido:', elementsCategory)
-    return
-  }
-
-  for (const elementCategory of elementsCategory) {
-    const element = elements.find(element => element.id === elementCategory.pledgeId)
-    if (element) {
-      element.category = elementCategory.categoryId
-    }
-  }
-}
-
-const setProgressByPercentage = (percentage) => {
-  const totalWidth = 374
-  const pixels = (percentage / 100) * totalWidth
-  if (percentage === 100) {
-    progressBar.classList.add('gs-progress-bar-percentage-completed')
-  }
-  progressBar.style.width = `${pixels}px`
-  const roundedPercentage = Math.round(percentage)
-  progressBarLabel.innerHTML = `${roundedPercentage}%`
 }
 
 const downloadHistoryErrorsFile = async () => {
@@ -319,23 +328,24 @@ const addLogError = (error) => {
         <div class="error-icon"></div>
         <p class="gs-little-x2-text">${error}</p>
       </div>`
-  gsModalElement.querySelector('.gs-log-errors-list').appendChild(logErrorElement)
+  gsLogErrorsList.appendChild(logErrorElement)
 }
 
 const finishProcessSuccess = () => {
   stopProcessButton.style.display = 'none'
   closeModalButton.style.display = 'flex'
   downloadFileButton.style.display = 'flex'
-  currentActionElement.innerHTML = '¡Éxito!'
+  changeCurrentActionMessage('¡Éxito!')
   currentStepElement.innerHTML = 'Proceso completado'
 }
 
 const resetInterface = () => {
-  currentActionElement.innerHTML = 'Iniciando el proceso'
-  currentStepElement.innerHTML = 'Paso 1 de 7'
+  changeCurrentActionMessage('Iniciando el proceso')
+  changeCurrentStepMessage(1)
   progressBar.style.width = '0%'
   progressBarLabel.innerHTML = '0%'
   historyErrorCollection.length = 0
+  gsLogErrorsList.innerHTML = ''
   hangarElements.length = 0
   buyBackElements.length = 0
   stopProcessButton.style.display = 'flex'
