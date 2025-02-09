@@ -130,7 +130,7 @@ const downloadHangar = async () => {
           const responseElement = await sendMessage({ type: 'handleGetHangarElement', page, elementPositionInPage })
 
           if (responseElement.error) {
-            const errorMessage = `Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}). ${responseElement.message}`
+            const errorMessage = `Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}), los datos de este elemento no estarán en el fichero generado. ${responseElement.message}`
             addLogError(errorMessage)
             continue
           }
@@ -191,7 +191,7 @@ const downloadHangar = async () => {
           const responseElement = await sendMessage({ type: 'handleGetBuyBackElement', page, elementPositionInPage })
 
           if (responseElement.error) {
-            const errorMessage = `Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}). ${responseElement.message}`
+            const errorMessage = `Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}), los datos de este elemento no estarán en el fichero generado. ${responseElement.message}`
             addLogError(errorMessage)
             continue
           }
