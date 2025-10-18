@@ -268,7 +268,7 @@ const changeCurrentActionMessage = (message) => {
 }
 
 const changeCurrentStepMessage = (step) => {
-  currentActionElement.innerHTML = `Paso ${step} de 7`
+  currentStepElement.innerHTML = `Paso ${step} de 7`
 }
 
 const assignCategoryToElements = (elements, elementsCategory) => {
@@ -366,7 +366,7 @@ const stopProcess = () => {
 
 const resetInterface = () => {
   changeCurrentActionMessage('Iniciando el proceso')
-  changeCurrentStepMessage(1)
+  currentStepElement.innerHTML = 'Paso 1 de 7'
   progressBar.style.width = '0%'
   progressBarLabel.innerHTML = '0%'
   progressBar.classList.remove('gs-progress-bar-percentage-completed')
