@@ -13,17 +13,17 @@
   "devDependencies": {
     "copy-webpack-plugin": "^12.0.2",
     "standard": "^17.1.2",
-    "terser-webpack-plugin": "^5.3.11",
-    "webpack": "^5.97.1",
+    "terser-webpack-plugin": "^5.3.14",
+    "webpack": "^5.102.1",
     "webpack-cli": "^5.1.4"
   },
   "eslintConfig": {
     "extends": "./node_modules/standard/eslintrc.json"
   },
   "dependencies": {
-    "cheerio": "^1.0.0",
+    "cheerio": "^1.1.2",
     "crypto-js": "^4.2.0",
-    "ky": "^1.7.3",
+    "ky": "^1.12.0",
     "update": "^0.7.4"
   }
 }

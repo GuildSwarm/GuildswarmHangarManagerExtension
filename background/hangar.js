@@ -238,27 +238,33 @@ const parseUpgradesApplied = async (rsiToken, pledgeId) => {
     upgradedLog$('div.row').each((_, item) => {
       const labelData = upgradedLog$(item).find('label')
       if (labelData.length) {
-        const textContent = labelData.text().trim()
-        const textContentSections = textContent.split('     ')
+        // Extraer la fecha (antes del <br/>)
+        const dateNode = labelData.contents().first()
+        const date = dateNode.text().trim()
 
-        const date = textContentSections[0].trim()
+        // Extraer el span que contiene la descripción del upgrade
+        const spanContent = labelData.find('span').text().trim()
 
-        const descriptionSection = textContentSections[1]?.split(', ')
-        const name = descriptionSection[0]?.trim() || null
+        if (spanContent) {
+          // Formato: "Upgrade applied: #ID Upgrade - Name, new value: $X.XX USD"
+          // Extraer el nombre (después de "Upgrade applied: #ID " y antes de ", new value:")
+          const nameMatch = spanContent.match(/Upgrade applied:\s*#\d+\s+(.+?),\s*new value:/)
+          const name = nameMatch ? nameMatch[1].trim() : null
 
-        let newValueRaw = descriptionSection[1]?.trim() || null
-        let newValue
-        if (newValueRaw) {
-          newValueRaw = removeCommas(newValueRaw)
-          const match = newValueRaw.match(/\d+\.?\d*/)
-          newValue = match ? parseFloat(match[0]) : null
+          // Extraer el nuevo valor
+          const valueMatch = spanContent.match(/new value:\s*\$?([\d,]+\.?\d*)/i)
+          let newValue = null
+          if (valueMatch) {
+            const valueStr = removeCommas(valueMatch[1])
+            newValue = parseFloat(valueStr)
+          }
+
+          arrayUpgradedData.push({
+            date,
+            name,
+            newValue
+          })
         }
-
-        arrayUpgradedData.push({
-          date,
-          name,
-          newValue
-        })
       }
     })
   } catch (error) {
