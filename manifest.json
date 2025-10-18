@@ -17,9 +17,6 @@
     "background": {
         "service_worker": "background/index.js"
     },
-    "externally_connectable": {
-        "matches": ["http://localhost/*", "https://guildswarm/*"]
-    },
     "content_scripts": [
         {
             "matches": ["https://robertsspaceindustries.com/*/account/pledges*"],
