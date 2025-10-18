@@ -73,6 +73,7 @@ const gsLogErrorsList = gsModalElement.querySelector('.gs-log-errors-list')
 const historyErrorCollection = []
 const hangarElements = []
 const buyBackElements = []
+let shouldStopProcess = false
 
 gsStartProcessButton?.addEventListener('click', function () {
   downloadHangar()
@@ -92,6 +93,10 @@ closeModalButton?.addEventListener('click', function () {
   gsModalElement.style.display = 'none'
 })
 
+stopProcessButton?.addEventListener('click', function () {
+  stopProcess()
+})
+
 const downloadHangar = async () => {
   resetInterface()
 
@@ -106,6 +111,8 @@ const downloadHangar = async () => {
   const currentCurrency = await sendMessage({ type: 'handleGetCurrency' })
   const responsePagesInHangar = await sendMessage({ type: 'handleGetNumberOfPagesInHangar' })
   if (responsePagesInHangar.numberOfPagesInHangar > 0) {
+    if (shouldStopProcess) return
+
     changeCurrentActionMessage('Recorriendo el hangar para buscar las categorías')
 
     responseCategories = await sendMessage({ type: 'handleGetHangarCategories' })
@@ -116,6 +123,8 @@ const downloadHangar = async () => {
     changeCurrentStepMessage(2)
 
     while (page <= responsePagesInHangar.numberOfPagesInHangar) {
+      if (shouldStopProcess) return
+
       changeCurrentActionMessage(`Recorriendo la página ${page} de ${responsePagesInHangar.numberOfPagesInHangar} del hangar`)
 
       const response = await sendMessage({ type: 'handleGetHangarPage', page })
@@ -167,6 +176,8 @@ const downloadHangar = async () => {
 
   const responsePagesInBuyBack = await sendMessage({ type: 'handleGetNumberOfPagesInBuyBack' })
   if (responsePagesInBuyBack.numberOfPagesInBuyBack > 0) {
+    if (shouldStopProcess) return
+
     changeCurrentActionMessage('Recorriendo el buyback para buscar las categorias')
 
     responseCategories = await sendMessage({ type: 'handleGetBuyBackCategories' })
@@ -178,6 +189,8 @@ const downloadHangar = async () => {
 
     page = 1
     while (page <= responsePagesInBuyBack.numberOfPagesInBuyBack) {
+      if (shouldStopProcess) return
+
       changeCurrentActionMessage(`Recorriendo la página ${page} de ${responsePagesInBuyBack.numberOfPagesInBuyBack} del buyback`)
 
       const response = await sendMessage({ type: 'handleGetBuyBackPage', page })
@@ -339,15 +352,29 @@ const finishProcessSuccess = () => {
   currentStepElement.innerHTML = 'Proceso completado'
 }
 
+const stopProcess = () => {
+  shouldStopProcess = true
+  stopProcessButton.style.display = 'none'
+  downloadFileButton.style.display = 'none'
+  closeModalButton.style.display = 'flex'
+  changeCurrentActionMessage('Proceso detenido por el usuario')
+  currentStepElement.innerHTML = 'Proceso interrumpido'
+
+  const stopMessage = 'El proceso ha sido detenido manualmente.'
+  addLogError(stopMessage)
+}
+
 const resetInterface = () => {
   changeCurrentActionMessage('Iniciando el proceso')
   changeCurrentStepMessage(1)
   progressBar.style.width = '0%'
   progressBarLabel.innerHTML = '0%'
+  progressBar.classList.remove('gs-progress-bar-percentage-completed')
   historyErrorCollection.length = 0
   gsLogErrorsList.innerHTML = ''
   hangarElements.length = 0
   buyBackElements.length = 0
+  shouldStopProcess = false
   stopProcessButton.style.display = 'flex'
   closeModalButton.style.display = 'none'
   downloadFileButton.style.display = 'none'
