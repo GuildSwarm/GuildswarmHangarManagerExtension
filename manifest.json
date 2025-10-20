@@ -2,19 +2,26 @@
     "manifest_version": 3,
     "name": "Guildswarm - Hangar Manager Extension",
     "description": "Guildswarm Hangar Manager Extension offers you a tool to download all information of your RSI hangar in one file with just one click",
-    "version": "1.0.6",
+    "version": "1.1",
     "icons": {
         "128": "guildswarm_128.png"
     },
     "permissions": [
         "activeTab",
         "scripting",
-        "tabs"
+        "cookies"
+    ],
+    "host_permissions": [
+        "https://robertsspaceindustries.com/*"
     ],
     "background": {
-        "service_worker": "background.js"
+        "service_worker": "background/index.js"
     },
-    "host_permissions": [
-        "https://robertsspaceindustries.com/*/account/pledges"
+    "content_scripts": [
+        {
+            "matches": ["https://robertsspaceindustries.com/*/account/pledges*"],
+            "js": ["content/contentScript.js"],
+            "css": ["content/styles.css"]
+        }
     ]
 }
