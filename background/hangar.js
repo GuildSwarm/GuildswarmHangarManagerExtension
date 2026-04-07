@@ -20,7 +20,7 @@ export const getNumberOfPagesInHangar = async () => {
   if (linkElementMaxPagesOfHangar.length === 0) return 0
 
   const hrefLinkElementMaxPagesOfHangar = linkElementMaxPagesOfHangar.attr('href')
-  const regex = /page=(.*?)&/g
+  const regex = /page=(\d+)/
   const maxPagesOfHangar = regex.exec(hrefLinkElementMaxPagesOfHangar)
   return maxPagesOfHangar === null ? 0 : maxPagesOfHangar[1]
 }
@@ -41,6 +41,8 @@ export const getHangarElementsCategory = async () => {
           hangarElementsCategory.push({ pledgeId: hash(pledgeId), categoryId: category.id })
         }
       }
+      const hasNextPage = $('div.pager div.right a.gt').length > 0
+      if (!hasNextPage) break
       page++
     }
   }

@@ -39,6 +39,8 @@ export const getBuyBackElementsCategory = async () => {
           buyBackElementsCategory.push({ pledgeId, categoryId: category.id })
         }
       }
+      const hasNextPage = $('div.pager div.right a.gt').length > 0
+      if (!hasNextPage) break
       page++
     }
   }
@@ -59,7 +61,7 @@ export const getNumberOfPagesInBuyBack = async () => {
   if (linkElementMaxPagesOfBuyBack.length === 0) return 0
 
   const hrefLinkElementMaxPagesOfBuyBack = linkElementMaxPagesOfBuyBack.attr('href')
-  const regex = /page=(.*?)&/g
+  const regex = /page=(\d+)/
   const maxPagesOfBuyBack = regex.exec(hrefLinkElementMaxPagesOfBuyBack)
   return maxPagesOfBuyBack === null ? 0 : maxPagesOfBuyBack[1]
 }
