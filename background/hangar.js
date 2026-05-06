@@ -248,9 +248,9 @@ const parseUpgradesApplied = async (rsiToken, pledgeId) => {
         const spanContent = labelData.find('span').text().trim()
 
         if (spanContent) {
-          // Formato: "Upgrade applied: #ID Upgrade - Name, new value: $X.XX USD"
-          // Extraer el nombre (después de "Upgrade applied: #ID " y antes de ", new value:")
-          const nameMatch = spanContent.match(/Upgrade applied:\s*#\d+\s+(.+?),\s*new value:/)
+          // Formato nuevo: "Upgrade applied: #ID Name, new value: $X.XX USD"
+          // Formato antiguo (sin valor): "Upgrade applied: #ID Name"
+          const nameMatch = spanContent.match(/Upgrade applied:\s*#\d+\s+(.+?)(?:,\s*new value:.*)?$/)
           const name = nameMatch ? nameMatch[1].trim() : null
 
           // Extraer el nuevo valor

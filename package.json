@@ -1,6 +1,6 @@
 {
   "name": "guildswarm_extension",
-  "version": "1.1",
+  "version": "1.3",
   "description": "Chrome extension for download all hangar data in json format file with one click from web robertsspaceindustries.com",
   "main": "background.js",
   "scripts": {
