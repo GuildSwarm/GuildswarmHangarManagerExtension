@@ -1,4 +1,12 @@
 {
+  "extName": {
+    "message": "Guildswarm - Hangar Manager Extension",
+    "description": "Nombre de la extensión"
+  },
+  "extDescription": {
+    "message": "Guildswarm Hangar Manager Extension te permite descargar toda la información de tu hangar de RSI en un único fichero con un solo clic",
+    "description": "Descripción de la extensión en la tienda"
+  },
   "stepHangarCategories": {
     "message": "Recopilando categorías del hangar"
   },
@@ -203,6 +211,27 @@
   "errorNoServiceWorkerResponse": {
     "message": "No se recibió respuesta del Service Worker. Message.type:$p1$",
     "description": "$1 = tipo de mensaje",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorRsiTokenCookie": {
+    "message": "No se pudo obtener la cookie Rsi-Token."
+  },
+  "errorRsiAuthToken": {
+    "message": "No se pudo obtener la authToken de RSI."
+  },
+  "errorAuthToken": {
+    "message": "No se pudo obtener el authToken."
+  },
+  "errorUnknown": {
+    "message": "Error desconocido al obtener datos del hangar."
+  },
+  "errorRequest": {
+    "message": "Error en la petición: $p1$",
+    "description": "$1 = detalle del error",
     "placeholders": {
       "p1": {
         "content": "$1"

@@ -1,7 +1,7 @@
 import { getNumberOfPagesInHangar, getHangarPage, getHangarElement, getHangarElementsCategory } from './hangar.js'
 import { getNumberOfPagesInBuyBack, getBuyBackPage, getBuyBackElement, getBuyBackElementsCategory } from './buyback.js'
 import { setCurrency, getCurrency } from './currency'
-import { baseUrlRsi, globalCurrency, setAuthToken } from './shared'
+import { baseUrlRsi, globalCurrency, setAuthToken, t } from './shared'
 
 const getCookie = async (cookieName, url) => {
   return new Promise((resolve, reject) => {
@@ -21,7 +21,7 @@ const handleGetCurrency = async () => {
     const currency = await getCurrency()
     return { currency }
   } catch (error) {
-    throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
+    throw new Error(error.message || t('errorUnknown'))
   }
 }
 
@@ -29,12 +29,12 @@ const handleSetCurrency = async (currency) => {
   try {
     const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
     if (!rsiToken) {
-      throw new Error('No se pudo obtener la cookie Rsi-Token.')
+      throw new Error(t('errorRsiTokenCookie'))
     }
     await setCurrency(rsiToken, currency)
     return { currency }
   } catch (error) {
-    throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
+    throw new Error(error.message || t('errorUnknown'))
   }
 }
 
@@ -43,7 +43,7 @@ const handleGetNumberOfPagesInHangar = async () => {
     const numberOfPagesInHangar = await getNumberOfPagesInHangar()
     return { numberOfPagesInHangar }
   } catch (error) {
-    throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
+    throw new Error(error.message || t('errorUnknown'))
   }
 }
 
@@ -51,19 +51,19 @@ const handleGetHangarPage = async (page) => {
   try {
     const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
     if (!rsiToken) {
-      throw new Error('No se pudo obtener la cookie Rsi-Token.')
+      throw new Error(t('errorRsiTokenCookie'))
     }
     const hangarData = await getHangarPage(rsiToken, page)
     return { page, hangarData }
   } catch (error) {
-    throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
+    throw new Error(error.message || t('errorUnknown'))
   }
 }
 
 const handleGetHangarElement = async (page, elementPositionInPage) => {
   const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
   if (!rsiToken) {
-    throw new Error('No se pudo obtener la cookie Rsi-Token.')
+    throw new Error(t('errorRsiTokenCookie'))
   }
   const hangarData = await getHangarElement(rsiToken, page, elementPositionInPage)
   return { page, hangarData }
@@ -74,7 +74,7 @@ const handleGetHangarCategories = async () => {
     const hangarElementsCategory = await getHangarElementsCategory()
     return { hangarElementsCategory }
   } catch (error) {
-    throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
+    throw new Error(error.message || t('errorUnknown'))
   }
 }
 
@@ -83,18 +83,18 @@ const handleGetNumberOfPagesInBuyBack = async () => {
     const numberOfPagesInBuyBack = await getNumberOfPagesInBuyBack()
     return { numberOfPagesInBuyBack }
   } catch (error) {
-    throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
+    throw new Error(error.message || t('errorUnknown'))
   }
 }
 
 const handleGetBuyBackPage = async (page) => {
   const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
   if (!rsiToken) {
-    throw new Error('No se pudo obtener la cookie Rsi-Token.')
+    throw new Error(t('errorRsiTokenCookie'))
   }
   const authToken = await setAuthToken(rsiToken)
   if (!authToken) {
-    throw new Error('No se pudo obtener la authToken de RSI.')
+    throw new Error(t('errorRsiAuthToken'))
   }
   const buyBackData = await getBuyBackPage(rsiToken, authToken, page)
   return { page, buyBackData }
@@ -103,11 +103,11 @@ const handleGetBuyBackPage = async (page) => {
 const handleGetBuyBackElement = async (page, elementPositionInPage) => {
   const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
   if (!rsiToken) {
-    throw new Error('No se pudo obtener la cookie Rsi-Token.')
+    throw new Error(t('errorRsiTokenCookie'))
   }
   const authToken = await setAuthToken(rsiToken)
   if (!authToken) {
-    throw new Error('No se pudo obtener la authToken de RSI.')
+    throw new Error(t('errorRsiAuthToken'))
   }
   const buyBackData = await getBuyBackElement(rsiToken, authToken, page, elementPositionInPage)
   return { page, buyBackData }
@@ -118,7 +118,7 @@ const handleGetBuyBackCategories = async () => {
     const buyBackElementsCategory = await getBuyBackElementsCategory()
     return { buyBackElementsCategory }
   } catch (error) {
-    throw new Error(error.message || 'Error desconocido al obtener datos del hangar.')
+    throw new Error(error.message || t('errorUnknown'))
   }
 }
 
