@@ -108,138 +108,141 @@ const downloadHangar = async () => {
 
   gsModalElement.style.display = 'flex'
 
-  const currentCurrency = await sendMessage({ type: 'handleGetCurrency' })
-  const responsePagesInHangar = await sendMessage({ type: 'handleGetNumberOfPagesInHangar' })
-  if (responsePagesInHangar.numberOfPagesInHangar > 0) {
-    if (shouldStopProcess) return
-
-    changeCurrentActionMessage('Recorriendo el hangar para buscar las categorías')
-
-    responseCategories = await sendMessage({ type: 'handleGetHangarCategories' })
-    hangarElementsCategory = responseCategories.hangarElementsCategory
-
-    progress = 10
-    setProgressByPercentage(progress)
-    changeCurrentStepMessage(2)
-
-    while (page <= responsePagesInHangar.numberOfPagesInHangar) {
+  const visitorCurrency = await switchStoreCurrencyToUsd()
+  try {
+    const responsePagesInHangar = await sendMessage({ type: 'handleGetNumberOfPagesInHangar' })
+    if (responsePagesInHangar.numberOfPagesInHangar > 0) {
       if (shouldStopProcess) return
 
-      changeCurrentActionMessage(`Recorriendo la página ${page} de ${responsePagesInHangar.numberOfPagesInHangar} del hangar`)
+      changeCurrentActionMessage('Recorriendo el hangar para buscar las categorías')
 
-      const response = await sendMessage({ type: 'handleGetHangarPage', page })
+      responseCategories = await sendMessage({ type: 'handleGetHangarCategories' })
+      hangarElementsCategory = responseCategories.hangarElementsCategory
 
-      if (response.error) {
-        const errorMessage = `Error al recorrer la página ${page} del Hangar. ${response.message}`
-        addLogError(errorMessage)
+      progress = 10
+      setProgressByPercentage(progress)
+      changeCurrentStepMessage(2)
 
-        for (let elementPositionInPage = 0; elementPositionInPage < 10; elementPositionInPage++) {
-          changeCurrentActionMessage(`Error al recorrer la página ${page} del Hangar. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`)
+      while (page <= responsePagesInHangar.numberOfPagesInHangar) {
+        if (shouldStopProcess) return
 
-          const responseElement = await sendMessage({ type: 'handleGetHangarElement', page, elementPositionInPage })
+        changeCurrentActionMessage(`Recorriendo la página ${page} de ${responsePagesInHangar.numberOfPagesInHangar} del hangar`)
 
-          if (responseElement.error) {
-            const errorMessage = `Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}), los datos de este elemento no estarán en el fichero generado. ${responseElement.message}`
-            addLogError(errorMessage)
-            continue
+        const response = await sendMessage({ type: 'handleGetHangarPage', page })
+
+        if (response.error) {
+          const errorMessage = `Error al recorrer la página ${page} del Hangar. ${response.message}`
+          addLogError(errorMessage)
+
+          for (let elementPositionInPage = 0; elementPositionInPage < 10; elementPositionInPage++) {
+            changeCurrentActionMessage(`Error al recorrer la página ${page} del Hangar. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`)
+
+            const responseElement = await sendMessage({ type: 'handleGetHangarElement', page, elementPositionInPage })
+
+            if (responseElement.error) {
+              const errorMessage = `Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}), los datos de este elemento no estarán en el fichero generado. ${responseElement.message}`
+              addLogError(errorMessage)
+              continue
+            }
+
+            if (responseElement.hangarData && responseElement.hangarData.length > 0) {
+              hangarElements.push(...responseElement.hangarData)
+            }
           }
 
-          if (responseElement.hangarData && responseElement.hangarData.length > 0) {
-            hangarElements.push(...responseElement.hangarData)
-          }
+          progress += (30 / responsePagesInHangar.numberOfPagesInHangar)
+          setProgressByPercentage(progress)
+
+          page++
+          continue
+        }
+
+        if (response.hangarData && response.hangarData.length > 0) {
+          hangarElements.push(...response.hangarData)
         }
 
         progress += (30 / responsePagesInHangar.numberOfPagesInHangar)
         setProgressByPercentage(progress)
 
         page++
-        continue
       }
+      changeCurrentStepMessage(3)
 
-      if (response.hangarData && response.hangarData.length > 0) {
-        hangarElements.push(...response.hangarData)
-      }
-
-      progress += (30 / responsePagesInHangar.numberOfPagesInHangar)
+      changeCurrentActionMessage('Asociando categorías a los elementos del hangar')
+      assignCategoryToElements(hangarElements, hangarElementsCategory)
+      progress = 45
       setProgressByPercentage(progress)
-
-      page++
+      changeCurrentStepMessage(4)
     }
-    changeCurrentStepMessage(3)
 
-    changeCurrentActionMessage('Asociando categorías a los elementos del hangar')
-    assignCategoryToElements(hangarElements, hangarElementsCategory)
-    progress = 45
-    setProgressByPercentage(progress)
-    changeCurrentStepMessage(4)
-  }
-
-  const responsePagesInBuyBack = await sendMessage({ type: 'handleGetNumberOfPagesInBuyBack' })
-  if (responsePagesInBuyBack.numberOfPagesInBuyBack > 0) {
-    if (shouldStopProcess) return
-
-    changeCurrentActionMessage('Recorriendo el buyback para buscar las categorias')
-
-    responseCategories = await sendMessage({ type: 'handleGetBuyBackCategories' })
-    buyBackElementsCategory = responseCategories.buyBackElementsCategory
-
-    progress = 50
-    setProgressByPercentage(progress)
-    changeCurrentStepMessage(5)
-
-    page = 1
-    while (page <= responsePagesInBuyBack.numberOfPagesInBuyBack) {
+    const responsePagesInBuyBack = await sendMessage({ type: 'handleGetNumberOfPagesInBuyBack' })
+    if (responsePagesInBuyBack.numberOfPagesInBuyBack > 0) {
       if (shouldStopProcess) return
 
-      changeCurrentActionMessage(`Recorriendo la página ${page} de ${responsePagesInBuyBack.numberOfPagesInBuyBack} del buyback`)
+      changeCurrentActionMessage('Recorriendo el buyback para buscar las categorias')
 
-      const response = await sendMessage({ type: 'handleGetBuyBackPage', page })
+      responseCategories = await sendMessage({ type: 'handleGetBuyBackCategories' })
+      buyBackElementsCategory = responseCategories.buyBackElementsCategory
 
-      if (response.error) {
-        const errorMessage = `Error al recorrer la página ${page} del BuyBack. ${response.message}`
-        addLogError(errorMessage)
+      progress = 50
+      setProgressByPercentage(progress)
+      changeCurrentStepMessage(5)
 
-        for (let elementPositionInPage = 0; elementPositionInPage < 10; elementPositionInPage++) {
-          changeCurrentActionMessage(`Error al recorrer la página ${page} del BuyBack. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`)
-          const responseElement = await sendMessage({ type: 'handleGetBuyBackElement', page, elementPositionInPage })
+      page = 1
+      while (page <= responsePagesInBuyBack.numberOfPagesInBuyBack) {
+        if (shouldStopProcess) return
 
-          if (responseElement.error) {
-            const errorMessage = `Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}), los datos de este elemento no estarán en el fichero generado. ${responseElement.message}`
-            addLogError(errorMessage)
-            continue
+        changeCurrentActionMessage(`Recorriendo la página ${page} de ${responsePagesInBuyBack.numberOfPagesInBuyBack} del buyback`)
+
+        const response = await sendMessage({ type: 'handleGetBuyBackPage', page })
+
+        if (response.error) {
+          const errorMessage = `Error al recorrer la página ${page} del BuyBack. ${response.message}`
+          addLogError(errorMessage)
+
+          for (let elementPositionInPage = 0; elementPositionInPage < 10; elementPositionInPage++) {
+            changeCurrentActionMessage(`Error al recorrer la página ${page} del BuyBack. Intentando recorrer elementos individualmente, elemento actual: ${elementPositionInPage + 1}`)
+            const responseElement = await sendMessage({ type: 'handleGetBuyBackElement', page, elementPositionInPage })
+
+            if (responseElement.error) {
+              const errorMessage = `Error al recorrer elementos individualmente (página ${page}, elemento ${elementPositionInPage + 1}), los datos de este elemento no estarán en el fichero generado. ${responseElement.message}`
+              addLogError(errorMessage)
+              continue
+            }
+
+            if (responseElement.buyBackData && responseElement.buyBackData.length > 0) {
+              buyBackElements.push(...responseElement.buyBackData)
+            }
           }
 
-          if (responseElement.buyBackData && responseElement.buyBackData.length > 0) {
-            buyBackElements.push(...responseElement.buyBackData)
-          }
+          progress += (30 / responsePagesInBuyBack.numberOfPagesInBuyBack)
+          setProgressByPercentage(progress)
+
+          page++
+          continue
+        }
+
+        if (response.buyBackData && response.buyBackData.length > 0) {
+          buyBackElements.push(...response.buyBackData)
         }
 
         progress += (30 / responsePagesInBuyBack.numberOfPagesInBuyBack)
         setProgressByPercentage(progress)
 
         page++
-        continue
       }
+      changeCurrentStepMessage(6)
 
-      if (response.buyBackData && response.buyBackData.length > 0) {
-        buyBackElements.push(...response.buyBackData)
-      }
+      changeCurrentActionMessage('Asociando categorías a los elementos del buyback')
+      assignCategoryToElements(buyBackElements, buyBackElementsCategory)
 
-      progress += (30 / responsePagesInBuyBack.numberOfPagesInBuyBack)
+      progress = 90
       setProgressByPercentage(progress)
-
-      page++
     }
-    changeCurrentStepMessage(6)
-
-    changeCurrentActionMessage('Asociando categorías a los elementos del buyback')
-    assignCategoryToElements(buyBackElements, buyBackElementsCategory)
-
-    progress = 90
-    setProgressByPercentage(progress)
+  } finally {
+    await restoreStoreCurrency(visitorCurrency)
   }
 
-  await sendMessage({ type: 'handleSetCurrency', currentCurrency })
   changeCurrentActionMessage('Generando el fichero con los datos')
   progress = 100
   setProgressByPercentage(progress)
@@ -247,6 +250,30 @@ const downloadHangar = async () => {
 
   downloadFile(hangarElements, buyBackElements)
   finishProcessSuccess()
+}
+
+// RSI shows pledge values in the visitor's store currency and the parsers expect USD:
+// read everything in USD, then give the visitor their own currency back on every exit path.
+const switchStoreCurrencyToUsd = async () => {
+  const response = await sendMessage({ type: 'handleGetCurrency' })
+  if (response.error || !response.currency) return null
+  if (response.currency !== 'USD') {
+    await sendMessage({ type: 'handleSetCurrency', currency: 'USD' })
+  }
+  return response.currency
+}
+
+const restoreStoreCurrency = async (currency) => {
+  if (!currency || currency === 'USD') return
+  let response
+  try {
+    response = await sendMessage({ type: 'handleSetCurrency', currency })
+  } catch (error) {
+    response = { error: true, message: error }
+  }
+  if (response.error) {
+    addLogError(`No se pudo restaurar la moneda de tu tienda de RSI (${currency}). Puedes cambiarla desde la propia tienda. ${response.message}`)
+  }
 }
 
 const sendMessage = (message) => {
