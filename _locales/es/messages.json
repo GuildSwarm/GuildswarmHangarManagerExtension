@@ -7,6 +7,10 @@
     "message": "Guildswarm Hangar Manager Extension te permite descargar toda la información de tu hangar de RSI en un único fichero con un solo clic",
     "description": "Descripción de la extensión en la tienda"
   },
+  "buttonExportHangar": {
+    "message": "Exportar Hangar",
+    "description": "Texto del botón de la extensión en la página de pledges de RSI"
+  },
   "stepHangarCategories": {
     "message": "Recopilando categorías del hangar"
   },

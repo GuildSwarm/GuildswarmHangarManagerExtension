@@ -23,7 +23,7 @@ if (h2Title !== null) {
             <img class="gs-brand-logo" src="${chrome.runtime.getURL('assets/logo.svg')}" alt="">
             <span class="gs-brand-lockup">
               <span class="gs-brand-name" translate="no">guildswarm</span>
-              <span class="gs-brand-product">Hangar Manager</span>
+              <span class="gs-brand-product">${t('buttonExportHangar')}</span>
             </span>
         </div>
         </div>
@@ -45,7 +45,12 @@ if (h2Title !== null) {
             <li class="gs-step" data-step="${step.key}" data-state="pending">
               <span class="gs-step-icon"></span>
               <span class="gs-step-label">${step.label}</span>
-              <span class="gs-step-detail"></span>
+              <span class="gs-step-detail"></span>${step.key === 'file'
+                ? `
+              <span class="gs-done" aria-hidden="true">
+                <svg class="gs-done-mark" viewBox="0 0 46 46"><circle cx="23" cy="23" r="21" pathLength="1" /><path d="M14.5 24.5l6 6 11-13" pathLength="1" /></svg>
+              </span>`
+                : ''}
             </li>`).join('')}
           </ol>
           <section class="gs-log">
@@ -81,6 +86,7 @@ const currentStepElement = document.querySelector('.gs-current-step')
 const gsLogElement = gsModalElement.querySelector('.gs-log')
 const gsLogErrorsList = gsModalElement.querySelector('.gs-log-errors-list')
 const gsLogCount = gsModalElement.querySelector('.gs-log-count')
+const gsDoneElement = gsModalElement.querySelector('.gs-done')
 const historyErrorCollection = []
 const hangarElements = []
 const buyBackElements = []
@@ -413,8 +419,10 @@ const addLogError = (error) => {
   gsLogElement.classList.add('is-visible')
 }
 
+// El fichero ya se ha descargado: aparece el círculo que dibuja el anillo y el check
 const finishProcessSuccess = () => {
   isProcessRunning = false
+  gsDoneElement.classList.add('is-visible')
   changeCurrentActionMessage(t(historyErrorCollection.length > 0 ? 'statusSuccessWithWarnings' : 'statusSuccess'))
   currentStepElement.textContent = t('statusCompleted')
 }
@@ -445,6 +453,7 @@ const resetInterface = () => {
   gsLogErrorsList.innerHTML = ''
   gsLogCount.textContent = '0'
   gsLogElement.classList.remove('is-visible')
+  gsDoneElement.classList.remove('is-visible')
   hangarElements.length = 0
   buyBackElements.length = 0
   shouldStopProcess = false

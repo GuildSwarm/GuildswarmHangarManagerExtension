@@ -366,7 +366,7 @@
     --lg-border: rgb(255 255 255 / 0.08);
     --lg-rim: rgb(255 255 255 / 0.22);
     --lg-shadow: 0 10px 30px rgb(0 0 0 / 0.25), 0 2px 6px rgb(0 0 0 / 0.18);
-    --lg-popup-fill: rgb(14 26 40 / 0.76);
+    --lg-popup-fill: rgb(8 9 13 / 0.4);     /* el relleno de .lg-popup de sctools */
     --gs-font-heading: 'Onest', system-ui, sans-serif;
     --gs-font-body: 'IBM Plex Sans', system-ui, sans-serif;
 }
@@ -482,24 +482,28 @@
     .gs-start-process-button::before { animation: none; }
 }
 
-/* ---- Overlay del modal: scrim azul oscuro SIN desenfoque (el fondo se ve nítido) ---- */
+/* ---- Overlay del modal: ni oscurece ni desenfoca, y deja pasar el ratón y la rueda a la página (se puede hacer
+        scroll con la ventana abierta). Solo la ventana recibe clics. ---- */
 .gs-modal {
-    background-color: rgb(6 12 20 / 0.55);
+    background-color: transparent;
+    pointer-events: none;
 }
-.gs-modal[style*="flex"] { animation: gs-overlay-fade .2s ease-out forwards; }
-@keyframes gs-overlay-fade { from { opacity: 0; } to { opacity: 1; } }
+.gs-modal-content-wrapper { pointer-events: auto; }
+/* (sin fundido: una opacidad animada en la capa la convertiría en la raíz del backdrop y la ventana dejaría de desenfocar la página) */
 
-/* ---- Panel del modal: cristal azul claro, compacto y con la altura de su contenido ---- */
+/* ---- Panel del modal: el cristal de los popups de sctools (.lg-surface.lg-popup), compacto y con la altura de su contenido ---- */
 .gs-modal-content-wrapper {
     width: 380px;
     max-width: calc(100vw - 32px);
     height: auto;
     background:
-        linear-gradient(160deg, rgb(110 185 255 / 0.14), rgb(60 110 180 / 0.04) 55%, rgb(120 200 255 / 0.05)),
+        linear-gradient(135deg, rgb(255 255 255 / 0.064), rgb(255 255 255 / 0.026) 45%, rgb(255 255 255 / 0.044)),
         var(--lg-popup-fill);
-    border: 1px solid var(--lg-border);
+    -webkit-backdrop-filter: blur(14px) saturate(125%) brightness(1.03);   /* el blur de .lg-popup: solo lo que queda detrás de la ventana */
+    backdrop-filter: blur(14px) saturate(125%) brightness(1.03);
+    border: 0;
     border-radius: 22px;
-    box-shadow: var(--lg-shadow), 0 22px 60px rgb(0 0 0 / 0.5), inset 1px 1px 0 var(--lg-rim), inset -1px -1px 0 rgb(255 255 255 / 0.06);
+    box-shadow: var(--lg-shadow), 0 22px 60px rgb(0 0 0 / 0.5);
     overflow: hidden;
     animation: gs-panel-enter .3s cubic-bezier(0.2, 0.9, 0.25, 1) forwards;
 }
@@ -508,7 +512,7 @@
     100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 .gs-modal-content-bg-gradient {
-    background: linear-gradient(180deg, rgb(255 255 255 / 0.05) 0%, rgb(255 255 255 / 0) 30%, rgb(120 195 255 / 0.06) 100%);
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0) 42%);   /* brillo especular superior, como el ::before de .lg-surface */
 }
 .gs-modal-content {
     position: relative;
@@ -632,18 +636,21 @@
     font-weight: 500;
     line-height: 20px;
 }
+/* La línea de detalle ("3 páginas", "Sin elementos"…) está reservada desde el principio: la ventana no cambia de alto
+   al avanzar. El último paso nunca tiene detalle, así que no la reserva. */
 .gs-step-detail {
     grid-column: 2;
+    min-height: 16px;
     color: var(--lg-muted);
     font-size: 12px;
     line-height: 16px;
 }
-.gs-step-detail:empty { display: none; }
+.gs-step[data-step="file"] .gs-step-detail { display: none; }
 
 .gs-step[data-state="active"] { color: var(--lg-text); }
 .gs-step[data-state="active"] .gs-step-icon {
     border-color: rgb(255 255 255 / 0.15);
-    border-top-color: rgb(150 215 255);
+    border-top-color: rgb(255 255 255 / 0.9);
     animation: gs-step-spin .8s linear infinite;
 }
 
@@ -758,4 +765,79 @@
     color: rgb(255 255 255 / 0.7);
     font-size: 12px;
     line-height: 17px;
+}
+
+/* ---- Descarga completada: un círculo de cristal pequeño que dibuja un anillo y un check, a la derecha del último paso.
+        Mismo dibujo y tiempos que el slide-to-delete de sctools (SlideToDelete.tsx, slideDelete.css) ---- */
+.gs-step[data-step="file"] { padding-right: 34px; }   /* el texto del paso no pasa por debajo del check */
+.gs-done {
+    /* centrado en vertical con el texto del paso (5px de padding + la mitad de 20px de línea - la mitad de 24px) y en horizontal con la X:
+       la X está a 14px del borde y mide 40px, su centro queda a 34px; la fila acaba a 20px (el padding del contenido): 34 - 20 - 12 = 2px */
+    position: absolute;
+    top: 3px;
+    right: 2px;
+    isolation: isolate;
+    display: none;
+    flex: none;
+    box-sizing: border-box;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--lg-border);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.3);
+    animation: gs-done-pop .3s cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
+}
+.gs-done.is-visible { display: block; }
+.gs-done::after {                            /* el cristal, con el rim más vivo del círculo confirmado */
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, rgb(255 255 255 / 0.10), rgb(255 255 255 / 0) 45%),
+        linear-gradient(135deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.04) 45%, rgb(255 255 255 / 0.08));
+    box-shadow: inset 1px 1px 0 rgb(255 255 255 / 0.6), inset -1px -1px 0 rgb(255 255 255 / 0.12);
+}
+.gs-done-mark {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: #fff;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+/* (un trazo de longitud cero con remate redondo es un punto: no se ve hasta que empieza a dibujarse) */
+.gs-done-mark circle {
+    stroke-width: 3;      /* en unidades del viewBox de 46: a 24px quedan ~1.5px de anillo */
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transform: rotate(-90deg);
+    transform-origin: center;
+    opacity: 0;
+    animation: gs-done-draw .42s .22s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.gs-done-mark path {
+    stroke-width: 5;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    opacity: 0;
+    animation: gs-done-draw .3s .55s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@keyframes gs-done-draw {
+    0%   { opacity: 0; stroke-dashoffset: 1; }
+    1%   { opacity: 1; stroke-dashoffset: 1; }
+    100% { opacity: 1; stroke-dashoffset: 0; }
+}
+@keyframes gs-done-pop {
+    from { opacity: 0; transform: scale(0.6); }
+    to   { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .gs-done { animation: none; }
+    .gs-done-mark circle,
+    .gs-done-mark path { animation: none; stroke-dashoffset: 0; opacity: 1; }
 }
