@@ -1,3 +1,23 @@
+/* Fuentes de sctools.guildswarm.org incluidas en la extensión (assets/fonts): las de la propia extensión
+   se cargan aunque la CSP de RSI bloquee fuentes externas */
+@font-face {
+    font-family: 'Onest';
+    src: url('chrome-extension://__MSG_@@extension_id__/assets/fonts/onest-latin-wght.woff2') format('woff2');
+    font-weight: 100 900;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'IBM Plex Sans';
+    src: url('chrome-extension://__MSG_@@extension_id__/assets/fonts/ibm-plex-sans-latin-400.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'IBM Plex Sans';
+    src: url('chrome-extension://__MSG_@@extension_id__/assets/fonts/ibm-plex-sans-latin-500.woff2') format('woff2');
+    font-weight: 500;
+    font-display: swap;
+}
 :root {
     --color-yellow: #89842D;
     --color-bright-yellow: #FFC619;
@@ -12,10 +32,7 @@
     --color-gray: #d1d1d1;
     --color-orange: #FB923C;
 }
-@font-face {
-    font-family: 'Nunito Sans';
-    src: url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&display=swap');
-}
+/* @font-face roto eliminado: las fuentes se declaran al principio del fichero */
 .h3-subtitle {
     font-weight: 300;
     font-size: 32px;
@@ -332,4 +349,413 @@
         border-radius: 20px;
         box-shadow: -3px 0 5px 0 var(--color-yellow);
     }
+}
+
+/* =========================================================================
+   GuildSwarm — Tema Liquid Glass
+   Fiel a sctools.dev.guildswarm.org (rama GMVP-547, src/liquid-glass):
+   material de cristal en pseudo-elementos, píldoras de 999px, tinte violeta
+   (18 16 30), acento ámbar #f3b45f, borde pelo blanco, rim de luz y sombra
+   suave. Overrides al final para ganar por cascada sin tocar el markup.
+   ========================================================================= */
+:root {
+    --lg-accent: #f3b45f;
+    --lg-text: #ffffff;
+    --lg-muted: #b1aabb;
+    --lg-tint: 36 24 60;
+    --lg-border: rgb(255 255 255 / 0.08);
+    --lg-rim: rgb(255 255 255 / 0.22);
+    --lg-shadow: 0 10px 30px rgb(0 0 0 / 0.25), 0 2px 6px rgb(0 0 0 / 0.18);
+    --lg-popup-fill: rgb(14 26 40 / 0.76);
+    --gs-font-heading: 'Onest', system-ui, sans-serif;
+    --gs-font-body: 'IBM Plex Sans', system-ui, sans-serif;
+}
+
+/* ---- Título "MY HANGAR" ---- */
+.gs-title {
+    color: var(--lg-text);
+    font-family: var(--gs-font-heading);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-shadow: 0 1px 8px rgb(0 0 0 / 0.5);
+}
+
+/* ---- Botón "Hangar Manager": píldora de cristal sobre la página de RSI ---- */
+.gs-start-process-button {
+    position: relative;
+    isolation: isolate;
+    width: 250px;       /* lo mismo que ocupan juntos los botones "Ship upgrades" y "Hangar log" de RSI */
+    min-width: 0;
+    height: auto;
+    box-sizing: border-box;
+    min-height: 40px;
+    padding: 5px 13px;
+    border-radius: 999px;
+    background: none;
+    border: 1px solid rgb(157 123 255 / 0.45);
+    box-shadow: var(--lg-shadow), 0 0 20px rgb(140 100 240 / 0.28);
+    overflow: hidden;
+    transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+}
+.gs-start-process-button::after {           /* el cristal (blur del fondo + tinte morado) */
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, rgb(255 255 255 / 0.10), rgb(255 255 255 / 0) 45%),
+        linear-gradient(135deg, rgb(255 255 255 / 0.10), rgb(255 255 255 / 0.03) 45%, rgb(255 255 255 / 0.06)),
+        linear-gradient(135deg, rgb(140 95 240 / 0.30), rgb(95 60 180 / 0.12) 60%, rgb(140 95 240 / 0.20)),
+        rgb(var(--lg-tint) / 0.22);
+    -webkit-backdrop-filter: blur(8px) saturate(135%) brightness(1.05);
+    backdrop-filter: blur(8px) saturate(135%) brightness(1.05);
+    box-shadow: inset 1px 1px 0 var(--lg-rim), inset -1px -1px 0 rgb(255 255 255 / 0.08);
+}
+.gs-start-process-button::before {          /* latido: luz morada que cruza el botón de izquierda a derecha */
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(closest-side, rgb(180 140 255 / 0.55), rgb(150 105 245 / 0.18) 60%, transparent) no-repeat;
+    background-size: 40% 170%;
+    background-position: -70% 50%;
+    opacity: 0;
+    animation: gs-heartbeat 5s ease-in-out infinite;
+}
+.gs-start-process-button:hover {
+    border-color: rgb(179 150 255 / 0.85);
+    box-shadow: var(--lg-shadow), 0 0 30px rgb(150 110 250 / 0.5);
+    transform: translateY(-1px);
+}
+.gs-start-process-button-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: auto;
+    gap: 7px;
+    justify-content: center;
+    background: none;
+    padding: 0;
+}
+.gs-start-process-button-content::before { display: none; }   /* fuera la imagen de fondo antigua */
+
+/* Marca en una fila: logo + "guildswarm" (Onest) a la izquierda y "Hangar Manager" a la derecha */
+.gs-brand-logo {
+    display: block;
+    flex: none;
+    width: 19px;
+    height: 22px;
+    object-fit: contain;
+}
+.gs-brand-lockup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.gs-brand-name {
+    color: var(--lg-text);
+    font: 760 14px/1 var(--gs-font-heading);
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+}
+.gs-brand-product {
+    color: var(--lg-text);
+    font: 500 15px/1 var(--gs-font-body);
+    white-space: nowrap;
+    transition: color .25s ease;
+}
+.gs-start-process-button:hover .gs-brand-product { color: #c3b0ff; }
+
+/* ---- Latido del botón: la luz entra por la izquierda, se aviva y se apaga a la derecha; luego pausa ---- */
+@keyframes gs-heartbeat {
+    0%   { background-position: -70% 50%; opacity: 0; }
+    15%  { opacity: 1; }
+    55%  { opacity: 0.85; }
+    70%  { background-position: 170% 50%; opacity: 0; }
+    100% { background-position: 170% 50%; opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .gs-start-process-button::before { animation: none; }
+}
+
+/* ---- Overlay del modal: scrim azul oscuro SIN desenfoque (el fondo se ve nítido) ---- */
+.gs-modal {
+    background-color: rgb(6 12 20 / 0.55);
+}
+.gs-modal[style*="flex"] { animation: gs-overlay-fade .2s ease-out forwards; }
+@keyframes gs-overlay-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---- Panel del modal: cristal azul claro, compacto y con la altura de su contenido ---- */
+.gs-modal-content-wrapper {
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    height: auto;
+    background:
+        linear-gradient(160deg, rgb(110 185 255 / 0.14), rgb(60 110 180 / 0.04) 55%, rgb(120 200 255 / 0.05)),
+        var(--lg-popup-fill);
+    border: 1px solid var(--lg-border);
+    border-radius: 22px;
+    box-shadow: var(--lg-shadow), 0 22px 60px rgb(0 0 0 / 0.5), inset 1px 1px 0 var(--lg-rim), inset -1px -1px 0 rgb(255 255 255 / 0.06);
+    overflow: hidden;
+    animation: gs-panel-enter .3s cubic-bezier(0.2, 0.9, 0.25, 1) forwards;
+}
+@keyframes gs-panel-enter {
+    0%   { opacity: 0; transform: translateY(20px) scale(0.98); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.gs-modal-content-bg-gradient {
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.05) 0%, rgb(255 255 255 / 0) 30%, rgb(120 195 255 / 0.06) 100%);
+}
+.gs-modal-content {
+    position: relative;
+    height: auto;
+    align-items: stretch;
+    gap: 16px;
+    padding: 20px 20px 18px;
+    font-family: var(--gs-font-body);
+}
+
+/* ---- Cabecera: estado y paso actual (deja sitio a la X de la esquina) ---- */
+.gs-modal-content-header {
+    align-items: stretch;
+    gap: 4px;
+    padding: 0 48px 0 0;
+}
+.gs-current-action {
+    text-align: left;
+    color: var(--lg-text);
+    font: 650 19px/1.3 var(--gs-font-heading);
+    letter-spacing: -0.3px;
+}
+.gs-current-step {
+    margin: 0;
+    color: var(--lg-muted);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* ---- X de cerrar: píldora redonda de cristal en la esquina, como la de los diálogos de sctools ---- */
+.gs-close-process-button {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    isolation: isolate;
+    display: flex;      /* visible siempre: cierra, y si el proceso corre lo cancela */
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid var(--lg-border);
+    background: none;
+    color: var(--lg-text);
+    box-shadow: var(--lg-shadow);
+    cursor: pointer;
+    transition: transform .2s ease;
+}
+.gs-close-process-button::after {           /* el cristal */
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, rgb(255 255 255 / 0.10), rgb(255 255 255 / 0) 45%),
+        linear-gradient(135deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.04) 45%, rgb(255 255 255 / 0.08));
+    -webkit-backdrop-filter: blur(8px) saturate(125%) brightness(1.03);
+    backdrop-filter: blur(8px) saturate(125%) brightness(1.03);
+    box-shadow: inset 1px 1px 0 var(--lg-rim), inset -1px -1px 0 rgb(255 255 255 / 0.08);
+    transition: box-shadow .2s ease;
+}
+.gs-close-process-button:hover::after,
+.gs-close-process-button:focus-visible::after {
+    box-shadow: inset 1px 1px 0 rgb(255 255 255 / 0.55), inset -1px -1px 0 rgb(255 255 255 / 0.15);
+}
+.gs-close-process-button:focus-visible { outline: 0; }
+.gs-close-process-button svg {
+    display: block;
+    width: 24px;
+    height: 24px;
+}
+
+/* ---- Lista de pasos: spinner en el activo, check verde al completarse ---- */
+.gs-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.gs-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    column-gap: 12px;
+    align-items: start;
+    margin: 0;
+    padding: 5px 0;
+    color: rgb(255 255 255 / 0.42);
+    transition: color .25s ease;
+}
+.gs-step:not(:last-child)::before {     /* línea que une un paso con el siguiente */
+    content: "";
+    position: absolute;
+    left: 8.5px;
+    top: 26px;
+    bottom: -7px;
+    width: 1px;
+    background: rgb(255 255 255 / 0.10);
+    transition: background .25s ease;
+}
+.gs-step-icon {
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    border-radius: 50%;
+    border: 1.5px solid rgb(255 255 255 / 0.22);
+    font: 800 11px/1 var(--gs-font-heading);
+    transition: background .25s ease, border-color .25s ease;
+}
+.gs-step-label {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+}
+.gs-step-detail {
+    grid-column: 2;
+    color: var(--lg-muted);
+    font-size: 12px;
+    line-height: 16px;
+}
+.gs-step-detail:empty { display: none; }
+
+.gs-step[data-state="active"] { color: var(--lg-text); }
+.gs-step[data-state="active"] .gs-step-icon {
+    border-color: rgb(255 255 255 / 0.15);
+    border-top-color: rgb(150 215 255);
+    animation: gs-step-spin .8s linear infinite;
+}
+
+.gs-step[data-state="done"] { color: rgb(255 255 255 / 0.85); }
+.gs-step[data-state="done"] .gs-step-icon {
+    border-color: transparent;
+    background: rgb(74 222 128 / 0.18);
+    color: #5fe08f;
+    animation: gs-step-pop .3s cubic-bezier(0.2, 0.9, 0.25, 1.4);
+}
+.gs-step[data-state="done"] .gs-step-icon::after { content: "✓"; }
+.gs-step[data-state="done"]:not(:last-child)::before { background: rgb(95 224 143 / 0.45); }
+
+.gs-step[data-state="warning"] { color: rgb(255 255 255 / 0.85); }
+.gs-step[data-state="warning"] .gs-step-icon {
+    border-color: transparent;
+    background: rgb(255 180 90 / 0.18);
+    color: #ffc48a;
+    animation: gs-step-pop .3s cubic-bezier(0.2, 0.9, 0.25, 1.4);
+}
+.gs-step[data-state="warning"] .gs-step-icon::after { content: "!"; }
+.gs-step[data-state="warning"]:not(:last-child)::before { background: rgb(255 196 138 / 0.4); }
+
+.gs-step[data-state="stopped"] { color: rgb(255 255 255 / 0.85); }
+.gs-step[data-state="stopped"] .gs-step-icon {
+    border-color: transparent;
+    background: rgb(229 115 110 / 0.2);
+    color: #f0a19d;
+}
+.gs-step[data-state="stopped"] .gs-step-icon::after { content: "×"; font-size: 14px; }
+
+@keyframes gs-step-spin { to { transform: rotate(360deg); } }
+@keyframes gs-step-pop {
+    0%   { transform: scale(0.6); }
+    100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .gs-step[data-state] .gs-step-icon { animation: none; }
+}
+
+/* ---- Errores: el bloque solo aparece cuando hay alguno ---- */
+.gs-log {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgb(255 160 90 / 0.07);
+    border: 1px solid rgb(255 170 100 / 0.22);
+}
+.gs-log.is-visible { display: flex; }
+.gs-log-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.gs-log-title {
+    color: #ffc48a;
+    font-size: 13px;
+    font-weight: 500;
+}
+.gs-log-errors {
+    display: block;
+    height: auto;
+    max-height: 96px;
+    padding: 0 4px 0 0;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow-y: auto;
+}
+.gs-log-errors::-webkit-scrollbar { width: 4px; }
+.gs-log-errors::-webkit-scrollbar-track { background: transparent; }
+.gs-log-errors::-webkit-scrollbar-thumb {
+    width: 4px;
+    background: rgb(255 255 255 / 0.22);
+    border-radius: 999px;
+    box-shadow: none;
+}
+.gs-log-errors-list { gap: 6px; }
+.gs-log-errors-item { align-items: flex-start; gap: 8px; }
+.gs-log-errors-item p {
+    width: auto;
+    color: rgb(255 255 255 / 0.8);
+    font-size: 12px;
+    line-height: 16px;
+}
+.error-icon {
+    flex: none;
+    width: 14px;
+    height: 13px;
+    margin-top: 2px;
+}
+.log-error-file-icon { width: 12px; height: 15px; }
+.log-error-file-label {
+    color: var(--lg-text);
+    font-size: 12px;
+    text-underline-offset: 3px;
+}
+.gs-errors-help summary {
+    cursor: pointer;
+    color: var(--lg-muted);
+    font-size: 12px;
+    list-style: none;
+}
+.gs-errors-help summary::-webkit-details-marker { display: none; }
+.gs-errors-help summary:hover { color: var(--lg-text); }
+.gs-errors-help p {
+    margin-top: 6px;
+    color: rgb(255 255 255 / 0.7);
+    font-size: 12px;
+    line-height: 17px;
 }

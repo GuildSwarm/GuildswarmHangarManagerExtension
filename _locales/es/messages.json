@@ -1,0 +1,212 @@
+{
+  "stepHangarCategories": {
+    "message": "Recopilando categorías del hangar"
+  },
+  "stepHangarPages": {
+    "message": "Recorriendo el hangar"
+  },
+  "stepHangarAssign": {
+    "message": "Asociando categorías del hangar"
+  },
+  "stepBuyBackCategories": {
+    "message": "Recopilando categorías del buyback"
+  },
+  "stepBuyBackPages": {
+    "message": "Recorriendo el buyback"
+  },
+  "stepBuyBackAssign": {
+    "message": "Asociando categorías del buyback"
+  },
+  "stepFile": {
+    "message": "Generando y descargando el fichero"
+  },
+  "stepDetailPage": {
+    "message": "Página $p1$ de $p2$",
+    "description": "$1 = página actual, $2 = total de páginas",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "stepDetailRetry": {
+    "message": "Página $p1$: reintentando elemento $p2$ de 10",
+    "description": "$1 = página, $2 = elemento que se reintenta",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "stepDetailNoItems": {
+    "message": "Sin elementos"
+  },
+  "stepDetailStopped": {
+    "message": "Detenido"
+  },
+  "pagesOne": {
+    "message": "$p1$ página",
+    "description": "$1 = número de páginas (1)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "pagesMany": {
+    "message": "$p1$ páginas",
+    "description": "$1 = número de páginas",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorsOne": {
+    "message": "$p1$ error",
+    "description": "$1 = número de errores (1)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorsMany": {
+    "message": "$p1$ errores",
+    "description": "$1 = número de errores",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusExporting": {
+    "message": "Exportando tu hangar"
+  },
+  "statusStep": {
+    "message": "Paso $p1$ de $p2$",
+    "description": "$1 = paso actual, $2 = total de pasos",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "statusSuccess": {
+    "message": "¡Éxito!"
+  },
+  "statusSuccessWithWarnings": {
+    "message": "Completado con avisos"
+  },
+  "statusCompleted": {
+    "message": "Proceso completado"
+  },
+  "statusStopped": {
+    "message": "Proceso detenido"
+  },
+  "statusStoppedByUser": {
+    "message": "Interrumpido por el usuario"
+  },
+  "logTitle": {
+    "message": "Errores"
+  },
+  "logDownload": {
+    "message": "Descargar log"
+  },
+  "errorsHelpSummary": {
+    "message": "¿Qué son estos errores?"
+  },
+  "errorsHelpParagraph1": {
+    "message": "En algunos casos, al solicitar información a la web de RSI, pueden ocurrir errores que impidan obtener los datos de una página completa. Cuando esto sucede, nuestra aplicación intenta recuperar la información de manera individual para cada artículo de esa página. Si este método alternativo también falla, el artículo no podrá incluirse en el fichero debido a la falta de datos disponibles."
+  },
+  "errorsHelpParagraph2": {
+    "message": "Lamentamos los posibles inconvenientes que esto pueda causar. Estos errores son provocados por restricciones en la web de RSI y, aunque hacemos todo lo posible para minimizar su impacto, hay ocasiones en las que no es posible recuperar la información de algunos artículos."
+  },
+  "buttonClose": {
+    "message": "Cerrar"
+  },
+  "errorHangarPage": {
+    "message": "Error al recorrer la página $p1$ del Hangar. $p2$",
+    "description": "$1 = página, $2 = detalle del error",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "errorHangarElement": {
+    "message": "Error al recorrer elementos individualmente (página $p1$, elemento $p2$), los datos de este elemento no estarán en el fichero generado. $p3$",
+    "description": "$1 = página, $2 = elemento, $3 = detalle del error",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errorBuyBackPage": {
+    "message": "Error al recorrer la página $p1$ del BuyBack. $p2$",
+    "description": "$1 = página, $2 = detalle del error",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "errorBuyBackElement": {
+    "message": "Error al recorrer elementos individualmente (página $p1$, elemento $p2$), los datos de este elemento no estarán en el fichero generado. $p3$",
+    "description": "$1 = página, $2 = elemento, $3 = detalle del error",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errorRestoreCurrency": {
+    "message": "No se pudo restaurar la moneda de tu tienda de RSI ($p1$). Puedes cambiarla desde la propia tienda. $p2$",
+    "description": "$1 = moneda de la tienda, $2 = detalle del error",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "errorNoServiceWorkerResponse": {
+    "message": "No se recibió respuesta del Service Worker. Message.type:$p1$",
+    "description": "$1 = tipo de mensaje",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  }
+}
