@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack --mode production --watch",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "build:local": "webpack --mode production --env local",
+    "dev:local": "webpack --mode production --watch --env local"
   },
   "keywords": [],
   "author": "guildswarm.org",

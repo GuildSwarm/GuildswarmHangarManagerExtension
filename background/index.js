@@ -182,3 +182,17 @@ chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => 
   console.warn(`Tipo de mensaje no soportado: ${message.type}`, { message, sender })
   sendResponse({ error: `Tipo de mensaje no soportado: ${message.type}` })
 })
+
+// Chrome solo inyecta los content scripts en las pestañas que se abren después de instalar la extensión. Para que SC Tools
+// la detecte sin recargar, se inyecta el puente en las pestañas de SC Tools que ya estaban abiertas (al instalar y al actualizar).
+const BRIDGE_FILE = 'content/sctoolsBridge.js'
+
+const injectBridgeInOpenTabs = async () => {
+  const bridge = chrome.runtime.getManifest().content_scripts.find((script) => script.js.includes(BRIDGE_FILE))
+  const tabs = await chrome.tabs.query({ url: bridge.matches })
+  await Promise.allSettled(tabs.map((tab) => chrome.scripting.executeScript({ target: { tabId: tab.id }, files: [BRIDGE_FILE] })))
+}
+
+chrome.runtime.onInstalled.addListener(() => {
+  injectBridgeInOpenTabs().catch((error) => console.warn('No se pudo inyectar el puente en las pestañas abiertas:', error))
+})
