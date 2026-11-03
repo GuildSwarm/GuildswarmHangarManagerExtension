@@ -8,7 +8,8 @@ import {
   retryLimit,
   statusCodesRetry,
   categories,
-  idNoCategory
+  idNoCategory,
+  t
 } from './shared.js'
 
 const fetchBuyBackCategory = async (category, page) => {
@@ -103,7 +104,7 @@ const fetchBuyBackPledge = async (buyBackLink) => {
 
     return response.text()
   } catch (error) {
-    throw new Error(`Error on request: ${error.message}`)
+    throw new Error(t('errorRequest', [error.message]))
   }
 }
 
@@ -260,7 +261,7 @@ const getPledgeIdFromElementData = (link) => {
 
 const fetchSetContextToken = async (rsiToken, pledgeId) => {
   if (!rsiToken) {
-    throw new Error('No se pudo obtener la cookie Rsi-Token.')
+    throw new Error(t('errorRsiTokenCookie'))
   }
 
   const myHeaders = new Headers()
@@ -284,7 +285,7 @@ const fetchSetContextToken = async (rsiToken, pledgeId) => {
 
     return response.data
   } catch (error) {
-    throw new Error(`Error on request: ${error.message}`)
+    throw new Error(t('errorRequest', [error.message]))
   }
 }
 
@@ -321,6 +322,6 @@ const getInitShipUpgrade = async (authToken, fromId, toId) => {
 
     return response
   } catch (error) {
-    throw new Error(`Error on request: ${error.message}`)
+    throw new Error(t('errorRequest', [error.message]))
   }
 }

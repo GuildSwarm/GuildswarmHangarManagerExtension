@@ -39,7 +39,9 @@ module.exports = {
       patterns: [
         { from: './manifest.json', to: 'manifest.json' },
         { from: './content/styles.css', to: './content/styles.css' },
-        { from: './guildswarm_128.png', to: 'guildswarm_128.png' }
+        { from: './guildswarm_128.png', to: 'guildswarm_128.png' },
+        { from: './_locales', to: '_locales' },
+        { from: './assets', to: 'assets' }
       ]
     })
   ]

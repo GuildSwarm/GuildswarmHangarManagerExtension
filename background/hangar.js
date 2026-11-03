@@ -8,7 +8,8 @@ import {
   retryLimit,
   statusCodesRetry,
   categories,
-  idNoCategory
+  idNoCategory,
+  t
 } from './shared.js'
 
 export const getNumberOfPagesInHangar = async () => {
@@ -64,7 +65,7 @@ const fetchCategory = async (category, page) => {
 
 const fetchUpgradeLog = async (rsiToken, pledgeId) => {
   if (!rsiToken) {
-    throw new Error('No se pudo obtener la cookie Rsi-Token.')
+    throw new Error(t('errorRsiTokenCookie'))
   }
 
   const myHeaders = new Headers()
@@ -90,7 +91,7 @@ const fetchUpgradeLog = async (rsiToken, pledgeId) => {
 
     return response.data.rendered
   } catch (error) {
-    throw new Error(`Error on request: ${error.message}`)
+    throw new Error(t('errorRequest', [error.message]))
   }
 }
 

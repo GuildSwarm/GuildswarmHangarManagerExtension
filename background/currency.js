@@ -1,5 +1,5 @@
 import ky from 'ky'
-import { retryLimit, statusCodesRetry, baseUrlRsi } from './shared'
+import { retryLimit, statusCodesRetry, baseUrlRsi, t } from './shared'
 
 export const getCurrency = async () => {
   const pledgePage = await getPledgePage()
@@ -20,7 +20,7 @@ const getPledgePage = async () => {
 
     return response.text()
   } catch (error) {
-    throw new Error(`Error on request: ${error.message}`)
+    throw new Error(t('errorRequest', [error.message]))
   }
 }
 
@@ -45,6 +45,6 @@ export const setCurrency = async (rsiToken, currency) => {
 
     return response.success
   } catch (error) {
-    throw new Error(`Error on request: ${error.message}`)
+    throw new Error(t('errorRequest', [error.message]))
   }
 }

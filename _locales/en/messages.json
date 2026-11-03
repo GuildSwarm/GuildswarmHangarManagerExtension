@@ -1,0 +1,245 @@
+{
+  "extName": {
+    "message": "Guildswarm - Hangar Manager Extension",
+    "description": "Nombre de la extensión"
+  },
+  "extDescription": {
+    "message": "Guildswarm Hangar Manager Extension offers you a tool to download all information of your RSI hangar in one file with just one click",
+    "description": "Descripción de la extensión en la tienda"
+  },
+  "buttonExportHangar": {
+    "message": "Export Hangar",
+    "description": "Texto del botón de la extensión en la página de pledges de RSI"
+  },
+  "stepHangarCategories": {
+    "message": "Collecting hangar categories"
+  },
+  "stepHangarPages": {
+    "message": "Reading the hangar"
+  },
+  "stepHangarAssign": {
+    "message": "Matching hangar categories"
+  },
+  "stepBuyBackCategories": {
+    "message": "Collecting buyback categories"
+  },
+  "stepBuyBackPages": {
+    "message": "Reading the buyback"
+  },
+  "stepBuyBackAssign": {
+    "message": "Matching buyback categories"
+  },
+  "stepFile": {
+    "message": "Generating and downloading the file"
+  },
+  "stepDetailPage": {
+    "message": "Page $p1$ of $p2$",
+    "description": "$1 = página actual, $2 = total de páginas",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "stepDetailRetry": {
+    "message": "Page $p1$: retrying item $p2$ of 10",
+    "description": "$1 = página, $2 = elemento que se reintenta",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "stepDetailNoItems": {
+    "message": "No items"
+  },
+  "stepDetailStopped": {
+    "message": "Stopped"
+  },
+  "pagesOne": {
+    "message": "$p1$ page",
+    "description": "$1 = número de páginas (1)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "pagesMany": {
+    "message": "$p1$ pages",
+    "description": "$1 = número de páginas",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorsOne": {
+    "message": "$p1$ error",
+    "description": "$1 = número de errores (1)",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorsMany": {
+    "message": "$p1$ errors",
+    "description": "$1 = número de errores",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusExporting": {
+    "message": "Exporting your hangar"
+  },
+  "statusStep": {
+    "message": "Step $p1$ of $p2$",
+    "description": "$1 = paso actual, $2 = total de pasos",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "statusSuccess": {
+    "message": "Done!"
+  },
+  "statusSuccessWithWarnings": {
+    "message": "Completed with warnings"
+  },
+  "statusCompleted": {
+    "message": "Process completed"
+  },
+  "statusStopped": {
+    "message": "Process stopped"
+  },
+  "statusStoppedByUser": {
+    "message": "Interrupted by the user"
+  },
+  "logTitle": {
+    "message": "Errors"
+  },
+  "logDownload": {
+    "message": "Download log"
+  },
+  "errorsHelpSummary": {
+    "message": "What are these errors?"
+  },
+  "errorsHelpParagraph1": {
+    "message": "Sometimes, when requesting information from the RSI website, errors can prevent us from getting the data of a whole page. When that happens, the extension tries to recover the information item by item for that page. If this fallback also fails, the item cannot be included in the file because its data is not available."
+  },
+  "errorsHelpParagraph2": {
+    "message": "We are sorry for any inconvenience this may cause. These errors come from restrictions on the RSI website and, although we do our best to minimize their impact, sometimes the information of some items cannot be recovered."
+  },
+  "buttonClose": {
+    "message": "Close"
+  },
+  "errorHangarPage": {
+    "message": "Error while reading page $p1$ of the hangar. $p2$",
+    "description": "$1 = página, $2 = detalle del error",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "errorHangarElement": {
+    "message": "Error while reading items one by one (page $p1$, item $p2$), the data of this item will not be in the generated file. $p3$",
+    "description": "$1 = página, $2 = elemento, $3 = detalle del error",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errorBuyBackPage": {
+    "message": "Error while reading page $p1$ of the buyback. $p2$",
+    "description": "$1 = página, $2 = detalle del error",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "errorBuyBackElement": {
+    "message": "Error while reading items one by one (page $p1$, item $p2$), the data of this item will not be in the generated file. $p3$",
+    "description": "$1 = página, $2 = elemento, $3 = detalle del error",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      },
+      "p3": {
+        "content": "$3"
+      }
+    }
+  },
+  "errorRestoreCurrency": {
+    "message": "Could not restore your RSI store currency ($p1$). You can change it back in the store itself. $p2$",
+    "description": "$1 = moneda de la tienda, $2 = detalle del error",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "errorNoServiceWorkerResponse": {
+    "message": "No response from the Service Worker. Message.type:$p1$",
+    "description": "$1 = tipo de mensaje",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorRsiTokenCookie": {
+    "message": "Could not get the Rsi-Token cookie."
+  },
+  "errorRsiAuthToken": {
+    "message": "Could not get the RSI auth token."
+  },
+  "errorAuthToken": {
+    "message": "Could not get the auth token."
+  },
+  "errorUnknown": {
+    "message": "Unknown error while getting the hangar data."
+  },
+  "errorRequest": {
+    "message": "Request error: $p1$",
+    "description": "$1 = detalle del error",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  }
+}

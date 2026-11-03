@@ -16,13 +16,16 @@ export const categories = [
   { id: 'flair', urlParameter: '&product-type=flair' }
 ]
 
+// Textos traducidos desde _locales/<idioma>/messages.json según el idioma del navegador
+export const t = (key, substitutions = []) => chrome.i18n.getMessage(key, substitutions.map(String))
+
 export const hash = (string) => {
   return CryptoJS.SHA256(string).toString(CryptoJS.enc.Hex)
 }
 
 export const setAuthToken = async (authToken) => {
   if (!authToken) {
-    throw new Error('No se pudo obtener el authToken.')
+    throw new Error(t('errorAuthToken'))
   }
 
   const myHeaders = new Headers()
@@ -45,7 +48,7 @@ export const setAuthToken = async (authToken) => {
 
     return response.data
   } catch (error) {
-    throw new Error(`Error on request: ${error.message}`)
+    throw new Error(t('errorRequest', [error.message]))
   }
 }
 
