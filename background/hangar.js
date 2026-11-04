@@ -178,7 +178,8 @@ const extractDataFromHangarData = async (rsiToken, page, hangarData, pageElement
     const name = removeCodesOfCouponsName($(li).find('input.js-pledge-name').val())
     const urlHangar = `${baseUrlRsi}/en/account/pledges?page=${pageElement ?? calculateElementPosition(page, index)}&pagesize=1`
     let value = $(li).find('input.js-pledge-value').val()?.split(' ')[0]?.substring(1) || 0
-    value = parseFloat(value)
+    // "5,000.00" must not be cut at the comma (parseFloat would give 5)
+    value = parseFloat(removeCommas(String(value))) || 0
     const createDateRaw = $(li).find('div.date-col').text().trim() || null
     const matchCreateDate = createDateRaw.match(/([A-Za-z]+ \d{2}, \d{4})/)
     const createdDate = matchCreateDate ? matchCreateDate[1] : null
