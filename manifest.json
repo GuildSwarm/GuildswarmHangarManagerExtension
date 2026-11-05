@@ -34,7 +34,7 @@
     "content_scripts": [
         {
             "matches": ["https://robertsspaceindustries.com/*/account/pledges*"],
-            "js": ["content/contentScript.js"],
+            "js": ["content/contentScript.js", "content/pledgeFocus.js"],
             "css": ["content/styles.css"]
         },
         {

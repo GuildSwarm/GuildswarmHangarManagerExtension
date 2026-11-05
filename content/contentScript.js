@@ -282,6 +282,7 @@ const downloadHangar = async () => {
     }
   } finally {
     await restoreStoreCurrency(visitorCurrency)
+    await restoreHangarView()
   }
 
   if (shouldStopProcess) return
@@ -354,6 +355,16 @@ const restoreStoreCurrency = async (currency) => {
   }
   if (response.error) {
     addLogError(t('errorRestoreCurrency', [currency, response.message]))
+  }
+}
+
+// La exportación pide páginas con su propio tamaño y filtros de tipo; al acabar se deja la vista normal del hangar
+// para que el usuario no se encuentre RSI paginado o filtrado en su próxima visita (ver background/findPledge.js)
+const restoreHangarView = async () => {
+  try {
+    await sendMessage({ type: 'handleResetHangarView' })
+  } catch (error) {
+    console.warn(error)
   }
 }
 
