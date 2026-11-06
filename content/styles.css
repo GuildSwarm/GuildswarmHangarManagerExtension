@@ -841,3 +841,102 @@
     .gs-done-mark circle,
     .gs-done-mark path { animation: none; stroke-dashoffset: 0; opacity: 1; }
 }
+
+/* ---- Nota del auto sync: una línea discreta bajo los pasos, con un icono de información que explica por qué no se
+        descarga el archivo. Solo se muestra con el auto sync activado; el tooltip va en el cristal de la ventana. ---- */
+.gs-sync-note {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: var(--lg-muted);
+    font-size: 12px;
+    line-height: 16px;
+    position: relative;
+}
+.gs-sync-note.is-visible { display: flex; }
+.gs-info {
+    display: inline-flex;
+    flex: none;
+    color: var(--lg-muted);
+    cursor: help;
+    transition: color .15s ease;
+}
+.gs-info svg { display: block; width: 15px; height: 15px; }
+.gs-info:hover, .gs-info:focus-visible { color: var(--lg-text); outline: 0; }
+.gs-info-tip {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 8px);
+    z-index: 3;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 300px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgb(8 9 13 / 0.92);
+    box-shadow: var(--lg-shadow);
+    color: var(--lg-text);
+    font-size: 12px;
+    line-height: 17px;
+    text-align: left;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .15s ease, transform .15s ease;
+}
+.gs-info:hover .gs-info-tip,
+.gs-info:focus-visible .gs-info-tip { opacity: 1; transform: translateY(0); }
+
+/* El artículo que SC Tools ha pedido abrir (content/pledgeFocus.js): las abejas de GuildSwarm revolotean a su alrededor
+   unos 3 segundos, con un halo violeta muy tenue detrás, y se van */
+.gs-pledge-bees {
+    position: absolute;
+    z-index: 9999;
+    pointer-events: none;
+    animation: gs-pledge-bees-in 0.5s ease-out;
+    transition: opacity 0.5s ease-out;
+}
+
+.gs-pledge-bees.is-leaving { opacity: 0; }
+
+/* El halo: un resplandor suave fuera del artículo, sin borde */
+.gs-pledge-bees::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 14px;
+    box-shadow: 0 0 14px 2px rgb(196 176 255 / 0.35), 0 0 40px 12px rgb(155 110 255 / 0.32), inset 0 0 0 1px rgb(196 176 255 / 0.2);
+}
+
+/* Cada abeja sigue su propio bucle (un ocho, un óvalo o un lazo, ver loopPath en pledgeFocus.js) alrededor de un punto
+   junto al artículo, mirando hacia donde vuela; solo se animan offset-distance y, en las alas, transform */
+.gs-pledge-bee-home { position: absolute; width: 0; height: 0; }
+
+.gs-pledge-bee {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 22px;
+    height: 22px;
+    offset-rotate: auto 90deg;
+    animation: gs-pledge-bee-fly var(--s, 4s) linear var(--d, 0s) infinite;
+}
+
+.gs-pledge-bee.is-back { animation-direction: reverse; offset-rotate: auto -90deg; }
+
+.gs-pledge-bee img {
+    display: block;
+    width: 22px;
+    height: 22px;
+    filter: drop-shadow(0 0 4px rgb(169 139 255 / 0.7));
+    animation: gs-pledge-bee-flutter 0.12s ease-in-out infinite alternate;
+}
+
+@keyframes gs-pledge-bees-in { from { opacity: 0; } }
+@keyframes gs-pledge-bee-fly { to { offset-distance: 100%; } }
+@keyframes gs-pledge-bee-flutter { to { transform: scaleX(0.72); } }
+
+@media (prefers-reduced-motion: reduce) {
+    .gs-pledge-bees { display: none; }
+}

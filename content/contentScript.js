@@ -1,3 +1,5 @@
+import { getAutoSync, saveSnapshot } from '../shared/autoSync.js'
+
 // Textos traducidos desde _locales/<idioma>/messages.json según el idioma del navegador
 const t = (key, substitutions = []) => chrome.i18n.getMessage(key, substitutions.map(String))
 
@@ -53,6 +55,13 @@ if (h2Title !== null) {
                 : ''}
             </li>`).join('')}
           </ol>
+          <p class="gs-sync-note">
+            <span>${t('syncNote')}</span>
+            <span class="gs-info" tabindex="0" role="img" aria-label="${t('syncNoteHelp')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7h.01" /></svg>
+              <span class="gs-info-tip" aria-hidden="true">${t('syncNoteHelp')}</span>
+            </span>
+          </p>
           <section class="gs-log">
             <div class="gs-log-header">
               <p class="gs-log-title">${t('logTitle')} (<span class="gs-log-count">0</span>)</p>
@@ -87,6 +96,7 @@ const gsLogElement = gsModalElement.querySelector('.gs-log')
 const gsLogErrorsList = gsModalElement.querySelector('.gs-log-errors-list')
 const gsLogCount = gsModalElement.querySelector('.gs-log-count')
 const gsDoneElement = gsModalElement.querySelector('.gs-done')
+const gsSyncNote = gsModalElement.querySelector('.gs-sync-note')
 const historyErrorCollection = []
 const hangarElements = []
 const buyBackElements = []
@@ -94,6 +104,8 @@ let shouldStopProcess = false
 let activeStepKey = null
 let activeStepErrorCount = 0
 let isProcessRunning = false
+let finishedCleanly = false
+let autoSyncEnabled = false
 let lastRun = Promise.resolve()
 
 // Un proceso cancelado sale en cuanto vuelve su petición en curso: el siguiente espera a que termine
@@ -120,7 +132,18 @@ closeModalButton?.addEventListener('click', function () {
   if (isProcessRunning) {
     stopProcess()
   }
+  closeModal()
+})
+
+const closeModal = () => {
+  finishedCleanly = false
   gsModalElement.style.display = 'none'
+}
+
+// Terminada sin avisos, la ventana se cierra sola cuando el usuario se va a otra pestaña (normalmente a SC Tools). Si hubo avisos se
+// queda abierta, para que pueda ver el registro y descargarlo.
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'hidden' && finishedCleanly) closeModal()
 })
 
 const downloadHangar = async () => {
@@ -131,6 +154,9 @@ const downloadHangar = async () => {
   let page = 1
   let responseCategories
 
+  // Se lee antes de abrir la ventana para que no cambie de tamaño cuando aparece la nota del auto sync
+  autoSyncEnabled = await readAutoSync()
+  applyAutoSyncUi()
   gsModalElement.style.display = 'flex'
 
   const visitorCurrency = await switchStoreCurrencyToUsd()
@@ -256,15 +282,57 @@ const downloadHangar = async () => {
     }
   } finally {
     await restoreStoreCurrency(visitorCurrency)
+    await restoreHangarView()
   }
 
   if (shouldStopProcess) return
 
   startStep('file')
-  downloadFile(hangarElements, buyBackElements)
+  await deliverFile()
+  if (shouldStopProcess) return
+
   completeStep('file')
   finishProcessSuccess()
 }
+
+// Con auto sync el hangar se guarda en la extensión y no se descarga nada. Si no se puede guardar, se descarga
+// el archivo como siempre para que no se pierda la exportación.
+const deliverFile = async () => {
+  if (autoSyncEnabled && await readAutoSync()) {
+    if (shouldStopProcess) return
+
+    try {
+      await saveSnapshot(buildFile())
+      return
+    } catch (error) {
+      addLogError(t('errorSaveHangar', [error?.message ?? error]))
+    }
+  }
+
+  if (shouldStopProcess) return
+
+  downloadFile()
+}
+
+const readAutoSync = async () => {
+  try {
+    return await getAutoSync()
+  } catch (error) {
+    console.error(error)
+    return false
+  }
+}
+
+const applyAutoSyncUi = () => {
+  gsSyncNote.classList.toggle('is-visible', autoSyncEnabled)
+  getStepElement('file').querySelector('.gs-step-label').textContent = t(autoSyncEnabled ? 'stepFileSync' : 'stepFile')
+}
+
+const buildFile = () => ({
+  version: chrome.runtime.getManifest().version,
+  myHangar: hangarElements,
+  myBuyBack: buyBackElements
+})
 
 // RSI shows pledge values in the visitor's store currency and the parsers expect USD:
 // read everything in USD, then give the visitor their own currency back on every exit path.
@@ -287,6 +355,16 @@ const restoreStoreCurrency = async (currency) => {
   }
   if (response.error) {
     addLogError(t('errorRestoreCurrency', [currency, response.message]))
+  }
+}
+
+// La exportación pide páginas con su propio tamaño y filtros de tipo; al acabar se deja la vista normal del hangar
+// para que el usuario no se encuentre RSI paginado o filtrado en su próxima visita (ver background/findPledge.js)
+const restoreHangarView = async () => {
+  try {
+    await sendMessage({ type: 'handleResetHangarView' })
+  } catch (error) {
+    console.warn(error)
   }
 }
 
@@ -363,16 +441,7 @@ const assignCategoryToElements = (elements, elementsCategory) => {
 }
 
 const downloadFile = () => {
-  const blob = new Blob(
-    [
-      JSON.stringify({
-        version: chrome.runtime.getManifest().version,
-        myHangar: hangarElements,
-        myBuyBack: buyBackElements
-      })
-    ],
-    { type: 'text' }
-  )
+  const blob = new Blob([JSON.stringify(buildFile())], { type: 'text' })
   const url = window.URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
@@ -422,6 +491,7 @@ const addLogError = (error) => {
 // El fichero ya se ha descargado: aparece el círculo que dibuja el anillo y el check
 const finishProcessSuccess = () => {
   isProcessRunning = false
+  finishedCleanly = historyErrorCollection.length === 0
   gsDoneElement.classList.add('is-visible')
   changeCurrentActionMessage(t(historyErrorCollection.length > 0 ? 'statusSuccessWithWarnings' : 'statusSuccess'))
   currentStepElement.textContent = t('statusCompleted')
@@ -441,6 +511,7 @@ const stopProcess = () => {
 }
 
 const resetInterface = () => {
+  finishedCleanly = false
   changeCurrentActionMessage(t('statusExporting'))
   currentStepElement.textContent = t('statusStep', [1, STEPS.length])
   for (const stepElement of gsModalElement.querySelectorAll('.gs-step')) {

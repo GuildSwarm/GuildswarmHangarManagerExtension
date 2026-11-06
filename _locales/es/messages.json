@@ -32,6 +32,24 @@
   "stepFile": {
     "message": "Generando y descargando el fichero"
   },
+  "stepFileSync": {
+    "message": "Guardando tu hangar para SC Tools"
+  },
+  "syncNote": {
+    "message": "Auto Sync activado"
+  },
+  "syncNoteHelp": {
+    "message": "Tu hangar se guarda para SC Tools en lugar de descargarse. Para descargar el archivo, desactiva el Auto Sync en SC Tools."
+  },
+  "errorSaveHangar": {
+    "message": "No se pudo guardar tu hangar para SC Tools, así que se ha descargado el archivo. $p1$",
+    "description": "$1 = detalle del error",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
   "stepDetailPage": {
     "message": "Página $p1$ de $p2$",
     "description": "$1 = página actual, $2 = total de páginas",
