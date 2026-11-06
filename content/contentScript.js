@@ -328,8 +328,11 @@ const applyAutoSyncUi = () => {
   getStepElement('file').querySelector('.gs-step-label').textContent = t(autoSyncEnabled ? 'stepFileSync' : 'stepFile')
 }
 
+// The export's format, read by SC Tools (ACCEPTED_VERSIONS). Not the extension's version: change it only with the format.
+const FILE_FORMAT_VERSION = '1.3'
+
 const buildFile = () => ({
-  version: chrome.runtime.getManifest().version,
+  version: FILE_FORMAT_VERSION,
   myHangar: hangarElements,
   myBuyBack: buyBackElements
 })

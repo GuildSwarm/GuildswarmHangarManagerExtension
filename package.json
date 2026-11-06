@@ -1,14 +1,15 @@
 {
   "name": "guildswarm_extension",
-  "version": "1.3",
+  "version": "2.0.0",
   "description": "Chrome extension for download all hangar data in json format file with one click from web robertsspaceindustries.com",
   "main": "background.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "webpack --mode production --watch",
+    "dev": "webpack --mode production --watch --env dev",
     "build": "webpack --mode production",
-    "build:local": "webpack --mode production --env local",
-    "dev:local": "webpack --mode production --watch --env local"
+    "build:local": "webpack --mode production --env local --env dev",
+    "build:dev": "webpack --mode production --env dev",
+    "dev:local": "webpack --mode production --watch --env local --env dev"
   },
   "keywords": [],
   "author": "guildswarm.org",
@@ -25,7 +26,6 @@
   "dependencies": {
     "cheerio": "^1.2.0",
     "crypto-js": "^4.2.0",
-    "ky": "^1.14.3",
-    "update": "^0.7.4"
+    "ky": "^1.14.3"
   }
 }

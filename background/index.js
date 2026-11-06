@@ -184,30 +184,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   sendResponse({ error: `Tipo de mensaje no soportado: ${message.type}` })
 })
 
-chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
-  if (typeof message.type !== 'string') {
-    console.warn(`Tipo de mensaje inválido: ${message.type}`)
-    sendResponse({ error: `Tipo de mensaje inválido: ${message.type}` })
-    return
-  }
-
-  const handler = handlers[message.type]
-
-  if (handler) {
-    Promise.resolve(handler(message))
-      .then((result) => sendResponse(result))
-      .catch((error) => {
-        console.error(`Error en onMessage ${message.type}:`, error)
-        sendResponse({ error: true, message: error.message })
-      })
-
-    return true
-  }
-
-  console.warn(`Tipo de mensaje no soportado: ${message.type}`, { message, sender })
-  sendResponse({ error: `Tipo de mensaje no soportado: ${message.type}` })
-})
-
 // Chrome solo inyecta los content scripts en las pestañas que se abren después de instalar la extensión. Para que SC Tools
 // la detecte sin recargar, se inyecta el puente en las pestañas de SC Tools que ya estaban abiertas (al instalar y al actualizar).
 const BRIDGE_FILE = 'content/sctoolsBridge.js'
