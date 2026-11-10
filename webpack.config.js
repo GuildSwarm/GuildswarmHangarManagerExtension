@@ -3,9 +3,11 @@ const glob = require('glob')
 const TerserPlugin = require('terser-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 
-// Builds de desarrollo: `npm run build:local` añade el servidor de SC Tools (Vite, :5173) y `npm run build:dev` el entorno
-// de dev. El manifest de la store solo lleva producción.
-const LOCAL_MATCH = 'http://localhost:5173/*'
+// Builds de desarrollo: `npm run build:local` añade SC Tools en local y `npm run build:dev` el entorno de dev. El manifest
+// de la store solo lleva producción.
+// En local vale cualquier puerto (un patrón sin puerto los cubre todos en Chrome): Vite en el 5173 o en el siguiente libre,
+// o la imagen Docker de SC Tools en el 8080 para quien no quiere instalar Node (GMVP-633).
+const LOCAL_MATCHES = ['http://localhost/*', 'http://127.0.0.1/*']
 const DEV_MATCH = 'https://sctools.dev.guildswarm.org/*'
 const withHosts = (content, hosts) => {
   const manifest = JSON.parse(content.toString())
@@ -49,7 +51,7 @@ module.exports = (env = {}) => ({
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: './manifest.json', to: 'manifest.json', transform: (content) => withHosts(content, [...(env.local ? [LOCAL_MATCH] : []), ...(env.dev ? [DEV_MATCH] : [])]) },
+        { from: './manifest.json', to: 'manifest.json', transform: (content) => withHosts(content, [...(env.local ? LOCAL_MATCHES : []), ...(env.dev ? [DEV_MATCH] : [])]) },
         { from: './content/styles.css', to: './content/styles.css' },
         { from: './guildswarm_*.png', to: '[name][ext]' },
         { from: './_locales', to: '_locales' },
