@@ -10,8 +10,9 @@
 //   type 'setAutoSync'  { enabled: boolean } → { autoSync }      (desactivarlo borra el hangar guardado)
 //   type 'getHangar'    → { autoSync, snapshot }                 (snapshot: { exportedAt, file } | null)
 //   type 'findPledge'   { pledge, productType } → { found, reason } (feature 'findPledge', ver abajo)
-//   type 'addToCart'    { items: [{ id, fromShipId, toShipId, toSkuId }] } → { error } | { results: [{ id, ok, reason }] }
-//                       (feature 'addToCart'; mientras trabaja avisa de cada CCU: { event: 'cartItem', request, result })
+//   type 'addToCart'    { items: [{ id, fromShipId, toShipId, toSkuId }], openCart } → { error } | { results: [{ id, ok, reason }], cartOpened }
+//                       (feature 'addToCart'; mientras trabaja avisa de cada CCU: { event: 'cartItem', request, result }; con openCart, si entró
+//                       alguno, al acabar abre la cesta de RSI en una pestaña al lado)
 //
 //   La extensión avisa por su cuenta (sin id): { source, protocol: 1, event: 'hangarUpdated' | 'autoSyncChanged', ... }
 //
@@ -60,7 +61,7 @@ const handlers = {
     if (reply.found === true) return { found: true, reason: null }
     return { found: false, reason: FIND_REASONS.includes(reply.reason) ? reply.reason : 'not-found' }
   },
-  addToCart: ({ id, items }) => {
+  addToCart: ({ id, items, openCart }) => {
     if (!Array.isArray(items) || items.length === 0 || items.length > MAX_CART_ITEMS) throw new Error('invalid')
     // solo los campos que conoce: el background los vuelve a validar uno a uno
     const asked = items.map((item) => ({ id: item?.id, fromShipId: item?.fromShipId, toShipId: item?.toShipId, toSkuId: item?.toSkuId }))
@@ -73,12 +74,12 @@ const handlers = {
         } else if (message?.type === 'done') {
           port.disconnect()
           if (message.error) resolve({ error: CART_ERRORS.includes(message.error) ? message.error : 'failed' })
-          else resolve({ results: Array.isArray(message.results) ? message.results.map(result) : [] })
+          else resolve({ results: Array.isArray(message.results) ? message.results.map(result) : [], cartOpened: message.cartOpened === true })
         }
       })
       // el background se cayó o la extensión se recargó a medias
       port.onDisconnect.addListener(() => reject(new Error('failed')))
-      port.postMessage({ type: 'addToCart', items: asked })
+      port.postMessage({ type: 'addToCart', items: asked, openCart: openCart === true })
     })
   }
 }
