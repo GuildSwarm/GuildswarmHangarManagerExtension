@@ -7,6 +7,8 @@ const CopyPlugin = require('copy-webpack-plugin')
 // de dev. El manifest de la store solo lleva producción.
 const LOCAL_MATCH = 'http://localhost:5173/*'
 const DEV_MATCH = 'https://sctools.dev.guildswarm.org/*'
+// (Producción incluye la beta pública, beta.sctools.guildswarm.org: sirve el build de staging a los testers, y sin ella en el
+// manifest su web no encuentra la extensión y pide instalarla aunque esté.)
 const withHosts = (content, hosts) => {
   const manifest = JSON.parse(content.toString())
   const bridge = manifest.content_scripts.find((script) => script.js.includes('content/sctoolsBridge.js'))
