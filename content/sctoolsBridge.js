@@ -86,6 +86,12 @@ const handlers = {
 const onMessage = async (event) => {
   // Solo mensajes de esta misma ventana: nada de iframes ni de otros orígenes
   if (event.source !== window || event.origin !== window.location.origin) return
+  // Esta copia es de antes de que la extensión se actualizara o se recargara con la pestaña abierta: sigue escuchando, pero ya
+  // no llega al background y contestaría a todo con un error antes que la copia nueva. Se retira sin contestar.
+  if (!chrome.runtime?.id) {
+    stop()
+    return
+  }
 
   const request = event.data
   if (!request || request.source !== FROM_WEB || typeof request.id !== 'string' || typeof request.type !== 'string') return
@@ -114,12 +120,15 @@ const onStorageChanged = (changes, area) => {
   }
 }
 
+function stop () {
+  window.removeEventListener('message', onMessage)
+  try { chrome.storage.onChanged.removeListener(onStorageChanged) } catch (error) { /* la extensión de esta copia ya no existe */ }
+}
+
 // El background inyecta este script en las pestañas de SC Tools que ya estaban abiertas al instalar o actualizar la extensión
-// (ver background/index.js). Si ya había una copia en la página, se quita antes de poner esta: nunca responden dos a la vez.
+// (ver background/index.js). Nunca responden dos a la vez: una copia de esta misma carga ya puesta en la página se quita aquí, y
+// la de una versión anterior (Chrome la deja en otro mundo aislado, donde esto no llega) se retira sola al primer mensaje (onMessage).
 try { globalThis.__guildswarmBridgeStop?.() } catch (error) { /* la copia anterior era de una versión que ya no existe */ }
 window.addEventListener('message', onMessage)
 chrome.storage.onChanged.addListener(onStorageChanged)
-globalThis.__guildswarmBridgeStop = () => {
-  window.removeEventListener('message', onMessage)
-  chrome.storage.onChanged.removeListener(onStorageChanged)
-}
+globalThis.__guildswarmBridgeStop = stop
