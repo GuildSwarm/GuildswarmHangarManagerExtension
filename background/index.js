@@ -3,6 +3,8 @@ import { getNumberOfPagesInBuyBack, getBuyBackPage, getBuyBackElement, getBuyBac
 import { setCurrency, getCurrency } from './currency'
 import { findPledge, isPledgeHash, isProductType, resetHangarView } from './findPledge.js'
 import { baseUrlRsi, globalCurrency, setAuthToken, t } from './shared'
+import { addCcusToCart, parseCartItems } from './cart.js'
+import { CART_PORT } from '../shared/cart.js'
 
 const getCookie = async (cookieName, url) => {
   return new Promise((resolve, reject) => {
@@ -182,6 +184,56 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   console.warn(`Tipo de mensaje no soportado: ${message.type}`, { message, sender })
   sendResponse({ error: `Tipo de mensaje no soportado: ${message.type}` })
+})
+
+// SC Tools pide meter en la cesta de RSI los CCU que le faltan a una escalera (content/sctoolsBridge.js, ver background/cart.js).
+// Solo se acepta el puerto de un script de esta misma extensión en una pestaña (el puente): una página no puede abrirlo.
+// A la página solo vuelve si cada CCU ha entrado o por qué no, y si se le abrió la cesta.
+// Con lo pedido ya en la cesta, se abre la cesta de RSI en una pestaña junto a la de SC Tools; si ya hay una abierta, se trae delante y
+// se recarga para que enseñe lo nuevo (no se amontonan pestañas). La abre la extensión porque la página no puede: Chrome solo deja abrir
+// pestañas en el momento del clic, y añadir tarda unos segundos. La dirección es siempre esta: la página solo pide que se abra.
+const RSI_CART_URL = `${baseUrlRsi}/en/store/pledge/cart`
+
+const openRsiCart = async (fromTab) => {
+  try {
+    const [open] = await chrome.tabs.query({ url: `${baseUrlRsi}/*store/pledge/cart*` })
+    if (open) {
+      await chrome.tabs.update(open.id, { active: true })
+      await chrome.windows.update(open.windowId, { focused: true })
+      await chrome.tabs.reload(open.id)
+    } else {
+      await chrome.tabs.create({ url: RSI_CART_URL, windowId: fromTab.windowId, index: fromTab.index + 1, openerTabId: fromTab.id })
+    }
+    return true
+  } catch (error) {
+    console.warn('No se pudo abrir la cesta de RSI:', error)
+    return false
+  }
+}
+
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name !== CART_PORT || port.sender?.id !== chrome.runtime.id || !port.sender?.tab) return
+  let gone = false
+  port.onDisconnect.addListener(() => { gone = true })
+  const tell = (message) => { if (!gone) port.postMessage(message) }
+
+  port.onMessage.addListener(async (message) => {
+    if (message?.type !== 'addToCart') return
+    const items = parseCartItems(message.items)
+    if (!items) {
+      tell({ type: 'done', error: 'invalid' })
+      return
+    }
+    try {
+      const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
+      const outcome = await addCcusToCart(rsiToken, items, (result) => tell({ type: 'item', result }), () => gone)
+      const cartOpened = message.openCart === true && !gone && !!outcome.results?.some((result) => result.ok) && await openRsiCart(port.sender.tab)
+      tell({ type: 'done', ...outcome, cartOpened })
+    } catch (error) {
+      console.error('Error al añadir CCU a la cesta de RSI:', error)
+      tell({ type: 'done', error: 'failed' })
+    }
+  })
 })
 
 // Chrome solo inyecta los content scripts en las pestañas que se abren después de instalar la extensión. Para que SC Tools

@@ -19,7 +19,8 @@
     ],
     "host_permissions": [
         "https://robertsspaceindustries.com/*",
-        "https://sctools.guildswarm.org/*"
+        "https://sctools.guildswarm.org/*",
+        "https://beta.sctools.guildswarm.org/*"
     ],
     "background": {
         "service_worker": "background/index.js"
@@ -37,7 +38,7 @@
             "css": ["content/styles.css"]
         },
         {
-            "matches": ["https://sctools.guildswarm.org/*"],
+            "matches": ["https://sctools.guildswarm.org/*", "https://beta.sctools.guildswarm.org/*"],
             "js": ["content/sctoolsBridge.js"],
             "run_at": "document_start"
         }

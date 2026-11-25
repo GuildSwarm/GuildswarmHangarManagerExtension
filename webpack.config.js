@@ -9,6 +9,8 @@ const CopyPlugin = require('copy-webpack-plugin')
 // o la imagen Docker de SC Tools en el 8080 para quien no quiere instalar Node (GMVP-633).
 const LOCAL_MATCHES = ['http://localhost/*', 'http://127.0.0.1/*']
 const DEV_MATCH = 'https://sctools.dev.guildswarm.org/*'
+// (Producción incluye la beta pública, beta.sctools.guildswarm.org: sirve el build de staging a los testers, y sin ella en el
+// manifest su web no encuentra la extensión y pide instalarla aunque esté.)
 const withHosts = (content, hosts) => {
   const manifest = JSON.parse(content.toString())
   const bridge = manifest.content_scripts.find((script) => script.js.includes('content/sctoolsBridge.js'))
