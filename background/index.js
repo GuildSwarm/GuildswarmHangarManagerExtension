@@ -5,6 +5,8 @@ import { findPledge, isPledgeHash, isProductType, resetHangarView } from './find
 import { baseUrlRsi, globalCurrency, setAuthToken, t } from './shared'
 import { addCcusToCart, parseCartItems } from './cart.js'
 import { CART_PORT } from '../shared/cart.js'
+import { checkGuide, clearGuide, getGuide, readRequest, startGuide, stepUrl } from './closeChain.js'
+import { guideSummary } from '../shared/chainGuide.js'
 
 const getCookie = async (cookieName, url) => {
   return new Promise((resolve, reject) => {
@@ -147,7 +149,51 @@ const handleResetHangarView = async () => {
   return { reset: true }
 }
 
+// Cerrar una escalera (background/closeChain.js). SC Tools la pide por el puente; si todo sigue en el hangar, se abre RSI en el CCU del primer
+// paso, junto a la pestaña de SC Tools, y a partir de ahí guía el script de RSI (content/chainGuide.js). A SC Tools solo vuelve si empezó o qué falta.
+const handleCloseChain = async (message, sender) => {
+  const request = readRequest(message.chain)
+  if (!request) return { error: 'invalid' }
+  const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
+  if (!rsiToken) return { error: 'signed-out' }
+  try {
+    const outcome = await startGuide(request)
+    if (outcome.error) return { error: outcome.error, missing: outcome.missing, base: outcome.base }
+    const from = sender?.tab
+    await chrome.tabs.create({ url: outcome.url, ...(from ? { windowId: from.windowId, index: from.index + 1, openerTabId: from.id } : {}) })
+    return { started: true, guide: guideSummary(outcome.guide) }
+  } catch (error) {
+    console.error('Error al empezar a cerrar la escalera:', error)
+    return { error: 'failed' }
+  } finally {
+    await resetHangarView().catch((error) => console.warn('No se pudo dejar la vista normal del hangar:', error))
+  }
+}
+
+// El script de RSI pregunta cómo va el paso actual (al cargar la página, al cerrarse la ventana de RSI o al pulsar «Ya lo he aplicado»)
+const handleGuideCheck = async () => {
+  const rsiToken = await getCookie('Rsi-Token', baseUrlRsi)
+  if (!rsiToken) return { error: 'signed-out', guide: await getGuide() }
+  return { guide: await checkGuide(rsiToken) }
+}
+
+// La página del hangar donde está ahora el CCU del paso actual
+const handleGuideLocate = async () => {
+  const guide = await getGuide()
+  if (!guide || guide.state !== 'guiding') return { url: null }
+  try {
+    return { url: await stepUrl(guide.steps[guide.current]) }
+  } finally {
+    await resetHangarView().catch((error) => console.warn('No se pudo dejar la vista normal del hangar:', error))
+  }
+}
+
 const handlers = {
+  handleCloseChain,
+  handleGuideCheck,
+  handleGuideLocate,
+  handleGuideSummary: async () => ({ guide: guideSummary(await getGuide()) }),
+  handleGuideEnd: async () => { await clearGuide(); return { ended: true } },
   handleGetCurrency,
   handleSetCurrency: (message) => handleSetCurrency(message.currency || globalCurrency),
   handleGetNumberOfPagesInHangar,
@@ -172,7 +218,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const handler = handlers[message.type]
 
   if (handler) {
-    Promise.resolve(handler(message))
+    Promise.resolve(handler(message, sender))
       .then((result) => sendResponse(result))
       .catch((error) => {
         console.error(`Error en onMessage ${message.type}:`, error)

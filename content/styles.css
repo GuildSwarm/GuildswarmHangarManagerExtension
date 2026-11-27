@@ -940,3 +940,189 @@
 @media (prefers-reduced-motion: reduce) {
     .gs-pledge-bees { display: none; }
 }
+
+/* =========================================================================
+   Guía para cerrar una escalera (content/chainGuide.js, prototipo 2026-11-27): un panel de cristal fijo abajo a la derecha, con
+   el mismo cristal y la misma lista de pasos que la ventana de exportar; el CCU del paso marcado en la página y el pledge de la
+   escalera marcado en la ventana «Apply Upgrade» de RSI.
+   ========================================================================= */
+.gs-guide {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 2147483000;
+    width: 360px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+    border-radius: 22px;
+    color: var(--lg-text);
+    font: 400 14px/1.45 var(--gs-font-body);
+    text-align: left;
+    background:
+        linear-gradient(135deg, rgb(255 255 255 / 0.064), rgb(255 255 255 / 0.026) 45%, rgb(255 255 255 / 0.044)),
+        rgb(8 9 13 / 0.72);
+    -webkit-backdrop-filter: blur(14px) saturate(125%) brightness(1.03);
+    backdrop-filter: blur(14px) saturate(125%) brightness(1.03);
+    box-shadow: var(--lg-shadow), 0 22px 60px rgb(0 0 0 / 0.5), inset 1px 1px 0 var(--lg-rim), inset -1px -1px 0 rgb(255 255 255 / 0.06);
+    animation: gs-panel-enter .3s cubic-bezier(0.2, 0.9, 0.25, 1) forwards;
+}
+/* Si abajo a la derecha tapa el botón del CCU marcado, se pasa a la izquierda (place en chainGuide.js) */
+.gs-guide.is-left { right: auto; left: 20px; }
+/* RSI pone sus propios márgenes, mayúsculas y fuentes a h2, p, ol y button: dentro del panel no cuentan */
+.gs-guide *, .gs-guide *::before, .gs-guide *::after { box-sizing: border-box; letter-spacing: normal; text-transform: none; }
+.gs-guide p, .gs-guide h2, .gs-guide ol, .gs-guide li { margin: 0; padding: 0; }
+.gs-guide-glass {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px 18px 16px;
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0) 42%);
+}
+.gs-guide-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-right: 48px;
+}
+.gs-guide-logo { width: 28px; height: 28px; filter: drop-shadow(0 0 6px rgb(169 139 255 / 0.6)); }
+.gs-guide-kicker {
+    color: var(--lg-muted);
+    font: 700 11px/1.2 var(--gs-font-heading);
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+}
+.gs-guide-title {
+    color: var(--lg-text);
+    font: 650 19px/1.25 var(--gs-font-heading);
+    letter-spacing: -0.3px !important;
+}
+.gs-guide .gs-guide-x { top: 14px; right: 14px; font: 400 24px/1 var(--gs-font-body); }
+.gs-guide-chain { color: var(--lg-muted); font-size: 13px; }
+
+/* Los pasos: los de la ventana de exportar; el actual con su número en ámbar, sin spinner (espera al usuario, no a la red) */
+.gs-guide-step { color: rgb(255 255 255 / 0.62); }
+.gs-guide-step .gs-step-icon { font-size: 10px; }
+.gs-guide-step[data-state="active-guide"] { color: var(--lg-text); }
+.gs-guide-step[data-state="active-guide"] .gs-step-icon {
+    border-color: var(--lg-accent);
+    color: var(--lg-accent);
+    box-shadow: 0 0 10px rgb(243 180 95 / 0.45);
+}
+.gs-guide-step[data-state="active-guide"] .gs-step-label { font-weight: 650; }
+.gs-guide-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.gs-guide-now {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 16px;
+    background: rgb(255 255 255 / 0.05);
+    box-shadow: inset 0 0 0 1px var(--lg-border);
+}
+.gs-guide-count { color: var(--lg-accent); font: 700 12px/1.2 var(--gs-font-heading); }
+.gs-guide-lead { font-size: 15px; line-height: 1.4; }
+.gs-guide-lead strong, .gs-guide-how strong { color: #fff; font-weight: 650; }
+.gs-guide .gs-guide-how { display: flex; flex-direction: column; gap: 6px; padding-left: 20px; list-style: decimal; color: rgb(255 255 255 / 0.85); }
+.gs-guide-how li::marker { color: var(--lg-accent); font-weight: 700; }
+.gs-guide-note { color: var(--lg-muted); font-size: 13px; }
+.gs-guide .gs-guide-warning {
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgb(255 180 90 / 0.14);
+    box-shadow: inset 0 0 0 1px rgb(255 196 138 / 0.4);
+    color: #ffd7a8;
+    font-size: 13px;
+}
+.gs-guide-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.gs-guide-button {
+    min-height: 40px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--lg-border);
+    background: rgb(255 255 255 / 0.08);
+    color: var(--lg-text);
+    font: 600 14px/1.2 var(--gs-font-body);
+    cursor: pointer;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+.gs-guide-button:hover { border-color: rgb(255 255 255 / 0.3); }
+.gs-guide-button.is-primary {
+    border-color: rgb(157 123 255 / 0.65);
+    background: linear-gradient(135deg, rgb(140 95 240 / 0.55), rgb(95 60 180 / 0.38));
+    box-shadow: 0 0 20px rgb(140 100 240 / 0.3);
+}
+.gs-guide-button.is-primary:hover { border-color: rgb(179 150 255 / 0.95); box-shadow: 0 0 28px rgb(150 110 250 / 0.5); }
+.gs-guide-button:focus-visible, .gs-guide .gs-guide-x:focus-visible { outline: 2px solid #c3b0ff; outline-offset: 2px; }
+.gs-guide-button[disabled] { opacity: 0.75; cursor: progress; }
+
+/* El CCU del paso, en la lista del hangar: halo morado, su número de paso y el botón «Apply Upgrade» latiendo en ámbar */
+.gs-guide-target {
+    position: relative;
+    outline: 2px solid rgb(196 176 255 / 0.8);
+    outline-offset: 4px;
+    box-shadow: 0 0 0 6px rgb(155 110 255 / 0.12), 0 0 40px 8px rgb(155 110 255 / 0.3);
+}
+.gs-guide-tag {
+    position: absolute;
+    top: -13px;
+    left: 14px;
+    z-index: 5;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #7c55e6;
+    color: #fff;
+    font: 700 12px/1.3 var(--gs-font-heading);
+    box-shadow: 0 0 14px rgb(155 110 255 / 0.6);
+    pointer-events: none;
+}
+.gs-guide-apply {
+    outline: 2px solid var(--lg-accent) !important;
+    outline-offset: 3px;
+    animation: gs-guide-pulse 1.6s ease-in-out infinite;
+}
+@keyframes gs-guide-pulse { 50% { box-shadow: 0 0 0 7px rgb(243 180 95 / 0.35); } }
+
+/* En la ventana «Apply Upgrade» de RSI: el pledge de la escalera en verde con su etiqueta, y el aviso si la ventana es de otro CCU */
+.gs-guide-pick {
+    outline: 2px solid #5fe08f;
+    outline-offset: 2px;
+    background: rgb(74 222 128 / 0.12) !important;
+}
+.gs-guide-pick-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: rgb(74 222 128 / 0.22);
+    color: #9ff5bf;
+    font: 700 12px/1.3 var(--gs-font-heading);
+    vertical-align: middle;
+}
+.gs-guide-dialog-note {
+    margin: 0 0 12px !important;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgb(255 180 90 / 0.16);
+    border: 1px solid rgb(255 196 138 / 0.5);
+    color: #ffd7a8;
+    font: 500 14px/1.4 var(--gs-font-body);
+    text-transform: none;
+}
+
+@media (max-width: 520px) {
+    .gs-guide, .gs-guide.is-left { left: 12px; right: 12px; bottom: 12px; width: auto; max-width: none; max-height: 70vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .gs-guide { animation: none; }
+    .gs-guide-apply { animation: none; }
+}

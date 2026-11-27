@@ -259,5 +259,169 @@
         "content": "$1"
       }
     }
+  },
+  "guideTitle": {
+    "message": "Close chain"
+  },
+  "guideTitleClosed": {
+    "message": "Chain closed"
+  },
+  "guideExit": {
+    "message": "Leave the guide"
+  },
+  "guideChain": {
+    "message": "From $p1$ to $p2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "guideStepsLabel": {
+    "message": "Chain steps"
+  },
+  "guideStepDone": {
+    "message": "(applied)"
+  },
+  "guideStepNow": {
+    "message": "(current step)"
+  },
+  "guideStepPending": {
+    "message": "(to do)"
+  },
+  "guideTag": {
+    "message": "Step $p1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "guideCount": {
+    "message": "Step $p1$ of $p2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "guideApply": {
+    "message": "Apply the CCU"
+  },
+  "guideHowPress": {
+    "message": "On the CCU the bees circle, press “Apply Upgrade”."
+  },
+  "guideHowPick": {
+    "message": "In RSI’s window, choose"
+  },
+  "guideHowPickNote": {
+    "message": "We mark it for you."
+  },
+  "guideHowConfirm": {
+    "message": "Confirm with your RSI password."
+  },
+  "guideApplied": {
+    "message": "I’ve applied it"
+  },
+  "guideChecking": {
+    "message": "Checking…"
+  },
+  "guideShowCcu": {
+    "message": "Show the CCU"
+  },
+  "guideWrongCcu": {
+    "message": "That window is for another CCU. Close it and press “Apply Upgrade” on step $p1$’s.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "guideWrongCcuDialog": {
+    "message": "GuildSwarm: this isn’t the CCU of step $p1$ ($p2$). Close this window and press “Apply Upgrade” on the CCU the bees circle.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "guideBaseMissingDialog": {
+    "message": "GuildSwarm: your pledge “$p1$” isn’t in this list, so RSI won’t let you apply this CCU to it yet. Close the window and check the panel.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "guideBaseNotReady": {
+    "message": "Your pledge “$p1$” doesn’t hold the $p2$ yet, so RSI won’t let you apply this CCU to it. Did you apply the previous step to another pledge?",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "guideCcuNotFound": {
+    "message": "We can’t find step $p1$’s CCU in your hangar. You may have melted or gifted it. Leave the guide and export your hangar again.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "guideExitQuestion": {
+    "message": "Leave the guide?"
+  },
+  "guideExitNote": {
+    "message": "The CCUs you already applied stay applied."
+  },
+  "guideExitConfirm": {
+    "message": "Leave"
+  },
+  "guideExitCancel": {
+    "message": "Keep going"
+  },
+  "guideClosedLead": {
+    "message": "Your pledge “$p1$” now holds the $p2$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "guideFinalUnconfirmed": {
+    "message": "We couldn’t confirm the $p1$ is in that pledge. Check it in your hangar.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "guideClosedNote": {
+    "message": "Export your hangar to see it this way in SC Tools."
+  },
+  "guideExport": {
+    "message": "Export my hangar"
+  },
+  "guideFinish": {
+    "message": "Done"
+  },
+  "guidePickBadge": {
+    "message": "Your chain"
   }
 }

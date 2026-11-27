@@ -259,5 +259,169 @@
         "content": "$1"
       }
     }
+  },
+  "guideTitle": {
+    "message": "Cerrar escalera"
+  },
+  "guideTitleClosed": {
+    "message": "Escalera cerrada"
+  },
+  "guideExit": {
+    "message": "Salir de la guía"
+  },
+  "guideChain": {
+    "message": "De $p1$ a $p2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "guideStepsLabel": {
+    "message": "Pasos de la escalera"
+  },
+  "guideStepDone": {
+    "message": "(aplicado)"
+  },
+  "guideStepNow": {
+    "message": "(paso actual)"
+  },
+  "guideStepPending": {
+    "message": "(pendiente)"
+  },
+  "guideTag": {
+    "message": "Paso $p1$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "guideCount": {
+    "message": "Paso $p1$ de $p2$",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "guideApply": {
+    "message": "Aplica el CCU"
+  },
+  "guideHowPress": {
+    "message": "En el CCU que rodean las abejas, pulsa «Apply Upgrade»."
+  },
+  "guideHowPick": {
+    "message": "En la ventana de RSI, elige"
+  },
+  "guideHowPickNote": {
+    "message": "Te lo marcamos."
+  },
+  "guideHowConfirm": {
+    "message": "Confirma con tu contraseña de RSI."
+  },
+  "guideApplied": {
+    "message": "Ya lo he aplicado"
+  },
+  "guideChecking": {
+    "message": "Comprobando…"
+  },
+  "guideShowCcu": {
+    "message": "Ver el CCU"
+  },
+  "guideWrongCcu": {
+    "message": "Esa ventana es de otro CCU. Ciérrala y pulsa «Apply Upgrade» en el del paso $p1$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "guideWrongCcuDialog": {
+    "message": "GuildSwarm: este no es el CCU del paso $p1$ ($p2$). Cierra esta ventana y pulsa «Apply Upgrade» en el CCU que rodean las abejas.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "guideBaseMissingDialog": {
+    "message": "GuildSwarm: tu pledge «$p1$» no está en esta lista, así que RSI aún no deja aplicarle este CCU. Cierra la ventana y mira el panel.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "guideBaseNotReady": {
+    "message": "Tu pledge «$p1$» aún no lleva la $p2$, así que RSI no deja aplicarle este CCU. ¿Aplicaste el paso anterior a otro pledge?",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "guideCcuNotFound": {
+    "message": "No encontramos el CCU del paso $p1$ en tu hangar. Puede que lo hayas fundido o regalado. Sal de la guía y vuelve a exportar tu hangar.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "guideExitQuestion": {
+    "message": "¿Salir de la guía?"
+  },
+  "guideExitNote": {
+    "message": "Los CCU que ya aplicaste se quedan aplicados."
+  },
+  "guideExitConfirm": {
+    "message": "Salir"
+  },
+  "guideExitCancel": {
+    "message": "Seguir con la guía"
+  },
+  "guideClosedLead": {
+    "message": "Tu pledge «$p1$» ya lleva la $p2$.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      },
+      "p2": {
+        "content": "$2"
+      }
+    }
+  },
+  "guideFinalUnconfirmed": {
+    "message": "No hemos podido confirmar que la $p1$ esté en ese pledge. Revísalo en tu hangar.",
+    "placeholders": {
+      "p1": {
+        "content": "$1"
+      }
+    }
+  },
+  "guideClosedNote": {
+    "message": "Exporta tu hangar para verlo así en SC Tools."
+  },
+  "guideExport": {
+    "message": "Exportar mi hangar"
+  },
+  "guideFinish": {
+    "message": "Terminar"
+  },
+  "guidePickBadge": {
+    "message": "Tu escalera"
   }
 }

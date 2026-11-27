@@ -14,7 +14,13 @@
 //                       (feature 'addToCart'; mientras trabaja avisa de cada CCU: { event: 'cartItem', request, result }; con openCart, si entró
 //                       alguno, al acabar abre la cesta de RSI en una pestaña al lado)
 //
-//   La extensión avisa por su cuenta (sin id): { source, protocol: 1, event: 'hangarUpdated' | 'autoSyncChanged', ... }
+//   type 'closeChain'   { chain: { name, base: { pledge, productType }, steps: [{ ccu, from, to }] } } → { started, guide } | { error, missing, base }
+//                       (feature 'closeChain', prototipo: comprueba que todo sigue en el hangar y abre RSI en el CCU del primer paso, donde guía
+//                       content/chainGuide.js; el usuario aplica cada CCU en RSI con su contraseña, la extensión nunca aplica nada)
+//   type 'chainGuide'   → { guide }                               (cómo va la guía: ver guideSummary en shared/chainGuide.js)
+//   type 'endChainGuide' → { ended }                              (salir de la guía; lo ya aplicado se queda aplicado)
+//
+//   La extensión avisa por su cuenta (sin id): { source, protocol: 1, event: 'hangarUpdated' | 'autoSyncChanged' | 'chainGuide', ... }
 //
 // Si la extensión no está instalada nadie contesta: la web lo toma como "no instalada" tras su tiempo de espera.
 // Dos operaciones llegan al background y usan la sesión de RSI del usuario. 'findPledge' solo devuelve si
@@ -26,11 +32,13 @@
 // reason de cada CCU: 'unavailable' (RSI no lo vende ahora) · 'failed'.
 import { STORAGE_KEYS, getAutoSync, setAutoSync, getSnapshot } from '../shared/autoSync.js'
 import { CART_PORT, MAX_CART_ITEMS } from '../shared/cart.js'
+import { GUIDE_KEY, guideSummary } from '../shared/chainGuide.js'
 
 const FROM_WEB = 'guildswarm-sctools'
 const FROM_EXTENSION = 'guildswarm-hangar-extension'
 const PROTOCOL = 1
-const FEATURES = ['findPledge', 'addToCart']
+const FEATURES = ['findPledge', 'addToCart', 'closeChain']
+const CLOSE_ERRORS = ['signed-out', 'missing', 'invalid']
 const CART_ERRORS = ['signed-out', 'store', 'invalid']
 const CART_REASONS = ['unavailable', 'failed']
 const PLEDGE_HASH = /^[0-9a-f]{64}$/
@@ -60,6 +68,23 @@ const handlers = {
     if (!reply || reply.error) throw new Error('failed')
     if (reply.found === true) return { found: true, reason: null }
     return { found: false, reason: FIND_REASONS.includes(reply.reason) ? reply.reason : 'not-found' }
+  },
+  closeChain: async ({ chain }) => {
+    const reply = await chrome.runtime.sendMessage({ type: 'handleCloseChain', chain })
+    if (!reply || reply.error === true) throw new Error('failed')
+    if (reply.started === true) return { started: true, guide: reply.guide ?? null }
+    const error = CLOSE_ERRORS.includes(reply.error) ? reply.error : 'failed'
+    return error === 'missing'
+      ? { error, missing: Array.isArray(reply.missing) ? reply.missing.filter(Number.isInteger) : [], base: reply.base === true }
+      : { error }
+  },
+  chainGuide: async () => {
+    const reply = await chrome.runtime.sendMessage({ type: 'handleGuideSummary' })
+    return { guide: reply?.guide ?? null }
+  },
+  endChainGuide: async () => {
+    await chrome.runtime.sendMessage({ type: 'handleGuideEnd' })
+    return { ended: true }
   },
   addToCart: ({ id, items, openCart }) => {
     if (!Array.isArray(items) || items.length === 0 || items.length > MAX_CART_ITEMS) throw new Error('invalid')
@@ -118,6 +143,9 @@ const onStorageChanged = (changes, area) => {
   }
   if (STORAGE_KEYS.autoSync in changes) {
     post({ event: 'autoSyncChanged', autoSync: changes[STORAGE_KEYS.autoSync].newValue === true })
+  }
+  if (GUIDE_KEY in changes) {
+    post({ event: 'chainGuide', guide: guideSummary(changes[GUIDE_KEY].newValue ?? null) })
   }
 }
 
