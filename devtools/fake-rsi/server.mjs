@@ -3,16 +3,16 @@
 // «Apply Upgrade» hecha a mano con lo que se sabe de la de RSI: chooseUpgradeTarget devuelve filas con un botón de opción por pledge (su valor
 // es el pledge id, su nombre con "(#id)") y applyUpgrade pide la contraseña. Al aplicar, el CCU desaparece y el pledge pasa a la nave de destino.
 //
-//   node devtools/fake-rsi/server.mjs [puerto]     (5320 por defecto; GET /__reset vuelve al hangar inicial, GET /__state lo enseña)
+//   node devtools/fake-rsi/server.mjs [puerto] [--ships catalogue.json]   (5320 por defecto; GET /__reset vuelve al hangar inicial, GET /__state lo enseña)
 //
 // Con `pnpm build:fakersi` la extensión toma http://localhost:5320 como RSI.
 import { createServer } from 'node:http'
 import { createHash } from 'node:crypto'
-import { writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
-const PORT = Number(process.argv[2] ?? 5320)
+const PORT = Number(/^\d+$/.test(process.argv[2] ?? '') ? process.argv[2] : 5320)
 // El hangar como lo exportaría la extensión, para meterlo en su Auto Sync al probar: fuera del repo, para que nunca se suba
 const EXPORT_FILE = path.join(tmpdir(), 'guildswarm-fake-rsi-hangar.json')
 
@@ -127,6 +127,35 @@ const page = (url) => {
 </body></html>`
 }
 
+// La herramienta de CCU y la cesta (background/upgrades.js y background/cart.js). Con `--ships <catalogue.json>` (el seed de SC Tools,
+// seed/sctools/catalogue.json) vende CCU a todas sus naves con oferta; sin él, a unas pocas. RSI no vende todos los pares: aquí la Freelancer MAX
+// no tiene CCU desde ninguna nave, la Corsair no se vende desde la Cutlass Black y ningún Warbond sigue a la venta.
+const FEW_SHIPS = [
+  { id: 102, price: 60, skus: [{ id: 16029, warbond: false }] },
+  { id: 56, price: 110, skus: [{ id: 15976, warbond: false }] },
+  { id: 234, price: 125, skus: [{ id: 16431, warbond: false }] },
+  { id: 57, price: 135, skus: [{ id: 15978, warbond: false }] },
+  { id: 32, price: 150, skus: [{ id: 13007, warbond: false }] },
+  { id: 178, price: 250, skus: [{ id: 15599, warbond: false }] }
+]
+const shipsArg = process.argv.indexOf('--ships')
+const UPGRADE_SHIPS = shipsArg > 0
+  ? JSON.parse(readFileSync(process.argv[shipsArg + 1], 'utf8')).ships
+    .filter((ship) => /^\d+$/.test(String(ship.id)) && Number.isFinite(ship.price))
+    .map((ship) => ({ id: Number(ship.id), price: ship.price, skus: (ship.offers ?? []).filter((o) => /^\d+$/.test(String(o.id))).map((o) => ({ id: Number(o.id), warbond: !!o.warbond })) }))
+  : FEW_SHIPS
+const NOT_SOLD = [{ to: 13007 }, { from: 56, to: 15599 }]
+const sold = (fromId, sku) => !sku.warbond && !NOT_SOLD.some((rule) => rule.to === sku.id && (rule.from == null || rule.from === fromId))
+// Desde una nave: las más caras con algún CCU a la venta, cada una con los SKU que se venden
+const reachable = (fromId) => {
+  const from = UPGRADE_SHIPS.find((ship) => ship.id === fromId)
+  if (!from) return []
+  return UPGRADE_SHIPS
+    .filter((ship) => ship.price > from.price)
+    .map((ship) => ({ id: ship.id, skus: ship.skus.filter((sku) => sold(fromId, sku)).map((sku) => sku.id) }))
+    .filter((ship) => ship.skus.length)
+}
+
 const json = (res, body) => { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }); res.end(JSON.stringify(body)) }
 const readBody = (req) => new Promise((resolve) => { let data = ''; req.on('data', (c) => { data += c }); req.on('end', () => { try { resolve(JSON.parse(data || '{}')) } catch { resolve({}) } }) })
 const shipOf = (p) => p.ship
@@ -138,6 +167,27 @@ const server = createServer(async (req, res) => {
   if (req.method === 'GET' && /^\/[a-z]{2}\/account\/pledges$/.test(url.pathname)) {
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'set-cookie': 'Rsi-Token=fake-local-token; Path=/' })
     res.end(page(url))
+    return
+  }
+  if (req.method === 'POST' && url.pathname === '/api/spectrum/auth/identify') { json(res, { success: 1, data: { member: { nickname: 'local-tester' } } }); return }
+  if (req.method === 'GET' && url.pathname === '/en/store/pledge/cart') {
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' })
+    res.end('<!doctype html><html><head><meta name="csrf-token" content="fake-csrf"><title>Fake RSI cart</title></head><body><h1>Cart (local test)</h1></body></html>')
+    return
+  }
+  if (req.method === 'POST' && url.pathname === '/api/ship-upgrades/setContextToken') { json(res, { success: 1 }); return }
+  if (req.method === 'POST' && url.pathname === '/api/store/v2/cart/token') { json(res, { success: 1 }); return }
+  if (req.method === 'POST' && url.pathname === '/pledge-store/api/upgrade/v2/graphql') {
+    const [operation] = [].concat(await readBody(req))
+    const vars = operation?.variables ?? {}
+    if (operation?.operationName === 'filterShips') {
+      json(res, [{ data: { to: { ships: reachable(Number(vars.fromId)).map((ship) => ({ id: ship.id, skus: ship.skus.map((id) => ({ id })) })) } } }])
+    } else if (operation?.operationName === 'addToCart') {
+      const ok = reachable(Number(vars.from)).some((ship) => ship.skus.includes(Number(vars.to)))
+      json(res, [ok ? { data: { addToCart: { jwt: 'fake-jwt' } } } : { errors: [{ message: `Upgrade not available. Upgrade from ship ${vars.from} to ship sku ${vars.to} is not available.` }] }])
+    } else {
+      json(res, [{ errors: [{ message: 'Unknown operation' }] }])
+    }
     return
   }
   if (req.method === 'POST' && url.pathname === '/api/account/chooseUpgradeTarget') {
