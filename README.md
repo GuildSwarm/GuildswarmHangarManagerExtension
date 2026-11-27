@@ -35,3 +35,11 @@ TOTALLY FREE
 NO LOGIN
 
 Developed by GuildSwarm
+
+## Development
+
+- `npm run build` builds the Chrome Web Store version (production SC Tools only).
+- `npm run build:dev` adds `sctools.dev.guildswarm.org`.
+- `npm run build:local` adds SC Tools running on your machine, on any port of `localhost` or `127.0.0.1`: Vite (`pnpm dev`, 5173 or the next free port) or the SC Tools Docker image (`docker build -t sctools . && docker run -p 8080:8080 sctools` in GSWF.ScTools, no Node needed).
+
+Load the `dist` folder in `chrome://extensions` with "Load unpacked".
