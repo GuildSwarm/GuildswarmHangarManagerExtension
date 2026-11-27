@@ -40,7 +40,7 @@ export const csrfFrom = (html) => {
   return tag?.match(/\bcontent=["']([^"']+)["']/i)?.[1] ?? null
 }
 
-const send = (path, body, rsiToken, csrf) => fetch(baseUrlRsi + path, {
+export const send = (path, body, rsiToken, csrf) => fetch(baseUrlRsi + path, {
   method: 'POST',
   credentials: 'include',
   headers: {
@@ -71,7 +71,7 @@ export const signedIn = async (rsiToken) => {
   return !!first(await json(response))?.data?.member?.nickname
 }
 
-const readCsrf = async (rsiToken) => {
+export const readCsrf = async (rsiToken) => {
   const response = await fetch(`${baseUrlRsi}/en/store/pledge/cart`, {
     credentials: 'include',
     cache: 'no-store',

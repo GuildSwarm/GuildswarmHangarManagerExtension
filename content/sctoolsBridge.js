@@ -17,6 +17,9 @@
 //   type 'closeChain'   { chain: { name, base: { pledge, productType }, steps: [{ ccu, from, to }] } } → { started, guide } | { error, missing, base }
 //                       (feature 'closeChain', prototipo: comprueba que todo sigue en el hangar y abre RSI en el CCU del primer paso, donde guía
 //                       content/chainGuide.js; el usuario aplica cada CCU en RSI con su contraseña, la extensión nunca aplica nada)
+//   type 'checkUpgrades' { ships: [fromShipId] } → { ships: [{ id, to: [{ id, skus }] }], checkedAt } | { error }
+//                       (feature 'checkUpgrades': desde cada nave, las naves a las que RSI vende ahora un CCU y sus SKU, con la sesión del usuario;
+//                       to null si RSI no contestó para esa nave. error: 'signed-out' · 'store' · 'invalid' · 'failed')
 //   type 'chainGuide'   → { guide }                               (cómo va la guía: ver guideSummary en shared/chainGuide.js)
 //   type 'endChainGuide' → { ended }                              (salir de la guía; lo ya aplicado se queda aplicado)
 //
@@ -37,7 +40,9 @@ import { GUIDE_KEY, guideSummary } from '../shared/chainGuide.js'
 const FROM_WEB = 'guildswarm-sctools'
 const FROM_EXTENSION = 'guildswarm-hangar-extension'
 const PROTOCOL = 1
-const FEATURES = ['findPledge', 'addToCart', 'closeChain']
+const FEATURES = ['findPledge', 'addToCart', 'closeChain', 'checkUpgrades']
+const CHECK_ERRORS = ['signed-out', 'store', 'invalid']
+const RSI_ID = /^\d{1,12}$/
 const CLOSE_ERRORS = ['signed-out', 'missing', 'invalid']
 const CART_ERRORS = ['signed-out', 'store', 'invalid']
 const CART_REASONS = ['unavailable', 'failed']
@@ -77,6 +82,15 @@ const handlers = {
     return error === 'missing'
       ? { error, missing: Array.isArray(reply.missing) ? reply.missing.filter(Number.isInteger) : [], base: reply.base === true }
       : { error }
+  },
+  checkUpgrades: async ({ ships }) => {
+    const reply = await chrome.runtime.sendMessage({ type: 'handleCheckUpgrades', ships })
+    if (!reply || reply.error === true) throw new Error('failed')
+    if (typeof reply.error === 'string') return { error: CHECK_ERRORS.includes(reply.error) ? reply.error : 'failed' }
+    const ids = (list) => (Array.isArray(list) ? list.map(String).filter((id) => RSI_ID.test(id)) : [])
+    const target = (ship) => ({ id: String(ship?.id ?? ''), skus: ids(ship?.skus) })
+    const clean = (ship) => ({ id: String(ship?.id ?? ''), to: Array.isArray(ship?.to) ? ship.to.map(target).filter((t) => RSI_ID.test(t.id)) : null })
+    return { ships: Array.isArray(reply.ships) ? reply.ships.map(clean).filter((ship) => RSI_ID.test(ship.id)) : [], checkedAt: String(reply.checkedAt ?? '') }
   },
   chainGuide: async () => {
     const reply = await chrome.runtime.sendMessage({ type: 'handleGuideSummary' })

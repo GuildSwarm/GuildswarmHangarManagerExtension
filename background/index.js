@@ -7,6 +7,7 @@ import { addCcusToCart, parseCartItems } from './cart.js'
 import { CART_PORT } from '../shared/cart.js'
 import { checkGuide, clearGuide, getGuide, readRequest, startGuide, stepUrl } from './closeChain.js'
 import { guideSummary } from '../shared/chainGuide.js'
+import { checkUpgrades, parseShipIds } from './upgrades.js'
 
 const getCookie = async (cookieName, url) => {
   return new Promise((resolve, reject) => {
@@ -188,7 +189,20 @@ const handleGuideLocate = async () => {
   }
 }
 
+// SC Tools pregunta qué CCU vende RSI ahora desde las naves de una escalera (background/upgrades.js), para marcar en rojo los que no
+const handleCheckUpgrades = async (message) => {
+  const shipIds = parseShipIds(message.ships)
+  if (!shipIds) return { error: 'invalid' }
+  try {
+    return await checkUpgrades(await getCookie('Rsi-Token', baseUrlRsi), shipIds)
+  } catch (error) {
+    console.error('Error al preguntar a RSI por los CCU:', error)
+    return { error: 'failed' }
+  }
+}
+
 const handlers = {
+  handleCheckUpgrades,
   handleCloseChain,
   handleGuideCheck,
   handleGuideLocate,
