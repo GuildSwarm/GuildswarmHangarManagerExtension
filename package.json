@@ -9,7 +9,8 @@
     "build": "webpack --mode production",
     "build:local": "webpack --mode production --env local --env dev",
     "build:dev": "webpack --mode production --env dev",
-    "dev:local": "webpack --mode production --watch --env local --env dev"
+    "dev:local": "webpack --mode production --watch --env local --env dev",
+    "build:fakersi": "webpack --mode production --env local --env dev --env fakeRsi=http://localhost:5320"
   },
   "keywords": [],
   "author": "guildswarm.org",

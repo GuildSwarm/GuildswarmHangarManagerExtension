@@ -2,6 +2,7 @@ const path = require('path')
 const glob = require('glob')
 const TerserPlugin = require('terser-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
+const { DefinePlugin } = require('webpack')
 
 // Builds de desarrollo: `npm run build:local` añade SC Tools en local y `npm run build:dev` el entorno de dev. El manifest
 // de la store solo lleva producción.
@@ -16,6 +17,17 @@ const withHosts = (content, hosts) => {
   const bridge = manifest.content_scripts.find((script) => script.js.includes('content/sctoolsBridge.js'))
   bridge.matches.push(...hosts)
   manifest.host_permissions.push(...hosts)
+  return JSON.stringify(manifest, null, 4)
+}
+
+// Solo para probar en local (prototipo de cerrar escalera, 2026-11-27): `--env fakeRsi=http://localhost:5320` toma el hangar falso de
+// devtools/fake-rsi como RSI. Nunca en la build de la store.
+const withFakeRsi = (content, fakeRsi) => {
+  if (!fakeRsi) return content
+  const manifest = JSON.parse(content.toString())
+  manifest.content_scripts[0].matches.push(`${fakeRsi}/*/account/pledges*`)
+  manifest.web_accessible_resources[0].matches.push(`${fakeRsi}/*`)
+  manifest.host_permissions.push(`${fakeRsi}/*`)
   return JSON.stringify(manifest, null, 4)
 }
 
@@ -51,9 +63,10 @@ module.exports = (env = {}) => ({
     ]
   },
   plugins: [
+    new DefinePlugin({ 'process.env.RSI_BASE': JSON.stringify(env.fakeRsi || '') }),
     new CopyPlugin({
       patterns: [
-        { from: './manifest.json', to: 'manifest.json', transform: (content) => withHosts(content, [...(env.local ? LOCAL_MATCHES : []), ...(env.dev ? [DEV_MATCH] : [])]) },
+        { from: './manifest.json', to: 'manifest.json', transform: (content) => withFakeRsi(withHosts(content, [...(env.local ? LOCAL_MATCHES : []), ...(env.dev ? [DEV_MATCH] : [])]), env.fakeRsi) },
         { from: './content/styles.css', to: './content/styles.css' },
         { from: './guildswarm_*.png', to: '[name][ext]' },
         { from: './_locales', to: '_locales' },
